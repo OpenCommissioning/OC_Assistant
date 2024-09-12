@@ -8,14 +8,14 @@ The goal of this application is to keep it as simple as possible with a clean de
 It is currently optimized for a connection to the TwinCAT3 Shell ``TcXaeShell.DTE.15.0``
 
 
-### Target frameworks
+## Target frameworks
 
 - ``.NET 8.0`` ``.NETFramework 4.8.1`` and ``.NETStandard 2.1`` for the Sdk to ensure maximum flexibility across various plugins
 - ``.NET 8.0`` for everything else
 
 The application can be published 'self-contained' to ensure all dependencies are already included.
 
-### Used packages:
+## Used packages:
 - ``envdte``, see [nuget package](https://www.nuget.org/packages/envdte)
 - ``Beckhoff.TwinCAT.Ads``, see [nuget package](https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads)
 - ``TCatSysManagerLib``, see [nuget package](https://www.nuget.org/packages/TCatSysManagerLib)
@@ -186,3 +186,49 @@ This is an example configuration file containing a Plugin configuration and _Dev
   </Project>
 </Config>
 ```
+
+# Contributing
+
+We welcome contributions from everyone and appreciate your effort to improve this project.
+We have some basic rules and guidelines that make the contributing process easier for everyone involved.
+
+## Submitting Pull Requests
+
+1. For non-trivial changes, please open an issue first to discuss your proposed changes.
+2. Fork the repo and create your feature branch.
+3. Follow the code style conventions and guidelines throughout working on your contribution.
+4. Create a pull request with a clear title and description.
+
+After your pull request is reviewed and merged.
+
+**Note**: All contributions will be licensed under the project's license.
+
+## Code Style Convention
+
+Please follow these naming conventions in your code:
+
+| Type           | Rule             |
+|----------------|------------------|
+| Private field  | _lowerCamelCase  |
+| Public field   | UpperCamelCase   |
+| Protected field | UpperCamelCase   |
+| Internal field | UpperCamelCase   |
+| Property       | UpperCamelCase   |
+| Method         | UpperCamelCase   |
+| Class          | UpperCamelCase   |
+| Interface      | IUpperCamelCase  |
+| Local variable | lowerCamelCase   |
+| Parameter      | lowerCamelCase   |
+| Constant       | UPPER_SNAKE_CASE |
+
+## Guidelines for Contributions
+
+- **Keep changes focused:** Submit one pull request per bug fix or feature. This makes it easier to review and merge your contributions.
+- **Discuss major changes:** For large or complex changes, please open an issue to discuss with maintainers before starting work.
+- **Commit message format**: Use the [semantic-release](https://semantic-release.gitbook.io/semantic-release#commit-message-format) commit message format.
+- **Write clear code:** Prioritize readability and maintainability.
+- **Be consistent:** Follow existing coding styles and patterns in the project.
+- **Include tests:** It is recommended to add or update tests to cover your changes.
+- **Document your work:** Update relevant documentation, including code comments and user guides.
+
+We appreciate your contributions and look forward to collaborating with you to improve this project!
