@@ -99,8 +99,8 @@ The scan will create Profinet nodes in the connected TwinCAT solution for each d
 Plugins enable the Assistant to connect to external systems such as PLCs, robot controllers, and other control data sources, making this data available to the TwinCAT solution via Global Variable Lists (_GVLs_). 
 **Note**: at the moment there are no plugins released yet.
 
-![PluginOverview.png](images%2FPluginOverview.png)
-
+![OS_System](./images/Assistant_Plugins_dark.png#gh-dark-mode-only)
+![OS_System](./images/Assistant_Plugins_light.png#gh-light-mode-only)
 
 There are plugins for:
   - Cyclic communication with various virtual PLCs
