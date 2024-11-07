@@ -7,7 +7,7 @@
         <Company>Spiratec AG</Company>
         <LangVersion>default</LangVersion>
         <TargetFramework>net8.0-windows</TargetFramework>
-		<Version>1.1.1</Version>
+		<Version>1.2.0</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
