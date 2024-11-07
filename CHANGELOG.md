@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.2.0"></a>
+## [1.2.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.2.0) (2024-11-07)
+
+### Features
+
+* add contributing section ([8f37203](https://www.github.com/OpenCommissioning/OC_Assistant/commit/8f37203262700fee8a854c1cfb48c06788609d2c))
+* add project files ([06cc3d1](https://www.github.com/OpenCommissioning/OC_Assistant/commit/06cc3d1a0125bacd36d531a56db573b64d19dfcb))
+* initial commit ([a595874](https://www.github.com/OpenCommissioning/OC_Assistant/commit/a59587436175e833055aa3638521f269615140af))
+
+### Bug Fixes
+
+* synchonize versions ([47b112d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/47b112d2782ca316c1dec431fdcdabe605929a25))
+
 <a name="1.1.1"></a>
 ## [1.1.1](https://www.github.com/OpenCommissioning/OC_Assistant_DRY/releases/tag/v1.1.1) (2024-11-07)
 
