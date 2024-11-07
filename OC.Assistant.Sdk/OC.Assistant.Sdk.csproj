@@ -18,10 +18,12 @@
 		<PackageIcon>oc_logo.png</PackageIcon>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <DebugType>none</DebugType>
+      <DocumentationFile>bin\Release\OC.Assistant.Sdk.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
