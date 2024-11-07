@@ -21,6 +21,7 @@
     <SolidColorBrush x:Key="Accent2Brush" Color="#994571F5" />
     <SolidColorBrush x:Key="Accent3Brush" Color="#4C4571F5" />
     <SolidColorBrush x:Key="DarkBrush" Color="#000000" />
+    <SolidColorBrush x:Key="DarkBrush1" Color="#33000000" />
     <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="White1Brush" Color="#CCFFFFFF" />
     <SolidColorBrush x:Key="White2Brush" Color="#99FFFFFF" />
@@ -208,7 +209,7 @@
     <internal:StaticResource x:Key="TextControlForegroundPointerOver" ResourceKey="ForegroundBaseBrush" />
     <internal:StaticResource x:Key="TextControlForegroundFocused" ResourceKey="ForegroundBaseBrush" />
     <internal:StaticResource x:Key="TextControlForegroundDisabled" ResourceKey="White3Brush" />
-    <internal:StaticResource x:Key="TextControlBackground" ResourceKey="OverlayBrush" />
+    <internal:StaticResource x:Key="TextControlBackground" ResourceKey="DarkBrush1" />
     <internal:StaticResource x:Key="TextControlBackgroundPointerOver" ResourceKey="DarkBrush" />
     <internal:StaticResource x:Key="TextControlBackgroundFocused" ResourceKey="BackgroundBaseBrush" />
     <internal:StaticResource x:Key="TextControlBackgroundDisabled" ResourceKey="White5Brush" />
