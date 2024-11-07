@@ -159,9 +159,16 @@ public abstract class PluginBase : IPluginController
     /// </summary>
     protected abstract void OnStop();
     
+    /// <inheritdoc/>
     public IIoStructure InputStructure { get; } = new IoStructure(nameof(IPluginController.InputStructure));
+    
+    /// <inheritdoc/>
     public IIoStructure OutputStructure { get; } = new IoStructure(nameof(IPluginController.OutputStructure));
+    
+    /// <inheritdoc/>
     public int[] InputAddress { get; private set; } = [];
+    
+    /// <inheritdoc/>
     public int[] OutputAddress { get; private set; } = [];
     
     private bool _readyToStart = true;
