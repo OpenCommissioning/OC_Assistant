@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Company>Spiratec AG</Company>
+        <LangVersion>default</LangVersion>
+        <TargetFramework>net8.0-windows</TargetFramework>
+		<Version>1.2.0</Version>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DebugType>none</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OC.Assistant.Core\OC.Assistant.Core.csproj" />
+      <ProjectReference Include="..\OC.Assistant.Sdk\OC.Assistant.Sdk.csproj" />
+      <ProjectReference Include="..\OC.Assistant.Theme\OC.Assistant.Theme.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="OC.Assistant.Theme.LogViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:OC.Assistant.Theme"
+             mc:Ignorable="d" 
+             d:DesignHeight="140" d:DesignWidth="800" Loaded="Console_OnLoaded"
+             Background="{DynamicResource White6Brush}">
+    <UserControl.Resources>
+        <Style TargetType="ItemsControl" x:Key="LogViewerStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <ScrollViewer CanContentScroll="True">
+                            <ItemsPresenter/>
+                        </ScrollViewer>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <DataTemplate DataType="{x:Type local:Message}">
+            <Grid Margin="0 0 0 4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0"
+                       Content="{Binding Icon}"
+                       Foreground="{Binding IconColor}"
+                       FontSize="20"
+                       FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                       HorizontalContentAlignment="Center"
+                       VerticalContentAlignment="Center">
+                </Label>
+                <VirtualizingStackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Header}"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextControlForegroundDisabled}"
+                               Cursor="Arrow">
+                    </TextBlock>
+                    <TextBlock Text="{Binding Text}"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextControlForeground}"
+                               VerticalAlignment="Center"
+                               Background="Transparent">
+                    </TextBlock>
+                </VirtualizingStackPanel>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="27"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button  Width="40"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Click="ClearOnClick"
+                     Margin="1 0 1 0">
+                <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="14">&#xE74D;</TextBlock>
+            </Button>
+            <ToggleButton
+                    Width="40"
+                    Foreground="{DynamicResource InfoBrush}"
+                    Click="InfoFilterOnClick"
+                    IsChecked="True"
+                    Margin="1 0 1 0">
+                <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="14">&#xE946;</TextBlock>
+            </ToggleButton>
+            <ToggleButton
+                          Width="40"
+                          Foreground="{DynamicResource WarningBrush}"
+                          Click="WarningFilterOnClick"
+                          IsChecked="True"
+                          Margin="1 0 1 0">
+                <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="14">&#xE7BA;</TextBlock>
+            </ToggleButton>
+            <ToggleButton
+                          Width="40"
+                          Foreground="{DynamicResource DangerBrush}"
+                          Click="ErrorFilterOnClick"
+                          IsChecked="True"
+                          Margin="1 0 1 0">
+                <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="14">&#xEA39;</TextBlock>
+            </ToggleButton>
+        </StackPanel>
+        <ItemsControl Grid.Row="1" Style="{StaticResource LogViewerStyle}" x:Name="ItemsControl" />
+    </Grid>
+</UserControl>

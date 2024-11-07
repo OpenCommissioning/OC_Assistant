@@ -1,8 +1,5 @@
 # Open Commissioning Assistant
-The Open Commissioning Framework Assistant is an application designed to facilitate engineering processes based on the Open Commissioning Framework. It specializes in implementing various plugins for virtual commissioning and optimizing TwinCAT project workflows.
-
-Application to assist the engineering based on the Open Commissioning Framework and for the implementation of various plugins for virtual commissioning.
-
+The Open Commissioning Assistant is an application designed to facilitate engineering processes based on the Open Commissioning Framework. It specializes in implementing various plugins for virtual commissioning and optimizing TwinCAT project workflows.
 
 The goal of this application is to keep it as simple as possible with a clean design and let it only do what it needs to do.
 It is currently optimized for a connection to the TwinCAT3 Shell ``TcXaeShell.DTE.15.0``
@@ -13,7 +10,6 @@ It is currently optimized for a connection to the TwinCAT3 Shell ``TcXaeShell.DT
 - ``.NET 8.0`` ``.NETFramework 4.8.1`` and ``.NETStandard 2.1`` for the Sdk to ensure maximum flexibility across various plugins
 - ``.NET 8.0`` for everything else
 
-The application can be published 'self-contained' to ensure all dependencies are already included.
 
 ## Used packages:
 - ``envdte``, see [nuget package](https://www.nuget.org/packages/envdte)
@@ -37,9 +33,9 @@ The application's primary functions are:
 
 The `File` menu contains functions regarding TwinCAT Solutions:
 
-![FileMenu.png](images%2FFileMenu.png)
+![FileMenu.png](Documentation%2FImages%2FFileMenu.png)
 
-- _Connect_: select and connect to a running TwinCAT Shell
+- _Connect_: select and connect to a running TwinCAT Shell. The status of the connection and the mode of the connected TwinCAT System is diplayed in the bottom right corner.
 - _Open Solution_: select an existing TwinCAT Solution which gets opened in a new TwinCAT Shell and connected to by the Assistant application
 - _Create Solution_: create an empty TwinCAT solution preconfigured with the plc task and an empty configuration
 - _Open Config (readonly)_: 
@@ -54,22 +50,34 @@ the twincat solution is finished so it is not required to have the solution expl
 The `Project` menu contains functions to update the connected TwinCAT Solution. **Note** that this menu is only active when the Assistant is 
 connected to a TwinCAT solution and this solution is in _Config Mode_.
 
-![ProjectMenu.png](images%2FProjectMenu.png)
+![ProjectMenu.png](Documentation%2FImages%2FProjectMenu.png)
 
 
-- _Update Project_: Updates the project based on the current [configuration](#configuration-file). When the configuration includes _device_ entries, 
+- _Recreate Project_: Updates the conected TwinCAT project based on the current [configuration](#configuration-file). When the configuration includes _device_ entries, 
 this function automatically generates corresponding behavior models within the connected TwinCAT solution. __Note__ that this function is automatically called when
-using the _Update TwinCAT Project_ function of the `Client` component in the [Unity](TODO Link) package, so in most cases this funcion doesnt need to be called via this menu.
+using the _Update TwinCAT Project_ function of the `Client` component in the [Open Commissioning Unity package](https://github.com/OpenCommissioning/OC_Unity_Core), so in most cases this funcion does not need to be called via this menu.
 
-![DeviceGeneration.gif](images%2FDeviceGeneration.gif)
+![DeviceGeneration.gif](Documentation%2FImages%2FDeviceGeneration.gif)
+
+
+- _Recreate Plugins_: Reads the plugin configurations from the current [configuration](#configuration-file) and creates the correspondig [GVLs](#plugin-system) in the connected TwinCAT project and creates their configuration interface in the Assistant application. 
 
 - _Update Task_: Generates Input and Output variables based on the _Devices_ of the _PLC Project_ in the _Task_ of the connected TwinCAT solution
 and links those to the corresponding variables in the _PLC Project_.
 *Note* that the _PLC Project_ needs to be build successfully before updating the task.
 
-![TaskGeneration.gif](images%2FTaskGeneration.gif)
+![TaskGeneration.gif](Documentation%2FImages%2FTaskGeneration.gif)
 
-- _Task AutoUpdate_: if checked, the TwinCAT task gets updated automatically when the _PLC Project_ is build.
+
+- _Settings_: Opens The Settings for the connected TwinCAT solution
+
+![ProjetctSettings.png](Documentation%2FImages%2FProjectSettings.png)
+
+  - _PlcName_: specifies the name of the PLC project in the connected solution in which the device models should be generated in when using _Update Project_
+
+  - _PlcTaskName_: specifies the name of the Task in which the input and output variables should be generated in when using _Update Task_
+
+  - _Task AutoUpdate_: if checked, the TwinCAT task gets updated automatically with the new input and ouptut variables when the _PLC Project_ is build.
 
 
 
@@ -81,7 +89,7 @@ Profinet device nodes in the connected TwinCAT solution.
 by clicking on __Install dsian.TcPnScanner__ in the ``Profinet`` menu.
 After successful installation, the function _Scan Profinet_ function becomes available.
 
-![ProfinetMenu.png](images%2FProfinetMenu.png)
+![ProfinetMenu.png](Documentation%2FImages%2FProfinetMenu.png)
 
 To scan for Profinet devices:
 
@@ -93,14 +101,14 @@ To scan for Profinet devices:
 
 The scan will create Profinet nodes in the connected TwinCAT solution for each detected device.
 
-![ScanProfinet.png](images%2FScanProfinet.png)
+![ScanProfinet.png](Documentation%2FImages%2FScanProfinet.png)
 
 ## Plugin System
 Plugins enable the Assistant to connect to external systems such as PLCs, robot controllers, and other control data sources, making this data available to the TwinCAT solution via Global Variable Lists (_GVLs_). 
 **Note**: at the moment there are no plugins released yet.
 
-![OS_System](./images/Assistant_Plugins_dark.png#gh-dark-mode-only)
-![OS_System](./images/Assistant_Plugins_light.png#gh-light-mode-only)
+![OS_System](Documentation%2FImages%2FAssistant_Plugins_dark.png#gh-dark-mode-only)
+![OS_System](Documentation%2FImages%2FAssistant_Plugins_light.png#gh-light-mode-only)
 
 There are plugins for:
   - Cyclic communication with various virtual PLCs
@@ -119,7 +127,7 @@ There are plugins for:
 3. Upon successful loading, the assistant generates a _GVL_ for the plugin's interface
 4. The generated variables become available for use in TwinCAT
 
-![PluginUsage.gif](images%2FPluginUsage.gif)
+![PluginUsage.gif](Documentation%2FImages%2FPluginUsage.gif)
 
 ### Configuration File
 

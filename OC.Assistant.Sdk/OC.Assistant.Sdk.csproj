@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Company>Spiratec AG</Company>
+        <LangVersion>default</LangVersion>
+        <TargetFrameworks>net8.0;net481;netstandard2.1</TargetFrameworks>
+		<Version>1.2.0</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Title>OC.Assistant.Sdk</Title>
+		<Authors>open commissioning</Authors>
+		<Description>SDK for Open Commissioning Assistant Plugins</Description>
+		<PackageProjectUrl>https://github.com/OpenCommissioning/OC_Assistant</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/OpenCommissioning/OC_Assistant</RepositoryUrl>
+		<Copyright>Copyright (c) 2024, SpiraTec AG</Copyright>
+		<RepositoryType>git</RepositoryType>
+		<PackageIcon>oc_logo.png</PackageIcon>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DebugType>none</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="6.1.260" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Resources\oc_logo.png" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+</Project>

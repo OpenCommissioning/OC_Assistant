@@ -1,0 +1,36 @@
+﻿<core:ControlBase x:Class="OC.Assistant.Plugins.PluginManager"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:OC.Assistant.Core;assembly=OC.Assistant.Core"
+             xmlns:plugins="clr-namespace:OC.Assistant.Plugins"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="10"></ColumnDefinition>
+            <ColumnDefinition x:Name="GridSplitter" Width="0"></ColumnDefinition>
+            <ColumnDefinition x:Name="EditorColumn" Width="0"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Column="0" x:Name="ScrollView">
+            <StackPanel x:Name="ControlPanel">
+                <Button Style="{DynamicResource SelectButton}"  
+                        x:Name="BtnAdd" Visibility="Hidden" Click="BtnAdd_Click"
+                        VerticalAlignment="Top"
+                        ToolTip="Add plugin instance"
+                        FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                        FontSize="12"
+                        FontWeight="Bold">
+                    &#xE710;
+                </Button>
+            </StackPanel>
+        </ScrollViewer>
+        <plugins:PluginEditor Grid.Column="2" x:Name="Editor" 
+                            Margin="-3,2,0,0" 
+                            OnCancel="Editor_OnCancel" 
+                            OnConfirm="Editor_OnConfirm" 
+                            Visibility="Hidden"/>
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Transparent"/>
+    </Grid>
+</core:ControlBase>
