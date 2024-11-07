@@ -1,0 +1,251 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:internal="clr-namespace:OC.Assistant.Theme.Internals">
+    
+    <!-- Corner rounding -->
+    <CornerRadius x:Key="ControlCornerRadius">3</CornerRadius>
+    <Thickness x:Key="OverlayBorderThickness">3</Thickness>
+    <system:Double x:Key="CornerRadiusValue">3</system:Double>
+    
+    <!-- Fonts -->
+    <FontFamily x:Key="ThemeFontFamily">Segoe UI</FontFamily>
+    <FontFamily x:Key="SymbolThemeFontFamily">Segoe MDL2 Assets</FontFamily>
+    <system:Double x:Key="ThemeFontSize">12</system:Double>
+    
+    <!-- Colors -->
+    <SolidColorBrush x:Key="TransparentBrush" Color="#00000000" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#4571F5" />
+    <SolidColorBrush x:Key="Accent1Brush" Color="#CC4571F5" />
+    <SolidColorBrush x:Key="Accent2Brush" Color="#994571F5" />
+    <SolidColorBrush x:Key="Accent3Brush" Color="#4C4571F5" />
+    <SolidColorBrush x:Key="DarkBrush" Color="#000000" />
+    <SolidColorBrush x:Key="WhiteBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="White1Brush" Color="#CCFFFFFF" />
+    <SolidColorBrush x:Key="White2Brush" Color="#99FFFFFF" />
+    <SolidColorBrush x:Key="White3Brush" Color="#66FFFFFF" />
+    <SolidColorBrush x:Key="White4Brush" Color="#33FFFFFF" />
+    <SolidColorBrush x:Key="White5Brush" Color="#20FFFFFF" />
+    <SolidColorBrush x:Key="White6Brush" Color="#0AFFFFFF" />
+    <SolidColorBrush x:Key="GreenBrush" Color="#32DD32" />
+    <SolidColorBrush x:Key="Green1Brush" Color="#D032DD32" />
+    <SolidColorBrush x:Key="BackgroundBaseBrush" Color="#222529" />
+    <SolidColorBrush x:Key="ForegroundBaseBrush" Color="#E8E8E8" />
+    <SolidColorBrush x:Key="OverlayBrush" Color="#1D1F23" />
+    <SolidColorBrush x:Key="LinkBrush" Color="#6090F5" />
+    <SolidColorBrush x:Key="InfoBrush" Color="#76C6ED" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#EEC63F" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#BE4846" />
+    
+    <!-- Button -->
+    <internal:StaticResource x:Key="ButtonBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="White5Brush" />
+    <internal:StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ButtonBackgroundDisabled" ResourceKey="White5Brush" />
+    <internal:StaticResource x:Key="ButtonForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ButtonForegroundPointerOver" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ButtonForegroundPressed" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ButtonForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ButtonBorderBrush" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ButtonBorderBrushPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ButtonBorderBrushPressed" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ButtonBorderBrushDisabled" ResourceKey="TransparentBrush" />
+    
+    <!-- CheckBox -->
+    <internal:StaticResource x:Key="CheckBoxForegroundUnchecked" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundUnchecked" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundUncheckedPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundUncheckedPressed" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundUncheckedDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundChecked" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundCheckedPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundCheckedPressed" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBackgroundCheckedDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushUnchecked" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushUncheckedPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushUncheckedPressed" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushUncheckedDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushChecked" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushCheckedPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushCheckedPressed" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxBorderBrushCheckedDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeUnchecked" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeUncheckedPointerOver" ResourceKey="White1Brush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeUncheckedPressed" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeUncheckedDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeChecked" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeCheckedPressed" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundStrokeCheckedDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundFillUnchecked" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundFillUncheckedPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundFillUncheckedPressed" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundFillUncheckedDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundFillChecked" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckBackgroundFillCheckedPressed" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckGlyphForegroundUnchecked" ResourceKey="WhiteBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckGlyphForegroundUncheckedPointerOver" ResourceKey="WhiteBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckGlyphForegroundUncheckedPressed" ResourceKey="WhiteBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckGlyphForegroundUncheckedDisabled" ResourceKey="WhiteBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckGlyphForegroundChecked" ResourceKey="WhiteBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver" ResourceKey="WhiteBrush" />
+    <internal:StaticResource x:Key="CheckBoxCheckGlyphForegroundCheckedPressed" ResourceKey="WhiteBrush" />
+
+    <!-- ComboBox -->
+    <internal:StaticResource x:Key="ComboBoxBackground" ResourceKey="OverlayBrush" />
+    <internal:StaticResource x:Key="ComboBoxBackgroundPointerOver" ResourceKey="DarkBrush" />
+    <internal:StaticResource x:Key="ComboBoxBackgroundPressed" ResourceKey="White4Brush" />
+    <internal:StaticResource x:Key="ComboBoxBackgroundDisabled" ResourceKey="White5Brush" />
+    <internal:StaticResource x:Key="ComboBoxBackgroundUnfocused" ResourceKey="Accent2Brush" />
+    <internal:StaticResource x:Key="ComboBoxBackgroundBorderBrushUnfocused" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ComboBoxForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ComboBoxForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ComboBoxPlaceHolderForeground" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="ComboBoxPlaceHolderForegroundDisabled" ResourceKey="White4Brush" />
+    <internal:StaticResource x:Key="ComboBoxBorderBrush" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="ComboBoxBorderBrushPointerOver" ResourceKey="White1Brush" />
+    <internal:StaticResource x:Key="ComboBoxBorderBrushPressed" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="ComboBoxBorderBrushDisabled" ResourceKey="White5Brush" />
+    <internal:StaticResource x:Key="ComboBoxDropDownGlyphForeground" ResourceKey="White1Brush" />
+    <internal:StaticResource x:Key="ComboBoxDropDownGlyphForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ComboBoxDropDownForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ComboBoxDropDownBackground" ResourceKey="OverlayBrush" />
+    <internal:StaticResource x:Key="ComboBoxDropDownBorderBrush" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxDropDownBackgroundPointerOver" ResourceKey="Accent3Brush" />
+    <internal:StaticResource x:Key="ComboBoxDropDownBackgroundPointerPressed" ResourceKey="White4Brush" />
+    <internal:StaticResource x:Key="ComboBoxFocusedDropDownBackgroundPointerOver" ResourceKey="White5Brush" />
+    <internal:StaticResource x:Key="ComboBoxFocusedDropDownBackgroundPointerPressed" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ComboBoxEditableDropDownGlyphForeground" ResourceKey="White1Brush" />
+
+    <!-- ComboBoxItem -->
+    <internal:StaticResource x:Key="ComboBoxItemForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ComboBoxItemForegroundSelected" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemForegroundSelectedUnfocused" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemForegroundSelectedDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ComboBoxItemBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBackgroundPointerOver" ResourceKey="Accent3Brush" />
+    <internal:StaticResource x:Key="ComboBoxItemBackgroundDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBackgroundSelected" ResourceKey="Accent2Brush" />
+    <internal:StaticResource x:Key="ComboBoxItemBackgroundSelectedUnfocused" ResourceKey="Accent2Brush" />
+    <internal:StaticResource x:Key="ComboBoxItemBackgroundSelectedPointerOver" ResourceKey="Accent1Brush" />
+    <internal:StaticResource x:Key="ComboBoxItemBackgroundSelectedDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBorderBrush" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBorderBrushPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBorderBrushDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBorderBrushSelected" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBorderBrushSelectedUnfocused" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBorderBrushSelectedPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ComboBoxItemBorderBrushSelectedDisabled" ResourceKey="TransparentBrush" />
+    
+    <!-- Menu & MenuItem -->
+    <internal:StaticResource x:Key="MenuBarBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="MenuBarItemBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="MenuBarItemBackgroundPointerOver" ResourceKey="Accent3Brush" />
+    <internal:StaticResource x:Key="MenuBarItemBackgroundPressed" ResourceKey="White4Brush" />
+    <internal:StaticResource x:Key="MenuBarItemBackgroundSelected" ResourceKey="White4Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutPresenterBackground" ResourceKey="OverlayBrush" />
+    
+    <!-- MenuFlyoutItem -->
+    <internal:StaticResource x:Key="MenuFlyoutItemBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemBackgroundDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemForegroundPointerOver" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemForegroundPressed" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemKeyboardAcceleratorTextForeground" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundPressed" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemKeyboardAcceleratorTextForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemRevealBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemRevealBackgroundPointerOver" ResourceKey="Accent3Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemRevealBackgroundPressed" ResourceKey="White4Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutItemRevealBorderBrush" ResourceKey="TransparentBrush" />
+    
+    <!-- ToggleMenuFlyoutItem -->
+    <internal:StaticResource x:Key="ToggleMenuFlyoutItemCheckGlyphForeground" ResourceKey="White1Brush" />
+    <internal:StaticResource x:Key="ToggleMenuFlyoutItemCheckGlyphForegroundPointerOver" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ToggleMenuFlyoutItemCheckGlyphForegroundPressed" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ToggleMenuFlyoutItemCheckGlyphForegroundDisabled" ResourceKey="White3Brush" />
+    
+    <!-- MenuFlyoutSubItem -->
+    <internal:StaticResource x:Key="MenuFlyoutSubItemForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemForegroundPointerOver" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemForegroundPressed" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemForegroundSubMenuOpened" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemChevron" ResourceKey="White1Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemChevronPointerOver" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemChevronPressed" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemChevronSubMenuOpened" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemChevronDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemRevealBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemRevealBackgroundPointerOver" ResourceKey="Accent3Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemRevealBackgroundPressed" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemRevealBackgroundSubMenuOpened" ResourceKey="Accent3Brush" />
+    <internal:StaticResource x:Key="MenuFlyoutSubItemRevealBackgroundDisabled" ResourceKey="TransparentBrush" />
+    
+    <!-- ScrollBar -->
+    <internal:StaticResource x:Key="ScrollBarBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ScrollBarBackgroundDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ScrollBarForeground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ScrollBarBorderBrush" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ScrollBarBorderBrushDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ScrollBarThumbFillPointerOver" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="ScrollBarThumbFillPressed" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="ScrollBarThumbFillDisabled" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="ScrollBarPanningThumbBackground" ResourceKey="White4Brush" />
+    
+    <!-- ToolTip -->
+    <internal:StaticResource x:Key="ToolTipForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="ToolTipBackground" ResourceKey="OverlayBrush" />
+    <internal:StaticResource x:Key="ToolTipBorderBrush" ResourceKey="TransparentBrush" />
+
+    <!-- TextControl -->
+    <internal:StaticResource x:Key="TextControlForeground" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="TextControlForegroundPointerOver" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="TextControlForegroundFocused" ResourceKey="ForegroundBaseBrush" />
+    <internal:StaticResource x:Key="TextControlForegroundDisabled" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="TextControlBackground" ResourceKey="OverlayBrush" />
+    <internal:StaticResource x:Key="TextControlBackgroundPointerOver" ResourceKey="DarkBrush" />
+    <internal:StaticResource x:Key="TextControlBackgroundFocused" ResourceKey="BackgroundBaseBrush" />
+    <internal:StaticResource x:Key="TextControlBackgroundDisabled" ResourceKey="White5Brush" />
+    <internal:StaticResource x:Key="TextControlBorderBrush" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="TextControlBorderBrushPointerOver" ResourceKey="White1Brush" />
+    <internal:StaticResource x:Key="TextControlBorderBrushFocused" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="TextControlBorderBrushDisabled" ResourceKey="White5Brush" />
+    <internal:StaticResource x:Key="TextControlPlaceholderForeground" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="TextControlPlaceholderForegroundPointerOver" ResourceKey="White2Brush" />
+    <internal:StaticResource x:Key="TextControlPlaceholderForegroundFocused" ResourceKey="White3Brush" />
+    <internal:StaticResource x:Key="TextControlPlaceholderForegroundDisabled" ResourceKey="White4Brush" />
+    <internal:StaticResource x:Key="TextControlSelectionHighlightColor" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="TextControlButtonBackground" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="TextControlButtonBackgroundPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="TextControlButtonBorderBrush" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="TextControlButtonBorderBrushPointerOver" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="TextControlButtonBorderBrushPressed" ResourceKey="TransparentBrush" />
+    <internal:StaticResource x:Key="TextControlButtonForeground" ResourceKey="White1Brush" />
+    <internal:StaticResource x:Key="TextControlButtonForegroundPointerOver" ResourceKey="AccentBrush" />
+    <internal:StaticResource x:Key="TextControlButtonForegroundPressed" ResourceKey="WhiteBrush" />
+    
+    <!-- Styles -->
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Styles/Button.xaml" />
+        <ResourceDictionary Source="Styles/SelectButton.xaml" />
+        <ResourceDictionary Source="Styles/LinkButton.xaml" />
+        <ResourceDictionary Source="Styles/CheckBox.xaml" />
+        <ResourceDictionary Source="Styles/ComboBox.xaml" />
+        <ResourceDictionary Source="Styles/Label.xaml" />
+        <ResourceDictionary Source="Styles/Menu.xaml" />
+        <ResourceDictionary Source="Styles/MenuItem.xaml" />
+        <ResourceDictionary Source="Styles/ScrollBar.xaml" />
+        <ResourceDictionary Source="Styles/ScrollViewer.xaml" />
+        <ResourceDictionary Source="Styles/TextBox.xaml" />
+        <ResourceDictionary Source="Styles/ToggleButton.xaml" />
+        <ResourceDictionary Source="Styles/ToolTip.xaml" />
+        <ResourceDictionary Source="Styles/Window.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    
+</ResourceDictionary>

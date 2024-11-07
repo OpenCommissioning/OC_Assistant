@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install Versionize
+      run: dotnet tool install --global Versionize
+
+    - name: Setup git
+      run: |
+        git config --global user.email opencommissioning@spiratec.com
+        git config --global user.name "oc-bot"
+      
+    - name: Versioning
+      id: versionize
+      run: versionize
+      continue-on-error: true
+
+    - name: Extract latest changelog entry
+      if: steps.versionize.outcome == 'success'
+      run: |
+        # Extract the latest changelog entry by looking for the first header (##) and capturing until the next header
+        latest_changelog=$(awk '/^## /{if (p) exit; p=1} p' CHANGELOG.md)
+        echo "$latest_changelog" > latest_changelog.md
+
+    - name: Set version variable
+      if: steps.versionize.outcome == 'success'
+      run: echo "VERSION=v$(versionize inspect)" >> $GITHUB_ENV
+        
+    - name: Dotnet publish
+      if: steps.versionize.outcome == 'success'
+      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 -p:PublishSingleFile=true -p:EnableWindowsTargeting=true --self-contained false --output ./Publish
+
+    - name: SDK Build
+      if: steps.versionize.outcome == 'success'
+      run: dotnet build OC.Assistant.Sdk --configuration release --output ./Publish
+      
+    - name: Push to NuGet
+      run: dotnet nuget push "./Publish/*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+      
+    
+    - name: Push changes to GitHub
+      if: steps.versionize.outcome == 'success'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        tags: true
+
+    - name: Publish new release
+      if: steps.versionize.outcome == 'success'
+      run: |
+        gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F latest_changelog.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload release artifact
+      if: steps.versionize.outcome == 'success'
+      run: |
+        gh release upload ${{env.VERSION}} ./Publish/OC.Assistant.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

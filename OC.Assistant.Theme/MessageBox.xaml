@@ -1,0 +1,70 @@
+﻿<Window x:Class="OC.Assistant.Theme.MessageBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        MinHeight="160" MinWidth="420" MaxHeight="750" MaxWidth="1024"  
+        SizeToContent="WidthAndHeight" 
+        WindowStartupLocation="CenterScreen"  
+        ShowInTaskbar="true" ResizeMode="NoResize" 
+        WindowStyle="None"
+        AllowsTransparency="true"
+        FontFamily="{DynamicResource ThemeFontFamily}"
+        FontSize="{DynamicResource ThemeFontSize}"
+        Background="Transparent">
+    <Border Background="{DynamicResource OverlayBrush}" 
+            BorderBrush="{DynamicResource OverlayBrush}"
+            CornerRadius="{DynamicResource ControlCornerRadius}"
+            BorderThickness="{DynamicResource OverlayBorderThickness}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="27" />
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" MouseLeftButtonDown="Grid_MouseLeftButtonDown" Background="{DynamicResource OverlayBrush}">
+                <Label HorizontalAlignment="Left" Margin="6,0,0,0" >
+                    <TextBlock Name="TitleLabel"/>
+                </Label>
+            </Grid>
+            <Label x:Name="SymbolWarning" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+                   Foreground="{DynamicResource WarningBrush}"
+                   Visibility="Collapsed">
+                &#xE7BA;
+            </Label>
+            <Label x:Name="SymbolError" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+                   Foreground="{DynamicResource DangerBrush}"
+                   Visibility="Collapsed">
+                &#xE783;
+            </Label>
+            <Label x:Name="SymbolQuestion" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+                   Foreground="{DynamicResource InfoBrush}"
+                   Visibility="Collapsed">
+                &#xF142;
+            </Label>
+            <Label x:Name="SymbolInformation" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+                   Foreground="{DynamicResource InfoBrush}"
+                   Visibility="Collapsed">
+                &#xE946;
+            </Label>
+            <ScrollViewer Grid.Row="1" Grid.Column="1">
+                <Grid x:Name="ContentGrid" Margin="10,5,20,5">
+                    <Label>
+                        <TextBlock x:Name="Text"/>
+                    </Label>
+                </Grid>
+            </ScrollViewer>
+            
+            <Grid Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" >
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="6">
+                    <Button Name="ButtonOk" Content="OK" MinWidth="70" Height="32" Click="Button_Click" Background="{DynamicResource ButtonBackgroundPointerOver}"/>
+                    <Button Name="ButtonYes" Content="Yes" MinWidth="70" Height="32" Click="Button_Click" Background="{DynamicResource ButtonBackgroundPointerOver}"/>
+                    <Button Name="ButtonNo" Content="No" MinWidth="70" Height="32" Click="Button_Click" Background="{DynamicResource ButtonBackgroundPointerOver}"/>
+                    <Button Name="ButtonCancel" Content="Cancel" MinWidth="70" Height="32" Click="Button_Click" Background="{DynamicResource ButtonBackgroundPointerOver}"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
