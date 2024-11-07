@@ -51,9 +51,9 @@ jobs:
       if: steps.versionize.outcome == 'success'
       run: dotnet build OC.Assistant.Sdk --configuration release --output ./Publish
       
-    #- name: Push to NuGet
-    #  if: steps.versionize.outcome == 'success'
-    #  run: dotnet nuget push "./Publish/*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+    - name: Push to NuGet
+      if: steps.versionize.outcome == 'success'
+      run: dotnet nuget push "./Publish/*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
       
     
     - name: Push changes to GitHub
