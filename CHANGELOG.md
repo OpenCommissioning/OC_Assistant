@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.3.0"></a>
+## [1.3.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.3.0) (2024-11-07)
+
+### Features
+
+* activate nuget action for sdk ([5159de5](https://www.github.com/OpenCommissioning/OC_Assistant/commit/5159de56fc4cc9587d9956d8926f0302c098d2c6))
+
 <a name="1.2.0"></a>
 ## [1.2.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.2.0) (2024-11-07)
 
