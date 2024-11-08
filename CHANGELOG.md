@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.4.0"></a>
+## [1.4.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.4.0) (2024-11-08)
+
+### Features
+
+* prepare theme library for nuget release ([eea7db6](https://www.github.com/OpenCommissioning/OC_Assistant/commit/eea7db6a24154fd33c704974c090298ce7685fe9))
+
+### Bug Fixes
+
+* add missing sdk summaries to prevent compiler warnings ([f93fe37](https://www.github.com/OpenCommissioning/OC_Assistant/commit/f93fe37ed8e96ccab93439d165f584a96040a0a7))
+* add missing summaries in theme library ([4ef864f](https://www.github.com/OpenCommissioning/OC_Assistant/commit/4ef864f17bcb1b33edf19ba03581423364a826a4))
+* add theme build to pipeline ([775548d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/775548dce64306d5a27203644ff66bd2e4e38179))
+* enable windows targeting for theme build ([090897d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/090897d58a6b76d4f2533b85f777d4724dbc7a0a))
+* generate documentation file in debug mode ([3dae5a7](https://www.github.com/OpenCommissioning/OC_Assistant/commit/3dae5a7254a9f6d9ecc078a69353b0ad904b0113))
+* resolve merge conflicts ([5c61d8c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/5c61d8c9035e13493f775451157055ba80e6f0e6))
+* theme nuget description ([dbb22ae](https://www.github.com/OpenCommissioning/OC_Assistant/commit/dbb22aea46086dc11149772cb3048243a183cbc9))
+
 <a name="1.3.1"></a>
 ## [1.3.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.3.1) (2024-11-07)
 
