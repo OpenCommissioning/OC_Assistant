@@ -53,7 +53,7 @@ jobs:
 
     - name: Theme Build
       if: steps.versionize.outcome == 'success'
-      run: dotnet build OC.Assistant.Theme --configuration release --output ./Publish
+      run: dotnet build OC.Assistant.Theme --configuration release -p:EnableWindowsTargeting=true --output ./Publish
       
     - name: Push to NuGet
       if: steps.versionize.outcome == 'success'
