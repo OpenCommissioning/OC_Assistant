@@ -11,7 +11,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>OC.Assistant.Theme</Title>
         <Authors>open commissioning</Authors>
-        <Description>Theme of the Open Commissioning Assistant Plugins</Description>
+        <Description>Wpf Theme of the Open Commissioning Assistant</Description>
         <PackageProjectUrl>https://github.com/OpenCommissioning/OC_Assistant</PackageProjectUrl>
         <RepositoryUrl>https://github.com/OpenCommissioning/OC_Assistant</RepositoryUrl>
         <Copyright>Copyright (c) 2024, SpiraTec AG</Copyright>
