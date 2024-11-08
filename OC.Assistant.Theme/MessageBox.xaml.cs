@@ -3,6 +3,10 @@ using System.Windows.Input;
 
 namespace OC.Assistant.Theme;
 
+
+/// <summary>
+/// Represents a custom message box with an appropriate theme style.
+/// </summary>
 public partial class MessageBox
 {
     private static MessageBox? _messageBox;
@@ -13,6 +17,14 @@ public partial class MessageBox
         InitializeComponent();
     }
     
+    /// <summary>
+    /// Shows the message box with the given parameters. 
+    /// </summary>
+    /// <param name="caption">The caption of the message box.</param>
+    /// <param name="text">The text within the message box.</param>
+    /// <param name="button">The <see cref="MessageBoxButton"/> of the message box.</param>
+    /// <param name="image">The shown image on the left side.</param>
+    /// <returns></returns>
     public static MessageBoxResult Show(string caption, string text, MessageBoxButton button, MessageBoxImage image)
     {
         _messageBox = new MessageBox
@@ -27,6 +39,15 @@ public partial class MessageBox
         return _result;
     }
     
+    
+    /// <summary>
+    /// Shows the message box with the given parameters. 
+    /// </summary>
+    /// <param name="caption">The caption of the message box.</param>
+    /// <param name="content">The content within the message box.</param>
+    /// <param name="button">The <see cref="MessageBoxButton"/> of the message box.</param>
+    /// <param name="image">The shown image on the left side.</param>
+    /// <returns></returns>
     public static MessageBoxResult Show(string caption, UIElement content, MessageBoxButton button, MessageBoxImage image)
     {
         _messageBox = new MessageBox

@@ -3,16 +3,27 @@ using System.Windows.Media;
 
 namespace OC.Assistant.Theme;
 
+/// <summary>
+/// Represents a <see cref="Grid"/> element to work as an overlay when the application is busy.
+/// </summary>
 public partial class BusyOverlay
 {
     private readonly RotateTransform _rotateTransform = new ();
     
+    /// <summary>
+    /// Creates a new instance of the <see cref="BusyOverlay"/>.
+    /// </summary>
     public BusyOverlay()
     {
         InitializeComponent();
         Size = 100;
     }
 
+    /// <summary>
+    /// Sets the busy state.
+    /// </summary>
+    /// <param name="isBusy"><br/><c>True</c> : The overlay is visible and animated. <br/>
+    /// <c>False</c>: The overlay is hidden.</param>
     public void SetState(bool isBusy)
     {
         Dispatcher.Invoke(() =>
@@ -28,6 +39,9 @@ public partial class BusyOverlay
         });
     }
 
+    /// <summary>
+    /// Sets the size of the animated icon. Default value is 100.
+    /// </summary>
     public double Size
     {
         set

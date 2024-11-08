@@ -4,10 +4,16 @@ using System.Windows.Interop;
 
 namespace OC.Assistant.Theme;
 
+/// <summary>
+/// Static class to define properties for a <see cref="Window"/>.
+/// </summary>
 public static class WindowStyle
 {
     private static bool _themeIsUsed;
     
+    /// <summary>
+    /// Property to activate the theme style for a <see cref="Window"/>.
+    /// </summary>
     public static readonly DependencyProperty UseThemeProperty =
         DependencyProperty.RegisterAttached(
             "UseTheme",
@@ -15,6 +21,12 @@ public static class WindowStyle
             typeof(WindowStyle),
             new PropertyMetadata(OnUseThemeChanged));
     
+    
+    /// <summary>
+    /// Activates the theme style for a <see cref="Window"/>.
+    /// </summary>
+    /// <param name="window">The given window.</param>
+    /// <param name="value"><c>True</c> : Theme is used</param>
     public static void SetUseTheme(Window window, bool value)
     {
         window.SetValue(UseThemeProperty, value);
