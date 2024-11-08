@@ -26,6 +26,10 @@
       <DocumentationFile>bin\Release\OC.Assistant.Sdk.xml</DocumentationFile>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\OC.Assistant.Sdk.xml</DocumentationFile>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="6.1.260" />
     </ItemGroup>
