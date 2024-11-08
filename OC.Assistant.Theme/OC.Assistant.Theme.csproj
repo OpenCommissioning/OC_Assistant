@@ -7,7 +7,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>default</LangVersion>
         <TargetFrameworks>net8.0-windows;net481</TargetFrameworks>
-		<Version>1.3.1</Version>
+		    <Version>1.3.1</Version>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>OC.Assistant.Theme</Title>
         <Authors>open commissioning</Authors>

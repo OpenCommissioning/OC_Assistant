@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.3.1"></a>
+## [1.3.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.3.1) (2024-11-07)
+
+### Bug Fixes
+
+* change background of textbox for better visibility on overlay background ([532a229](https://www.github.com/OpenCommissioning/OC_Assistant/commit/532a2294f61f8e817d6e2575e3ae4261ac486638))
+* include documentation file when releasing sdk ([0531eb4](https://www.github.com/OpenCommissioning/OC_Assistant/commit/0531eb44dc753788438853910ba8972bab0576cb))
+
 <a name="1.3.0"></a>
 ## [1.3.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.3.0) (2024-11-07)
 
