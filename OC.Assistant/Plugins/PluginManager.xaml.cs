@@ -10,7 +10,7 @@ public partial class PluginManager
     
     public PluginManager()
     {
-        PluginRegister.Initialize();
+        Loaded += (_, _) => PluginRegister.Initialize();
         InitializeComponent();
     }
 
