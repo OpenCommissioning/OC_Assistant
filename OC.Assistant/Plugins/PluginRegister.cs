@@ -21,18 +21,38 @@ internal static class PluginRegister
     /// </summary>
     public static void Initialize()
     {
-        
-/*#if DEBUG
-        foreach (var pluginFile in Directory.GetFiles(@"..\..\..\..\Plugins", "*.plugin", SearchOption.AllDirectories))
+        try
         {
-            Load(pluginFile);
+            foreach (var pluginFile in Directory
+                         .GetFiles(Environment.CurrentDirectory, "*.plugin", SearchOption.AllDirectories))
+            {
+                Load(pluginFile);
+            }
         }
-#endif*/
-        
-        foreach (var pluginFile in Directory.GetFiles(Environment.CurrentDirectory, "*.plugin", SearchOption.AllDirectories))
+        catch (Exception e)
         {
-            Load(pluginFile);
+            Logger.LogError(typeof(PluginRegister), e.Message);
         }
+        
+#if DEBUG
+        /*
+         Search outside the solution environment when debugging
+         Path of the executable when debugging looks like this:
+         <searchRoot>\<SolutionFolder>\OC.Assistant\bin\Debug\net8.0-windows\OC.Assistant.exe
+         */
+        try
+        {
+            foreach (var pluginFile in Directory
+                         .GetFiles(@"..\..\..\..\..\", "*.plugin", SearchOption.AllDirectories))
+            {
+                Load(pluginFile);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(typeof(PluginRegister), e.Message);
+        }
+#endif
     }
     
     /// <summary>
@@ -48,6 +68,8 @@ internal static class PluginRegister
             var doc = XDocument.Load(filePath).Root;
             var dll = doc?.Element("AssemblyFile")?.Value;
             var additional = doc?.Elements("AdditionalDirectory");
+            
+            if (!File.Exists($"{dir}\\{dll}")) return;
 
             if (additional is not null)
             {
