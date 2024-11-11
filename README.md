@@ -7,7 +7,7 @@ It is currently optimized for a connection to the TwinCAT3 Shell ``TcXaeShell.DT
 
 ## Target frameworks
 
-- ``.NET 8.0`` ``.NETFramework 4.8.1`` and ``.NETStandard 2.1`` for the Sdk to ensure maximum flexibility across various plugins
+- ``.NET 8.0`` and ``.NETFramework 4.8.1`` for the Sdk and the Theme libraries
 - ``.NET 8.0`` for everything else
 
 
