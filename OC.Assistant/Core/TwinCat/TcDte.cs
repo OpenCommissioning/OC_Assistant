@@ -12,9 +12,11 @@ namespace OC.Assistant.Core.TwinCat;
 /// </summary>
 public class TcDte
 {
-    private const string SHELL_PROGRAM_ID = "TcXaeShell.DTE.15.0";
+    private const string SHELL_2017_PROGRAM_ID = "TcXaeShell.DTE.15.0";
+    private const string SHELL_2022_PROGRAM_ID = "TcXaeShell.DTE.17.0";
+    private static readonly Type? Shell2017 = Type.GetTypeFromProgID(SHELL_2017_PROGRAM_ID);
+    private static readonly Type? Shell2022 = Type.GetTypeFromProgID(SHELL_2022_PROGRAM_ID);
     private readonly DTE? _dte;
-    private static readonly Type? ShellType = Type.GetTypeFromProgID(SHELL_PROGRAM_ID);
     
     /// <summary>
     /// Creates a new instance of the <see cref="TcDte"/> class.
@@ -24,9 +26,12 @@ public class TcDte
     /// <exception cref="Exception">Creating an instance of the shell failed.</exception>
     public TcDte(DTE? dte = null)
     {
-        if (ShellType is null)
+        var installedShellType = Shell2022;
+        installedShellType ??= Shell2017;
+
+        if (installedShellType is null)
         {
-            throw new Exception($"{SHELL_PROGRAM_ID} not installed");
+            throw new Exception("No TwinCAT Shell installed");
         }
 
         if (dte is not null)
@@ -35,12 +40,12 @@ public class TcDte
             return;
         }
         
-        Logger.LogInfo(this, $"Create new instance of type {SHELL_PROGRAM_ID} ...");
-        _dte = Activator.CreateInstance(ShellType) as DTE;
+        Logger.LogInfo(this, "Create TwinCAT XAE Shell instance ...");
+        _dte = Activator.CreateInstance(installedShellType) as DTE;
         
         if (_dte is null)
         {
-            throw new Exception($"Creating instance of type {SHELL_PROGRAM_ID} failed");
+            throw new Exception("Creating instance of TwinCAT XAE Shell failed");
         }
     }
     
@@ -147,11 +152,11 @@ public class TcDte
     
     /// <summary>
     /// Returns a collection of <see cref="TcDte"/> by querying all instances of type
-    /// <see cref="SHELL_PROGRAM_ID"/> with a valid TwinCAT solution.
+    /// <see cref="SHELL_2017_PROGRAM_ID"/> or <see cref="SHELL_2022_PROGRAM_ID"/>  with a valid TwinCAT solution.
     /// </summary>
     public static IEnumerable<TcDte> GetInstances()
     {
-        if (ShellType is null) yield break;
+        if (Shell2017 is null && Shell2022 is null) yield break;
         if (GetRunningObjectTable(0, out var runningObjectTable) != 0) yield break;
         runningObjectTable.EnumRunning(out var enumMoniker);
 
@@ -166,7 +171,8 @@ public class TcDte
             {
                 CreateBindCtx(0, out var bindCtx);
                 moniker[0].GetDisplayName(bindCtx, null, out var displayName);
-                if (!displayName.StartsWith($"!{SHELL_PROGRAM_ID}")) continue;
+                if (!displayName.StartsWith($"!{SHELL_2022_PROGRAM_ID}") && 
+                    !displayName.StartsWith($"!{SHELL_2017_PROGRAM_ID}")) continue;
                 if (runningObjectTable.GetObject(moniker[0], out var obj) != 0) continue;
                 var dte = (DTE) obj;
                 if (dte.Solution.FullName == string.Empty) continue;
