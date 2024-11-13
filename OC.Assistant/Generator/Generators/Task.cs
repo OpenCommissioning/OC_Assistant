@@ -113,19 +113,17 @@ internal static class Task
         });
     }
     
-    private static void CollectVariablesRecursive(this IEnumerable item, ICollection<ITcSmTreeItem> variables, HashSet<string?> filter, bool isTopLevel = true)
+    private static void CollectVariablesRecursive(this IEnumerable item, ICollection<ITcSmTreeItem> variables, HashSet<string?> filter)
     {
         Retry.Invoke(() =>
         {
-            var filteredChildItems = item
-                .Cast<ITcSmTreeItem9>()
-                .Where(childItem => !isTopLevel || childItem.Name.StartsWith("MAIN.", StringComparison.CurrentCultureIgnoreCase));
+            var childItems = item.Cast<ITcSmTreeItem>();
         
-            foreach (var childItem in filteredChildItems)
+            foreach (var childItem in childItems)
             {
                 if (childItem.Name.EndsWith('.'))
                 {
-                    childItem.CollectVariablesRecursive(variables, filter, false);
+                    childItem.CollectVariablesRecursive(variables, filter);
                     continue;
                 }
 
