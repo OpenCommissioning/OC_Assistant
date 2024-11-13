@@ -1,0 +1,9 @@
+﻿<MenuItem x:Class="OC.Assistant.Controls.HelpMenu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Header="Help" x:ClassModifier="internal">
+    <MenuItem Header="AppData Folder" Click="AppDataOnClick"></MenuItem>
+    <CheckBox Click="VerboseOnClick">Verbose logging</CheckBox>
+    <Separator/>
+    <MenuItem Header="About" Click="AboutOnClick"/>
+</MenuItem>

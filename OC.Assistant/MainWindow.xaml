@@ -1,0 +1,36 @@
+﻿<Window x:Class="OC.Assistant.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:theme="http://schemas.open-commissioning-assistant.com/2024"
+        xmlns:controls="clr-namespace:OC.Assistant.Controls"
+        xmlns:plugins="clr-namespace:OC.Assistant.Plugins"
+        xmlns:pnGenerator="clr-namespace:OC.Assistant.PnGenerator"
+        xmlns:generator="clr-namespace:OC.Assistant.Generator"
+        theme:WindowStyle.UseTheme="True"
+        mc:Ignorable="d"
+        Title="Open Commissioning Assistant" Height="600" Width="800"
+        Closing="MainWindowOnClosing">
+    <Grid>
+        <Menu VerticalAlignment="Top">
+            <controls:FileMenu />
+            <generator:Menu />
+            <pnGenerator:Menu />
+            <controls:HelpMenu/>
+        </Menu>
+        <Grid Margin="0,32,0,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="4"/>
+                <RowDefinition Height="140" MinHeight="27" x:Name="ConsoleRow"/>
+            </Grid.RowDefinitions>
+            <plugins:PluginManager Grid.Row="0" Margin="0,0,0,-2"/>
+            <theme:LogViewer x:Name="LogViewer" Grid.Row="2"/>
+            <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
+            <controls:NotConnectedOverlay Grid.Row="0" />
+        </Grid>
+        <Grid x:Name="Footer" Height="24" VerticalAlignment="Bottom"></Grid>
+        <theme:BusyOverlay x:Name="BusyOverlay"/>
+    </Grid>
+</Window>

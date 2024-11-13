@@ -1,0 +1,18 @@
+﻿<MenuItem x:Class="OC.Assistant.Controls.FileMenu"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          Header="File"
+          Loaded="FileMenuOnLoaded" x:ClassModifier="internal"
+          xmlns:local="clr-namespace:OC.Assistant.Controls">
+    <local:DteSelector x:Name="DteSelector">
+        <MenuItem Header="No open TwinCAT project"></MenuItem>
+    </local:DteSelector>
+    <MenuItem Header="Open Solution" Click="OpenSlnOnClick">
+    </MenuItem>
+    <MenuItem Header="Create Solution" Click="CreateSlnOnClick">
+    </MenuItem>
+    <MenuItem Header="Open Config (readonly)" Click="OpenXmlOnClick">
+    </MenuItem>
+    <Separator/>
+    <MenuItem Header="Exit" Click="ExitOnClick"></MenuItem>
+</MenuItem>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <Company>Spiratec AG</Company>
+        <LangVersion>default</LangVersion>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <ApplicationIcon>Resources\oc_logo.ico</ApplicationIcon>
+        <Version>1.5.0</Version>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DebugType>none</DebugType>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\OC.TcTemplate.zip" />
+      <EmbeddedResource Include="Resources\TcDUT.xml" />
+      <EmbeddedResource Include="Resources\TcGVL.xml" />
+      <EmbeddedResource Include="Resources\TcPOU.xml" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="OC.Assistant.Sdk" Version="1.4.2" />
+      <PackageReference Include="OC.Assistant.Theme" Version="1.4.2" />
+      <PackageReference Include="envdte" Version="17.11.40262" />
+      <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
+    </ItemGroup>
+
+</Project>

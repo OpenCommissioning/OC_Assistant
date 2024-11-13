@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Versionize
+      run: dotnet tool install --global Versionize
+
+    - name: Setup git
+      run: |
+        git config --global user.email opencommissioning@spiratec.com
+        git config --global user.name "oc-bot"
+      
+    - name: Versioning
+      id: versionize
+      run: versionize
+      continue-on-error: true
+
+    - name: Get current version
+      if: steps.versionize.outcome == 'success'
+      run: echo "VERSION=v$(versionize inspect)" >> $GITHUB_ENV
+
+    - name: Get current changelog
+      if: steps.versionize.outcome == 'success'
+      run: echo "$(versionize changelog)" > latest_changelog.md
+        
+    - name: Dotnet publish
+      if: steps.versionize.outcome == 'success'
+      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 -p:PublishSingleFile=true -p:EnableWindowsTargeting=true --self-contained false --output ./
+    
+    - name: Push changes to GitHub
+      if: steps.versionize.outcome == 'success'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        tags: true
+
+    - name: Publish new release
+      if: steps.versionize.outcome == 'success'
+      run: |
+        gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F latest_changelog.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create zip file
+      uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -r ./OC.Assistant_${{env.VERSION}}.zip ./OC.Assistant.exe
+
+    - name: Upload release artifact
+      if: steps.versionize.outcome == 'success'
+      run: |
+        gh release upload ${{env.VERSION}} ./OC.Assistant_${{env.VERSION}}.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

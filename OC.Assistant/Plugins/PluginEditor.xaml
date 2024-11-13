@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="OC.Assistant.Plugins.PluginEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:plugins="clr-namespace:OC.Assistant.Plugins"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" x:ClassModifier="internal">
+    <Border Background="{DynamicResource White6Brush}" CornerRadius="{DynamicResource ControlCornerRadius}">
+        <Grid>
+            <ScrollViewer Margin="0,34,0,54">
+                <Grid x:Name="EditorWindow">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="140"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBox x:Name="PluginName" Grid.Row="0" VerticalAlignment="Top" Margin="20,40,20,0" BorderThickness="0">MyPlugin</TextBox>
+                    <plugins:PluginDropdown x:Name="TypeDropdown" Grid.Row="0" 
+                                       VerticalAlignment="Top" 
+                                       Margin="20,70,20,0" 
+                                       HorizontalAlignment="Stretch"
+                                       TypeSelected="TypeSelectorOnSelected">
+                    </plugins:PluginDropdown>
+                    <DockPanel Grid.Row="1" x:Name="ParameterPanel" Margin="20,0,20,0"></DockPanel>
+                </Grid>
+            </ScrollViewer>
+            <Grid Height="34" VerticalAlignment="Top">
+                <Label Margin="6,0,0,0" VerticalAlignment="Stretch" VerticalContentAlignment="Center">Properties</Label>
+                <Button Width="42" ToolTip="Hide Properties"
+                        HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                        Click="CloseButton_Click" FontSize="4">
+                    <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="10">&#xE921;</TextBlock>
+                </Button>
+            </Grid>
+            <Grid Height="54" VerticalAlignment="Bottom">
+                <Button Height="34" ToolTip="Save changes"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Click="ApplyButton_Click"
+                        x:Name="ApplyButton"
+                        Background="{DynamicResource White5Brush}"
+                        Margin="20,0,20,20">
+                    Apply
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>
