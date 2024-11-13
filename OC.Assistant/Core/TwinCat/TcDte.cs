@@ -12,11 +12,10 @@ namespace OC.Assistant.Core.TwinCat;
 /// </summary>
 public class TcDte
 {
-    private const string SHELL_2017_PROGRAM_ID = "TcXaeShell.DTE.15.0";
-    private const string SHELL_2022_PROGRAM_ID = "TcXaeShell.DTE.17.0";
-    private static readonly Type? Shell2017 = Type.GetTypeFromProgID(SHELL_2017_PROGRAM_ID);
-    private static readonly Type? Shell2022 = Type.GetTypeFromProgID(SHELL_2022_PROGRAM_ID);
     private readonly DTE? _dte;
+    private static readonly Type? InstalledShell = 
+        Type.GetTypeFromProgID("TcXaeShell.DTE.17.0") ?? 
+        Type.GetTypeFromProgID("TcXaeShell.DTE.15.0");
     
     /// <summary>
     /// Creates a new instance of the <see cref="TcDte"/> class.
@@ -26,10 +25,7 @@ public class TcDte
     /// <exception cref="Exception">Creating an instance of the shell failed.</exception>
     public TcDte(DTE? dte = null)
     {
-        var installedShellType = Shell2022;
-        installedShellType ??= Shell2017;
-
-        if (installedShellType is null)
+        if (InstalledShell is null)
         {
             throw new Exception("No TwinCAT Shell installed");
         }
@@ -41,7 +37,7 @@ public class TcDte
         }
         
         Logger.LogInfo(this, "Create TwinCAT XAE Shell instance ...");
-        _dte = Activator.CreateInstance(installedShellType) as DTE;
+        _dte = Activator.CreateInstance(InstalledShell) as DTE;
         
         if (_dte is null)
         {
@@ -151,12 +147,12 @@ public class TcDte
     }
     
     /// <summary>
-    /// Returns a collection of <see cref="TcDte"/> by querying all instances of type
-    /// <see cref="SHELL_2017_PROGRAM_ID"/> or <see cref="SHELL_2022_PROGRAM_ID"/>  with a valid TwinCAT solution.
+    /// Returns a collection of <see cref="TcDte"/> by querying all running <c>TwinCAT XAE Shell</c> instances
+    /// with a valid TwinCAT solution.
     /// </summary>
     public static IEnumerable<TcDte> GetInstances()
     {
-        if (Shell2017 is null && Shell2022 is null) yield break;
+        if (InstalledShell is null) yield break;
         if (GetRunningObjectTable(0, out var runningObjectTable) != 0) yield break;
         runningObjectTable.EnumRunning(out var enumMoniker);
 
@@ -171,8 +167,7 @@ public class TcDte
             {
                 CreateBindCtx(0, out var bindCtx);
                 moniker[0].GetDisplayName(bindCtx, null, out var displayName);
-                if (!displayName.StartsWith($"!{SHELL_2022_PROGRAM_ID}") && 
-                    !displayName.StartsWith($"!{SHELL_2017_PROGRAM_ID}")) continue;
+                if (!displayName.StartsWith("!TcXaeShell.DTE")) continue;
                 if (runningObjectTable.GetObject(moniker[0], out var obj) != 0) continue;
                 var dte = (DTE) obj;
                 if (dte.Solution.FullName == string.Empty) continue;
