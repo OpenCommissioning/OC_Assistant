@@ -24,6 +24,9 @@ internal static class Task
             var instance = tcSysManager?.TryGetPlcInstance();
             if (instance is null) return false;
             
+            //Collect all symbols with 'simulation_interface' attribute
+            var filter = instance.GetSymbolsWithAttribute("simulation_interface");
+            
             //Get task
             var task = tcSysManager?.TryGetItem(TcShortcut.TASK, XmlFile.XmlBase.PlcTaskName);
             if (task is null)
@@ -54,10 +57,10 @@ internal static class Task
                 switch (varGroup.ItemSubType)
                 {
                     case 1:
-                        varGroup.CollectVariablesRecursive(inputVariables);
+                        varGroup.CollectVariablesRecursive(inputVariables, filter);
                         break;
                     case 2:
-                        varGroup.CollectVariablesRecursive(outputVariables);
+                        varGroup.CollectVariablesRecursive(outputVariables, filter);
                         break;
                 }
             }
@@ -86,6 +89,20 @@ internal static class Task
         });
     }
 
+    private static HashSet<string?> GetSymbolsWithAttribute(this ITcSmTreeItem instance, string attribute)
+    {
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        return XDocument.Parse(((ITcModuleInstance2) instance).ExportXml())
+            .Descendants("Symbol")
+            .Where(symbol => 
+                symbol.Element("Properties")?
+                    .Element("Property")?
+                    .Element("Name")?.Value == attribute)
+            .Select(symbol => symbol.Element("Name")?.Value)
+            .Distinct()
+            .ToHashSet();
+    }
+
     private static IEnumerable<ITcSmTreeItem>? GetVarGroups(this IEnumerable item)
     {
         return Retry.Invoke(() =>
@@ -96,23 +113,24 @@ internal static class Task
         });
     }
     
-    private static void CollectVariablesRecursive(this IEnumerable item, ICollection<ITcSmTreeItem> variables, bool isTopLevel = true)
+    private static void CollectVariablesRecursive(this IEnumerable item, ICollection<ITcSmTreeItem> variables, HashSet<string?> filter)
     {
         Retry.Invoke(() =>
         {
-            var filteredChildItems = item
-                .Cast<ITcSmTreeItem>()
-                .Where(childItem => !isTopLevel || childItem.Name.StartsWith("MAIN.", StringComparison.CurrentCultureIgnoreCase));
+            var childItems = item.Cast<ITcSmTreeItem>();
         
-            foreach (var childItem in filteredChildItems)
+            foreach (var childItem in childItems)
             {
                 if (childItem.Name.EndsWith('.'))
                 {
-                    childItem.CollectVariablesRecursive(variables, false);
+                    childItem.CollectVariablesRecursive(variables, filter);
                     continue;
                 }
-            
-                variables.Add(childItem);
+
+                if (filter.Contains(childItem.Name))
+                {
+                    variables.Add(childItem);
+                }
             }
         });
     }
