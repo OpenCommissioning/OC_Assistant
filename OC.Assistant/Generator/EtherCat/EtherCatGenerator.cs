@@ -12,7 +12,6 @@ namespace OC.Assistant.Generator.EtherCat;
 /// </summary>
 internal class EtherCatGenerator
 {
-    private const string DEVICE_XML = "OC.EthercatDevices.xml";
     private readonly IProjectConnector _projectConnector;
     private readonly List<EtherCatInstance> _instance = [];
     private readonly string _folderName;
@@ -107,7 +106,7 @@ internal class EtherCatGenerator
                 
                 if (missingTypes.Any(x => x == type)) continue;
                 missingTypes.Add(type);
-                Logger.LogWarning(this, $"{nativeName}: Missing EtherCAT type in bus {eCatName}. {type} not found in {DEVICE_XML}");
+                Logger.LogWarning(this, $"{nativeName}: Missing EtherCAT type in bus {eCatName}. {type} not found in any *.ethml file");
                 continue;
             }
             
@@ -153,9 +152,9 @@ internal class EtherCatGenerator
     {
         get
         {
-            var doc = XDocument.Load($"{_projectConnector.TcProjectFolder}\\{DEVICE_XML}");
-            return doc.Root?.Elements("Device")
-                .Select(device => new EtherCatTemplate(device)) ?? new List<EtherCatTemplate>();
+            return Directory.GetFiles($"{_projectConnector.TcProjectFolder}", "*.ethml")
+                .Select(XDocument.Load).SelectMany(doc => doc.Root?.Elements("Device")
+                .Select(device => new EtherCatTemplate(device)) ?? new List<EtherCatTemplate>());
         }
     }
     
@@ -163,9 +162,9 @@ internal class EtherCatGenerator
     {
         get
         {
-            var doc = XDocument.Load($"{_projectConnector.TcProjectFolder}\\{DEVICE_XML}");
-            return doc.Root?.Element("Ignore")?.Elements("Device")
-                .Select(device => device.Attribute("ProductDescription")?.Value) ?? new List<string>();
+            return Directory.GetFiles($"{_projectConnector.TcProjectFolder}", "*.ethml")
+                .Select(XDocument.Load).SelectMany(doc => doc.Root?.Element("Ignore")?.Elements("Device")
+                .Select(device => device.Attribute("ProductDescription")?.Value) ?? new List<string>());
         }
     }
 
