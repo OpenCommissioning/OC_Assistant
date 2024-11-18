@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.5.2"></a>
+## [1.5.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.5.2) (2024-11-18)
+
+### Bug Fixes
+
+* add support for multiple EtherCAT device files (new ethml file type) ([687393a](https://www.github.com/OpenCommissioning/OC_Assistant/commit/687393ab53b660590c2fa64d7f1abd2d3a96e343))
+* update sdk package reference to v1.4.3 ([cd7aca9](https://www.github.com/OpenCommissioning/OC_Assistant/commit/cd7aca945dd80dc6a0e82fc77398364939d9e971))
+* update twincat template project to match new *.ethml files ([fc233c5](https://www.github.com/OpenCommissioning/OC_Assistant/commit/fc233c5aaa5f6a24c5d4088ff21501d12ab0d275))
+
 <a name="1.5.1"></a>
 ## [1.5.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.5.1) (2024-11-15)
 
