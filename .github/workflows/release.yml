@@ -24,7 +24,7 @@ jobs:
       
     - name: Versioning
       id: versionize
-      run: versionize
+      run: versionize --exit-insignificant-commits
       continue-on-error: true
 
     - name: Get current version
@@ -34,10 +34,6 @@ jobs:
     - name: Get current changelog
       if: steps.versionize.outcome == 'success'
       run: echo "$(versionize changelog)" > latest_changelog.md
-        
-    - name: Dotnet publish
-      if: steps.versionize.outcome == 'success'
-      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 -p:PublishSingleFile=true -p:EnableWindowsTargeting=true --self-contained false --output ./
     
     - name: Push changes to GitHub
       if: steps.versionize.outcome == 'success'
@@ -47,21 +43,15 @@ jobs:
         branch: ${{ github.ref }}
         tags: true
 
+    - name: Dotnet publish
+      if: steps.versionize.outcome == 'success'
+      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 -p:PublishSingleFile=true -p:EnableWindowsTargeting=true --self-contained false --output ./
+
     - name: Publish new release
       if: steps.versionize.outcome == 'success'
       run: |
         gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F latest_changelog.md
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create zip file
-      uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r ./OC.Assistant_${{env.VERSION}}.zip ./OC.Assistant.exe
-
-    - name: Upload release artifact
-      if: steps.versionize.outcome == 'success'
-      run: |
+        zip ./OC.Assistant_${{env.VERSION}}.zip ./OC.Assistant.exe
         gh release upload ${{env.VERSION}} ./OC.Assistant_${{env.VERSION}}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
