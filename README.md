@@ -24,6 +24,11 @@ It is currently optimized for a connection to a TwinCAT3 Shell. Supported Versio
 Download the _OC.Assistant.exe_ from the Release page and start it.
 ``.NET 8.0`` is required to run the application.
 
+> [!NOTE]
+> Windows Defender might detect a threat when you download or unpack the OC.Assistant_vx.x.x.zip file from the Release page.
+> This happens because the executable isn't code-signed, so Windows can't verify it.
+> If you are concerned about using the prebuilt release, you always have the option to build the application yourself with [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
+
 
 ## Core Functionality
 
@@ -111,14 +116,11 @@ Plugins enable the Assistant to connect to external systems such as PLCs, robot 
 ![OS_System](Documentation%2FImages%2FAssistant_Plugins_dark.png#gh-dark-mode-only)
 ![OS_System](Documentation%2FImages%2FAssistant_Plugins_light.png#gh-light-mode-only)
 
-There will be plugins for:
+Plugin use cases:
   - Cyclic communication with various virtual PLCs
   - Cyclic communication with various virtual Robot controllers
   - Acyclic data handling (RecordData)
   - Modbus Server and Client communication
-
-> [!NOTE]
-> There are no plugins released for the public yet.
 
 ### Installation
 1. Move the plugin folder into the directory of the `OC.Assistant.exe`.
