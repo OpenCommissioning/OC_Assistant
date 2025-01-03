@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using OC.Assistant.Core;
 using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
+using TwinCAT.Ads;
 
 namespace OC.Assistant.Controls;
 
@@ -18,7 +19,6 @@ internal partial class FileMenu : IProjectSelector
     private static event Action? OnCreateSolution;
     
     public event Action<TcDte>? DteSelected;
-    public event Action<string>? XmlSelected;
     public event Action? DteClosed;
     
     private void SolutionEventsOnAfterClosing()
@@ -61,9 +61,8 @@ internal partial class FileMenu : IProjectSelector
     {
         DteSelector.Selected += SelectDte;
         await InitializeDte();
-        InitializeXml();
     }
-
+    
     private void ExitOnClick(object sender, RoutedEventArgs e)
     {
         Application.Current.Shutdown();
@@ -80,22 +79,13 @@ internal partial class FileMenu : IProjectSelector
         await GetSolutionFromPath(path);
         BusyState.Reset(this);
     }
-    
-    private void InitializeXml()
-    {
-        if (!File.Exists(AppData.PreselectedProject)) return;
-        var path = File.ReadAllText(AppData.PreselectedProject);
-        File.Delete(AppData.PreselectedProject);
-        if (!Path.GetExtension(path).Equals(".xml", StringComparison.CurrentCultureIgnoreCase)) return;
-        XmlSelected?.Invoke(path);
-    }
 
     private async Task GetSolutionFromPath(string path)
     {
         await Task.Run(() =>
         {
             var selection = TcDte.GetInstances().FirstOrDefault(x => x.SolutionFullName == path);
-            if (selection == default)
+            if (selection == null)
             {
                 Logger.LogError(this, $"There is no open solution {path}.");
                 return;
@@ -106,6 +96,9 @@ internal partial class FileMenu : IProjectSelector
     
     private void SelectDte(TcDte dte)
     {
+        var netId = dte.GetTcSysManager()?.GetTargetNetId();
+        ApiLocal.Interface.NetId = netId is null ? AmsNetId.Local : new AmsNetId(netId);
+        
         _solutionEvents = dte.SolutionEvents;
         if (_solutionEvents is not null)
         {
@@ -154,24 +147,6 @@ internal partial class FileMenu : IProjectSelector
             await CreateSolution(saveFileDialog.FileName);
         }
 
-        BusyState.Reset(this);
-    }
-        
-    private void OpenXmlOnClick(object sender, RoutedEventArgs e)
-    {
-        BusyState.Set(this);
-
-        var openFileDialog = new OpenFileDialog
-        {
-            Filter = $"Config file|{XmlFile.DEFAULT_FILE_NAME}",
-            RestoreDirectory = true
-        };
-        
-        if (openFileDialog.ShowDialog() == true)
-        {
-            XmlSelected?.Invoke(openFileDialog.FileName);
-        }
-        
         BusyState.Reset(this);
     }
 
