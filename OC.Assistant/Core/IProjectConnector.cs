@@ -13,11 +13,6 @@ public interface IProjectConnector : IConnectionState
     /// </summary>
     /// <param name="tcDte">The <see cref="TcDte"/> to connect.</param>
     void Connect(TcDte tcDte);
-
-    /// <summary>
-    /// Connects a xml file (runtime mode).
-    /// </summary>
-    void Connect();
     
     /// <summary>
     /// Is called when TwinCAT started running.

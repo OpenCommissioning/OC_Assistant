@@ -63,7 +63,6 @@ public class ProjectManager
                     break;
                 case IProjectSelector projectSelector:
                     projectSelector.DteSelected += Connect;
-                    projectSelector.XmlSelected += Connect;
                     projectSelector.DteClosed += Disconnect;
                     break;
             }
@@ -85,32 +84,6 @@ public class ProjectManager
         {
             _controls.Add(control);
         }
-    }
-
-    /// <summary>
-    /// Connects all subscribed controls to the given project file.
-    /// </summary>
-    /// <param name="xmlPath">Path to the xml project file.</param>
-    private void Connect(string xmlPath)
-    {
-        _grid.Dispatcher.Invoke(() =>
-        {
-            if (RestartIfConnected(xmlPath)) return;
-            XmlFile.Path = xmlPath;
-            
-            foreach (var control in _controls.OfType<IProjectConnector>())
-            {
-                control.Connect();
-                control.IsLocked = true;
-            }
-            foreach (var control in _controls.OfType<IConnectionState>())
-            {
-                control.OnConnect();
-            }
-            
-            _tcState.IsProjectConnected = true;
-            _hasBeenConnected = true;
-        });
     }
         
     /// <summary>

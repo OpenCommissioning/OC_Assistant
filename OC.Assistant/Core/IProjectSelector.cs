@@ -13,11 +13,6 @@ public interface IProjectSelector
     public event Action<TcDte>? DteSelected;
     
     /// <summary>
-    /// Is raised when a xml file has been selected. 
-    /// </summary>
-    public event Action<string>? XmlSelected;
-    
-    /// <summary>
     /// Is raised when a connected solution has been closed. 
     /// </summary>
     public event Action? DteClosed;

@@ -17,11 +17,6 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
         TcSysManager = tcDte.GetTcSysManager();
     }
     
-    void IProjectConnector.Connect()
-    {
-        ReadOnly = true;
-    }
-    
     public abstract void OnConnect();
     
     public abstract void OnDisconnect();
@@ -32,7 +27,7 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
     
     public virtual bool IsLocked
     {
-        set => IsEnabled = !ReadOnly && !value;
+        set => IsEnabled = !value;
     }
     
     public ITcSysManager15? TcSysManager { get; private set; }
@@ -61,9 +56,4 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
             BusyState.Reset(this);
         }
     }
-    
-    /// <summary>
-    /// Gets a value whether the application is in readonly mode (connected to xml file).
-    /// </summary>
-    protected bool ReadOnly { get; private set; }
 }
