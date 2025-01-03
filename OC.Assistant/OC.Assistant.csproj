@@ -24,8 +24,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <PackageReference Include="OC.Assistant.Sdk" Version="1.4.3" />
-      <PackageReference Include="OC.Assistant.Theme" Version="1.4.2" />
+      <PackageReference Include="OC.Assistant.Sdk" Version="1.5.0" />
+      <PackageReference Include="OC.Assistant.Theme" Version="1.4.5" />
       <PackageReference Include="envdte" Version="17.11.40262" />
       <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
     </ItemGroup>
