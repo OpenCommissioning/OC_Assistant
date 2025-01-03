@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using OC.Assistant.Sdk;
 using TwinCAT.Ads;
 
@@ -8,8 +9,9 @@ public class TcState : TcStateIndicator
 {
     private bool _wasRunning;
     private bool _isProjectConnected;
+    private AdsErrorCode _adsErrorCode;
     private readonly AdsClient _adsClient = new ();
-    
+
     /// <summary>
     /// Gets a value if the TwinCAT system is in <see cref="AdsState.Run"/>.
     /// </summary>
@@ -19,14 +21,42 @@ public class TcState : TcStateIndicator
         {
             try
             {
-                if (!_adsClient.IsConnected)
+                if (!IsProjectConnected)
                 {
                     return false;
                 }
-                return _adsClient.TryReadState(out var stateInfo) == AdsErrorCode.NoError && stateInfo.AdsState == AdsState.Run;
+                
+                if (!_adsClient.IsConnected)
+                {
+                    _adsClient.Connect(ApiLocal.Interface.NetId, (int) AmsPort.R0_Realtime);
+                    Logger.LogInfo(this, $"Connected to TwinCAT NetId {ApiLocal.Interface.NetId}");
+                }
+
+                var adsErrorCode = _adsClient.TryReadState(out var stateInfo);
+                
+                switch (adsErrorCode)
+                {
+                    case AdsErrorCode.NoError:
+                        _adsErrorCode = adsErrorCode;
+                        return stateInfo.AdsState == AdsState.Run;
+                    case AdsErrorCode.TargetPortNotFound:
+                        _adsErrorCode = adsErrorCode;
+                        _adsClient.Disconnect();
+                        _adsClient.Connect(ApiLocal.Interface.NetId, (int) AmsPort.R0_Realtime);
+                        return _adsClient.TryReadState(out stateInfo) == AdsErrorCode.NoError && stateInfo.AdsState == AdsState.Run;
+                    default:
+                        if (_adsErrorCode == adsErrorCode)
+                        {
+                            return false;
+                        }
+                        _adsErrorCode = adsErrorCode;
+                        Logger.LogError(this, $"Could not read TwinCAT state on {ApiLocal.Interface.NetId}. Error: {adsErrorCode}");
+                        return false;
+                }
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogError(this, e.Message);
                 return false;
             }
         }
@@ -42,26 +72,25 @@ public class TcState : TcStateIndicator
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        await Task.Run(() =>
+        try
         {
-            try
+            await Task.Run(() =>
             {
                 BusyState.Set(this);
-                Logger.LogInfo(this, "Connecting to TwinCAT.Ads...");
+                Logger.LogInfo(this, "Checking TwinCAT ADS server...");
                 _adsClient.Connect((int) AmsPort.R0_Realtime);
-                _wasRunning = IsRunning;
-                _adsClient.RouterStateChanged += AdsClientOnRouterStateChanged;
-                Logger.LogInfo(this, "TwinCAT.Ads successfully connected");
-            }
-            catch (Exception exception)
-            {
-                Logger.LogError(this, exception.Message);
-            }
-            finally
-            {
-                BusyState.Reset(this);
-            }
-        });
+                _adsClient.Disconnect();
+                Logger.LogInfo(this, "TwinCAT ADS server ok");
+            });
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
+        finally
+        {
+            BusyState.Reset(this);
+        }
     }
 
     /// <summary>
@@ -85,8 +114,22 @@ public class TcState : TcStateIndicator
             _isProjectConnected = value;
             if (!value)
             {
+                _adsClient.Disconnect();
+                _adsClient.RouterStateChanged -= AdsClientOnRouterStateChanged;
                 IndicateDisconnected();
                 return;
+            }
+            
+            _wasRunning = IsRunning;
+
+            if (ApiLocal.Interface.NetId == AmsNetId.Local)
+            {
+                _adsClient.RouterStateChanged += AdsClientOnRouterStateChanged;
+            }
+            
+            if (ApiLocal.Interface.NetId != AmsNetId.Local)
+            {
+                StartPolling();
             }
 
             if (!IsRunning)
@@ -132,5 +175,34 @@ public class TcState : TcStateIndicator
         
         IndicateConfigMode();
         StoppedRunning?.Invoke();
+    }
+
+    private void StartPolling()
+    {
+        var stopwatch = new Stopwatch();
+        
+        Task.Run(() =>
+        {
+            while (IsProjectConnected)
+            {
+                stopwatch.WaitUntil(100);
+
+                if (!IsProjectConnected)
+                {
+                    return;
+                }
+
+                if (IsRunning && !_wasRunning)
+                {
+                    AdsClientOnRouterStateChanged(this, new AmsRouterNotificationEventArgs(AmsRouterState.Start));
+                    continue;
+                }
+                
+                if (!IsRunning && _wasRunning)
+                {
+                    AdsClientOnRouterStateChanged(this, new AmsRouterNotificationEventArgs(AmsRouterState.Stop));
+                }
+            }
+        });
     }
 }

@@ -4,20 +4,38 @@ using System.Windows.Media;
 
 namespace OC.Assistant.Core.TwinCat;
 
-public class TcStateIndicator : Border
+public class TcStateIndicator : StackPanel
 {
-    private readonly Label _label = new();
+    private readonly Border _stateBorder = new();
+    private readonly Label _stateLabel = new();
+    private readonly Border _netIdBorder = new();
+    private readonly Label _nedIdLabel = new();
     
     protected TcStateIndicator()
     {
-        Width = 50;
-        VerticalAlignment = VerticalAlignment.Center;
-        CornerRadius = (CornerRadius)Application.Current.Resources["ControlCornerRadius"];
+        _stateLabel.VerticalAlignment = VerticalAlignment.Center;
+        _stateLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        _stateLabel.Foreground = Application.Current.Resources["ForegroundBaseBrush"] as SolidColorBrush;
         
-        _label.VerticalAlignment = VerticalAlignment.Center;
-        _label.HorizontalAlignment = HorizontalAlignment.Center;
-        _label.Foreground = Application.Current.Resources["ForegroundBaseBrush"] as SolidColorBrush;
-        Loaded += (_, _) => Child = _label;
+        _stateBorder.Width = 50;
+        _stateBorder.VerticalAlignment = VerticalAlignment.Center;
+        _stateBorder.CornerRadius = (CornerRadius)Application.Current.Resources["ControlCornerRadius"];
+        _stateBorder.Child = _stateLabel;
+        
+        _nedIdLabel.VerticalAlignment = VerticalAlignment.Center;
+        _nedIdLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        _nedIdLabel.Foreground = Application.Current.Resources["ForegroundBaseBrush"] as SolidColorBrush;
+        
+        _netIdBorder.VerticalAlignment = VerticalAlignment.Center;
+        _netIdBorder.CornerRadius = (CornerRadius)Application.Current.Resources["ControlCornerRadius"];
+        _netIdBorder.Background = Application.Current.Resources["White4Brush"] as SolidColorBrush;
+        _netIdBorder.Margin = new Thickness(0, 0, 3, 0);
+        _netIdBorder.Padding = new Thickness(5, 0, 5, 0);
+        _netIdBorder.Child = _nedIdLabel;
+        
+        Orientation = Orientation.Horizontal;
+        Children.Add(_netIdBorder);
+        Children.Add(_stateBorder);
         
         IndicateDisconnected();
     }
@@ -26,8 +44,9 @@ public class TcStateIndicator : Border
     {
         Dispatcher.Invoke(() =>
         {
-            Background = Application.Current.Resources["White4Brush"] as SolidColorBrush;
-            _label.Content = "Offline";
+            _stateBorder.Background = Application.Current.Resources["White4Brush"] as SolidColorBrush;
+            _stateLabel.Content = "Offline";
+            _nedIdLabel.Content = null;
         });
     }
 
@@ -35,8 +54,9 @@ public class TcStateIndicator : Border
     {
         Dispatcher.Invoke(() =>
         {
-            Background = Application.Current.Resources["Green1Brush"] as SolidColorBrush;
-            _label.Content = "Run";
+            _stateBorder.Background = Application.Current.Resources["Green1Brush"] as SolidColorBrush;
+            _stateLabel.Content = "Run";
+            _nedIdLabel.Content = Sdk.ApiLocal.Interface.NetId;
         });
     }
 
@@ -44,8 +64,9 @@ public class TcStateIndicator : Border
     {
         Dispatcher.Invoke(() =>
         {
-            Background = Application.Current.Resources["AccentBrush"] as SolidColorBrush;
-            _label.Content = "Config";
+            _stateBorder.Background = Application.Current.Resources["AccentBrush"] as SolidColorBrush;
+            _stateLabel.Content = "Config";
+            _nedIdLabel.Content = Sdk.ApiLocal.Interface.NetId;
         });
     }
 }
