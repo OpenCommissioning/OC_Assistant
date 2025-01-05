@@ -108,7 +108,7 @@ public class ProjectManager
                 control.OnConnect();
             }
             
-            _tcState.IsProjectConnected = true;
+            _tcState.ConnectProject(selectedDte);
             _hasBeenConnected = true;
         });
     }
@@ -121,7 +121,7 @@ public class ProjectManager
         _grid.Dispatcher.Invoke(() =>
         {
             Sdk.Logger.LogWarning(this, "TwinCAT Project closed");
-            _tcState.IsProjectConnected = false;
+            _tcState.DisconnectProject();
             
             foreach (var control in _controls.OfType<IProjectConnector>())
             {
