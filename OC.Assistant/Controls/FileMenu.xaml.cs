@@ -5,7 +5,6 @@ using Microsoft.Win32;
 using OC.Assistant.Core;
 using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
-using TwinCAT.Ads;
 
 namespace OC.Assistant.Controls;
 
@@ -59,8 +58,15 @@ internal partial class FileMenu : IProjectSelector
 
     private async void FileMenuOnLoaded(object sender, RoutedEventArgs e)
     {
-        DteSelector.Selected += SelectDte;
-        await InitializeDte();
+        try
+        {
+            DteSelector.Selected += SelectDte;
+            await InitializeDte();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
     
     private void ExitOnClick(object sender, RoutedEventArgs e)
@@ -96,9 +102,6 @@ internal partial class FileMenu : IProjectSelector
     
     private void SelectDte(TcDte dte)
     {
-        var netId = dte.GetTcSysManager()?.GetTargetNetId();
-        ApiLocal.Interface.NetId = netId is null ? AmsNetId.Local : new AmsNetId(netId);
-        
         _solutionEvents = dte.SolutionEvents;
         if (_solutionEvents is not null)
         {
@@ -116,38 +119,52 @@ internal partial class FileMenu : IProjectSelector
     
     private async void OpenSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
     {
-        BusyState.Set(this);
+        try
+        {
+            BusyState.Set(this);
 
-        var openFileDialog = new OpenFileDialog
-        {
-            Filter = "TwinCAT Solution (*.sln)|*.sln",
-            RestoreDirectory = true
-        };
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "TwinCAT Solution (*.sln)|*.sln",
+                RestoreDirectory = true
+            };
         
-        if (openFileDialog.ShowDialog() == true)
-        {
-            await OpenDte(openFileDialog.FileName);
+            if (openFileDialog.ShowDialog() == true)
+            {
+                await OpenDte(openFileDialog.FileName);
+            }
+        
+            BusyState.Reset(this);
         }
-        
-        BusyState.Reset(this);
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
     
     private async void CreateSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
     {
-        BusyState.Set(this);
-
-        var saveFileDialog = new SaveFileDialog
+        try
         {
-            Filter = "TwinCAT Solution (*.sln)|*.sln",
-            RestoreDirectory = true
-        };
+            BusyState.Set(this);
+
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "TwinCAT Solution (*.sln)|*.sln",
+                RestoreDirectory = true
+            };
         
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            await CreateSolution(saveFileDialog.FileName);
-        }
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                await CreateSolution(saveFileDialog.FileName);
+            }
 
-        BusyState.Reset(this);
+            BusyState.Reset(this);
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
 
     private async Task OpenDte(string path)
