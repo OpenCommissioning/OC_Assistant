@@ -16,7 +16,6 @@ public class ProjectManager
     private bool _hasBeenConnected;
     private readonly Grid _grid = new ();
     private readonly TcState _tcState = new ();
-    private readonly Label _infoLabel = new ();
     private static readonly Lazy<ProjectManager> LazyInstance = new(() => new ProjectManager());
     private bool _initialized;
     
@@ -31,13 +30,8 @@ public class ProjectManager
         _tcState.Margin = new Thickness(0, 0, 6, 0);
         _tcState.StartedRunning += OnStartedRunning;
         _tcState.StoppedRunning += OnStoppedRunning;
-
-        _infoLabel.VerticalContentAlignment = VerticalAlignment.Center;
-        _infoLabel.HorizontalAlignment = HorizontalAlignment.Left;
-        _infoLabel.Margin = new Thickness(6, 0, 0, 0);
         
         _grid.Children.Add(_tcState);
-        _grid.Children.Add(_infoLabel);
     }
     
     /// <summary>
@@ -108,7 +102,7 @@ public class ProjectManager
                 control.OnConnect();
             }
             
-            _tcState.IsProjectConnected = true;
+            _tcState.ConnectProject(selectedDte);
             _hasBeenConnected = true;
         });
     }
@@ -121,7 +115,7 @@ public class ProjectManager
         _grid.Dispatcher.Invoke(() =>
         {
             Sdk.Logger.LogWarning(this, "TwinCAT Project closed");
-            _tcState.IsProjectConnected = false;
+            _tcState.DisconnectProject();
             
             foreach (var control in _controls.OfType<IProjectConnector>())
             {
@@ -131,8 +125,6 @@ public class ProjectManager
             {
                 control.OnDisconnect();
             }
-            
-            _infoLabel.Content = null;
         });
     }
     
@@ -164,11 +156,7 @@ public class ProjectManager
     {
         if (!_hasBeenConnected)
         {
-            return _grid.Dispatcher.Invoke(() =>
-            {
-                _infoLabel.Content = $"Connected to {projectPath}";
-                return false;
-            });
+            return false;
         }
         
         System.IO.File.WriteAllText(AppData.PreselectedProject, projectPath);

@@ -10,6 +10,8 @@ public class TcStateIndicator : StackPanel
     private readonly Label _stateLabel = new();
     private readonly Border _netIdBorder = new();
     private readonly Label _nedIdLabel = new();
+    private readonly Border _solutionBorder = new();
+    private readonly Label _solutionLabel = new();
     
     protected TcStateIndicator()
     {
@@ -33,11 +35,31 @@ public class TcStateIndicator : StackPanel
         _netIdBorder.Padding = new Thickness(5, 0, 5, 0);
         _netIdBorder.Child = _nedIdLabel;
         
+        _solutionLabel.VerticalAlignment = VerticalAlignment.Center;
+        _solutionLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        _solutionLabel.Foreground = Application.Current.Resources["ForegroundBaseBrush"] as SolidColorBrush;
+        
+        _solutionBorder.VerticalAlignment = VerticalAlignment.Center;
+        _solutionBorder.CornerRadius = (CornerRadius)Application.Current.Resources["ControlCornerRadius"];
+        _solutionBorder.Background = Application.Current.Resources["White4Brush"] as SolidColorBrush;
+        _solutionBorder.Margin = new Thickness(0, 0, 3, 0);
+        _solutionBorder.Padding = new Thickness(5, 0, 5, 0);
+        _solutionBorder.Child = _solutionLabel;
+        
         Orientation = Orientation.Horizontal;
+        Children.Add(_solutionBorder);
         Children.Add(_netIdBorder);
         Children.Add(_stateBorder);
         
         IndicateDisconnected();
+    }
+
+    protected void SetSolutionPath(string? path)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            _solutionLabel.Content = path;
+        });
     }
 
     protected void IndicateDisconnected()
@@ -47,6 +69,7 @@ public class TcStateIndicator : StackPanel
             _stateBorder.Background = Application.Current.Resources["White4Brush"] as SolidColorBrush;
             _stateLabel.Content = "Offline";
             _nedIdLabel.Content = null;
+            _solutionLabel.Content = null;
         });
     }
 

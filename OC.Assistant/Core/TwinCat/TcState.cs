@@ -1,66 +1,24 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using OC.Assistant.Sdk;
+using TCatSysManagerLib;
 using TwinCAT.Ads;
 
 namespace OC.Assistant.Core.TwinCat;
 
+/// <summary>
+/// Manages the TwinCAT state.
+/// </summary>
 public class TcState : TcStateIndicator
 {
-    private bool _wasRunning;
-    private bool _isProjectConnected;
-    private AdsErrorCode _adsErrorCode;
-    private readonly AdsClient _adsClient = new ();
-
-    /// <summary>
-    /// Gets a value if the TwinCAT system is in <see cref="AdsState.Run"/>.
-    /// </summary>
-    public bool IsRunning
-    {
-        get
-        {
-            try
-            {
-                if (!IsProjectConnected)
-                {
-                    return false;
-                }
-                
-                if (!_adsClient.IsConnected)
-                {
-                    _adsClient.Connect(ApiLocal.Interface.NetId, (int) AmsPort.R0_Realtime);
-                    Logger.LogInfo(this, $"Connected to TwinCAT NetId {ApiLocal.Interface.NetId}");
-                }
-
-                var adsErrorCode = _adsClient.TryReadState(out var stateInfo);
-                
-                switch (adsErrorCode)
-                {
-                    case AdsErrorCode.NoError:
-                        _adsErrorCode = adsErrorCode;
-                        return stateInfo.AdsState == AdsState.Run;
-                    case AdsErrorCode.TargetPortNotFound:
-                        _adsErrorCode = adsErrorCode;
-                        _adsClient.Disconnect();
-                        _adsClient.Connect(ApiLocal.Interface.NetId, (int) AmsPort.R0_Realtime);
-                        return _adsClient.TryReadState(out stateInfo) == AdsErrorCode.NoError && stateInfo.AdsState == AdsState.Run;
-                    default:
-                        if (_adsErrorCode == adsErrorCode)
-                        {
-                            return false;
-                        }
-                        _adsErrorCode = adsErrorCode;
-                        Logger.LogError(this, $"Could not read TwinCAT state on {ApiLocal.Interface.NetId}. Error: {adsErrorCode}");
-                        return false;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(this, e.Message);
-                return false;
-            }
-        }
-    }
+    private AdsState _lastRunState = AdsState.Idle;
+    private ITcSysManager15? _tcSysManager;
+    private readonly object _lock = new();
+    private readonly AdsClient _adsClient = new();
+    private AmsNetId _amsNetId = AmsNetId.Local;
+    private CancellationTokenSource _cancellationTokenSource = new();
+    private bool _adsNotOk;
+    
+    private bool IsProjectConnected => _tcSysManager is not null;
     
     /// <summary>
     /// Creates a new instance of the <see cref="TcState"/> class.
@@ -69,7 +27,7 @@ public class TcState : TcStateIndicator
     {
         Loaded += OnLoaded;
     }
-
+    
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         try
@@ -78,13 +36,14 @@ public class TcState : TcStateIndicator
             {
                 BusyState.Set(this);
                 Logger.LogInfo(this, "Checking TwinCAT ADS server...");
-                _adsClient.Connect((int) AmsPort.R0_Realtime);
+                _adsClient.Connect((int)AmsPort.R0_Realtime);
                 _adsClient.Disconnect();
                 Logger.LogInfo(this, "TwinCAT ADS server ok");
             });
         }
         catch (Exception exception)
         {
+            _adsNotOk = true;
             Logger.LogError(this, exception.Message);
         }
         finally
@@ -93,116 +52,158 @@ public class TcState : TcStateIndicator
         }
     }
 
+    private AdsState GetAdsState()
+    {
+        lock (_lock)
+        {
+            try
+            {
+                if (!IsProjectConnected)
+                {
+                    return AdsState.Idle;
+                }
+
+                if (!_adsClient.IsConnected || _amsNetId != ApiLocal.Interface.NetId)
+                {
+                    ApiLocal.Interface.NetId = _amsNetId;
+                    _adsClient.Disconnect();
+                    _adsClient.Connect(_amsNetId, (int)AmsPort.R0_Realtime);
+                    IndicateConfigMode();
+                }
+
+                if (_adsClient.TryReadState(out var stateInfo) == AdsErrorCode.NoError)
+                {
+                    return stateInfo.AdsState;
+                }
+                
+                _adsClient.Disconnect();
+                return AdsState.Error;
+            }
+            catch (Exception e)
+            {
+                _adsNotOk = true;
+                _cancellationTokenSource.Cancel();
+                Logger.LogError(this, e.Message);
+                return AdsState.Exception;
+            }
+        }
+    }
+
+    private AmsNetId GetCurrentNetId()
+    {
+        lock (_lock)
+        {
+            try
+            {
+                var netId = _tcSysManager?.GetTargetNetId();
+                return netId is null ? _amsNetId : new AmsNetId(netId);
+            }
+            catch
+            {
+                return _amsNetId;
+            }
+        }
+    }
+
     /// <summary>
-    /// Is raised when TwinCAT started running.
+    /// Is raised when TwinCAT starts running.
     /// </summary>
     public event Action? StartedRunning;
 
     /// <summary>
-    /// Is raised when TwinCAT stopped running.
+    /// Is raised when TwinCAT stops running.
     /// </summary>
     public event Action? StoppedRunning;
-    
+
     /// <summary>
-    /// Gets or sets if a project is connected.
+    /// Connects the <see cref="TcState"/> instance a project.
     /// </summary>
-    public bool IsProjectConnected
+    /// <param name="tcDte">The given <see cref="TcDte"/></param>
+    public void ConnectProject(TcDte tcDte)
     {
-        get => _isProjectConnected;
-        set
+        if (_adsNotOk) return;
+
+        lock (_lock)
         {
-            _isProjectConnected = value;
-            if (!value)
-            {
-                _adsClient.Disconnect();
-                _adsClient.RouterStateChanged -= AdsClientOnRouterStateChanged;
-                IndicateDisconnected();
-                return;
-            }
-            
-            _wasRunning = IsRunning;
+            _tcSysManager = tcDte.GetTcSysManager();
+            _amsNetId = GetCurrentNetId();
+            ApiLocal.Interface.NetId = _amsNetId;
+            _cancellationTokenSource = new CancellationTokenSource();
+            SetSolutionPath(tcDte.SolutionFileName);
 
-            if (ApiLocal.Interface.NetId == AmsNetId.Local)
-            {
-                _adsClient.RouterStateChanged += AdsClientOnRouterStateChanged;
-            }
-            
-            if (ApiLocal.Interface.NetId != AmsNetId.Local)
-            {
-                StartPolling();
-            }
+            StartPolling(UpdateNetId, 2000);
+            StartPolling(UpdateAdsState, 100);
+        }
+    }
 
-            if (!IsRunning)
+    /// <summary>
+    /// Disconnects the <see cref="TcState"/> instance from any project.
+    /// </summary>
+    public void DisconnectProject()
+    {
+        lock (_lock)
+        {
+            _cancellationTokenSource.CancelAsync();
+            _tcSysManager = null;
+            _adsClient.Disconnect();
+            IndicateDisconnected();
+        }
+    }
+
+    private void StartPolling(Func<Task> pollingAction, int delayMs)
+    {
+        var token = _cancellationTokenSource.Token;
+
+        Task.Run(async () =>
+        {
+            while (!token.IsCancellationRequested)
             {
-                StoppedRunning?.Invoke();
+                try
+                {
+                    await pollingAction().ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected during cancellation, no action needed
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(this, $"Polling error: {e.Message}");
+                }
+
+                await Task.Delay(delayMs, token).ConfigureAwait(false);
+            }
+        }, token);
+    }
+
+    private Task UpdateNetId()
+    {
+        if (!IsProjectConnected) return Task.CompletedTask;
+        _amsNetId = GetCurrentNetId();
+        return Task.CompletedTask;
+    }
+
+    private Task UpdateAdsState()
+    {
+        if (!IsProjectConnected) return Task.CompletedTask;
+        
+        var adsState = GetAdsState();
+        if (adsState == _lastRunState) return Task.CompletedTask;
+        _lastRunState = adsState;
+
+        switch (adsState)
+        {
+            case AdsState.Run:
+                IndicateRunMode();
+                ApiLocal.Interface.TriggerTcRestart();
+                StartedRunning?.Invoke();
+                break;
+            default:
                 IndicateConfigMode();
-                return;
-            }
-            
-            StartedRunning?.Invoke();
-            IndicateRunMode();
-        }
-    }
-
-    private void AdsClientOnRouterStateChanged(object? sender, AmsRouterNotificationEventArgs e)
-    {
-        if (e.State == AmsRouterState.Start && IsRunning && !_wasRunning)
-        {
-            _wasRunning = true;
-
-            if (!IsProjectConnected)
-            {
-                return;
-            }
-            
-            IndicateRunMode();
-            ApiLocal.Interface.TriggerTcRestart();
-            StartedRunning?.Invoke();
-            return;
-        }
-
-        if (!_wasRunning)
-        {
-            return;
-        }
-
-        _wasRunning = false;
-
-        if (!IsProjectConnected)
-        {
-            return;
+                StoppedRunning?.Invoke();
+                break;
         }
         
-        IndicateConfigMode();
-        StoppedRunning?.Invoke();
-    }
-
-    private void StartPolling()
-    {
-        var stopwatch = new Stopwatch();
-        
-        Task.Run(() =>
-        {
-            while (IsProjectConnected)
-            {
-                stopwatch.WaitUntil(100);
-
-                if (!IsProjectConnected)
-                {
-                    return;
-                }
-
-                if (IsRunning && !_wasRunning)
-                {
-                    AdsClientOnRouterStateChanged(this, new AmsRouterNotificationEventArgs(AmsRouterState.Start));
-                    continue;
-                }
-                
-                if (!IsRunning && _wasRunning)
-                {
-                    AdsClientOnRouterStateChanged(this, new AmsRouterNotificationEventArgs(AmsRouterState.Stop));
-                }
-            }
-        });
+        return Task.CompletedTask;
     }
 }
