@@ -45,13 +45,6 @@ The `File` menu contains functions regarding TwinCAT Solutions:
 - _Connect_: select and connect to a running TwinCAT Shell. The status of the connection and the mode of the connected TwinCAT System is diplayed in the bottom right corner.
 - _Open Solution_: select an existing TwinCAT Solution which gets opened in a new TwinCAT Shell and connected to by the Assistant application
 - _Create Solution_: create an empty TwinCAT solution preconfigured with the plc task and an empty configuration
-- _Open Config (readonly)_: 
-Opens an existing [configuration](#configuration-file) of a twincat project. 
-This opens the plugin configurations in the Assistant and enables to start and stop them. it does 
-not open a TwinCAT Shell, it connects to a running twincat system. 
-therefore the configuration of the plugins cant be changed, making it readonly. 
-this is commonly done when the engineering process of 
-the twincat solution is finished so it is not required to have the solution explorer open. 
 
 ### Updating Projects
 The `Project` menu contains functions to update the connected TwinCAT Solution. **Note** that this menu is only active when the Assistant is 

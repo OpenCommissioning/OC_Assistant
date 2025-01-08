@@ -30,7 +30,6 @@ public class Control : ControlBase
 
     public override void OnConnect()
     {
-        if (ReadOnly) return;
         _buildEvents = TcDte?.BuildEvents;
         if (_buildEvents is null) return;
         _buildEvents.OnBuildDone += BuildEvents_OnBuildDone;
@@ -38,7 +37,6 @@ public class Control : ControlBase
         
     public override void OnDisconnect()
     {
-        if (ReadOnly) return;
         if (_buildEvents is null) return;
         try
         {

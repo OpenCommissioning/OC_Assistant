@@ -18,7 +18,6 @@ internal partial class FileMenu : IProjectSelector
     private static event Action? OnCreateSolution;
     
     public event Action<TcDte>? DteSelected;
-    public event Action<string>? XmlSelected;
     public event Action? DteClosed;
     
     private void SolutionEventsOnAfterClosing()
@@ -59,11 +58,17 @@ internal partial class FileMenu : IProjectSelector
 
     private async void FileMenuOnLoaded(object sender, RoutedEventArgs e)
     {
-        DteSelector.Selected += SelectDte;
-        await InitializeDte();
-        InitializeXml();
+        try
+        {
+            DteSelector.Selected += SelectDte;
+            await InitializeDte();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
-
+    
     private void ExitOnClick(object sender, RoutedEventArgs e)
     {
         Application.Current.Shutdown();
@@ -80,22 +85,13 @@ internal partial class FileMenu : IProjectSelector
         await GetSolutionFromPath(path);
         BusyState.Reset(this);
     }
-    
-    private void InitializeXml()
-    {
-        if (!File.Exists(AppData.PreselectedProject)) return;
-        var path = File.ReadAllText(AppData.PreselectedProject);
-        File.Delete(AppData.PreselectedProject);
-        if (!Path.GetExtension(path).Equals(".xml", StringComparison.CurrentCultureIgnoreCase)) return;
-        XmlSelected?.Invoke(path);
-    }
 
     private async Task GetSolutionFromPath(string path)
     {
         await Task.Run(() =>
         {
             var selection = TcDte.GetInstances().FirstOrDefault(x => x.SolutionFullName == path);
-            if (selection == default)
+            if (selection == null)
             {
                 Logger.LogError(this, $"There is no open solution {path}.");
                 return;
@@ -123,56 +119,52 @@ internal partial class FileMenu : IProjectSelector
     
     private async void OpenSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
     {
-        BusyState.Set(this);
+        try
+        {
+            BusyState.Set(this);
 
-        var openFileDialog = new OpenFileDialog
-        {
-            Filter = "TwinCAT Solution (*.sln)|*.sln",
-            RestoreDirectory = true
-        };
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "TwinCAT Solution (*.sln)|*.sln",
+                RestoreDirectory = true
+            };
         
-        if (openFileDialog.ShowDialog() == true)
-        {
-            await OpenDte(openFileDialog.FileName);
+            if (openFileDialog.ShowDialog() == true)
+            {
+                await OpenDte(openFileDialog.FileName);
+            }
+        
+            BusyState.Reset(this);
         }
-        
-        BusyState.Reset(this);
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
     
     private async void CreateSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
     {
-        BusyState.Set(this);
+        try
+        {
+            BusyState.Set(this);
 
-        var saveFileDialog = new SaveFileDialog
-        {
-            Filter = "TwinCAT Solution (*.sln)|*.sln",
-            RestoreDirectory = true
-        };
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "TwinCAT Solution (*.sln)|*.sln",
+                RestoreDirectory = true
+            };
         
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            await CreateSolution(saveFileDialog.FileName);
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                await CreateSolution(saveFileDialog.FileName);
+            }
+
+            BusyState.Reset(this);
         }
-
-        BusyState.Reset(this);
-    }
-        
-    private void OpenXmlOnClick(object sender, RoutedEventArgs e)
-    {
-        BusyState.Set(this);
-
-        var openFileDialog = new OpenFileDialog
+        catch (Exception exception)
         {
-            Filter = $"Config file|{XmlFile.DEFAULT_FILE_NAME}",
-            RestoreDirectory = true
-        };
-        
-        if (openFileDialog.ShowDialog() == true)
-        {
-            XmlSelected?.Invoke(openFileDialog.FileName);
+            Logger.LogError(this, exception.Message);
         }
-        
-        BusyState.Reset(this);
     }
 
     private async Task OpenDte(string path)

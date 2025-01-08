@@ -21,7 +21,7 @@ public partial class PluginManager
     {
         set
         {
-            var isEnabled = !value && !ReadOnly;
+            var isEnabled = !value;
             BtnAdd.Visibility = isEnabled ? Visibility.Visible : Visibility.Hidden;
             Editor.IsEnabled = isEnabled;
             foreach (var plugin in _plugins)
@@ -50,7 +50,7 @@ public partial class PluginManager
             
         ControlPanel.Children.Add(BtnAdd);
         ScrollView.ScrollToEnd();
-        BtnAdd.Visibility = ReadOnly ? Visibility.Hidden : Visibility.Visible;
+        BtnAdd.Visibility = Visibility.Visible;
     }
     
     public override void OnDisconnect()

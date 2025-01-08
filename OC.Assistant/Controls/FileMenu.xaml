@@ -5,14 +5,13 @@
           Loaded="FileMenuOnLoaded" x:ClassModifier="internal"
           xmlns:local="clr-namespace:OC.Assistant.Controls">
     <local:DteSelector x:Name="DteSelector">
-        <MenuItem Header="No open TwinCAT project"></MenuItem>
+        <MenuItem Header="No open TwinCAT project"/>
     </local:DteSelector>
     <MenuItem Header="Open Solution" Click="OpenSlnOnClick">
     </MenuItem>
     <MenuItem Header="Create Solution" Click="CreateSlnOnClick">
     </MenuItem>
-    <MenuItem Header="Open Config (readonly)" Click="OpenXmlOnClick">
-    </MenuItem>
     <Separator/>
-    <MenuItem Header="Exit" Click="ExitOnClick"></MenuItem>
+    <MenuItem Header="Exit" Click="ExitOnClick">
+    </MenuItem>
 </MenuItem>

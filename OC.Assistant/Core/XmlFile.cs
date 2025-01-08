@@ -113,6 +113,22 @@ public class XmlFile
     /// Returns the <see cref="XmlTags.PROJECT"/> <see cref="XElement"/>.
     /// </summary>
     public XElement? Project => _doc?.Root?.Element(XmlTags.PROJECT);
+
+    /// <summary>
+    /// Tries to get a child from a given parent <see cref="XElement"/>.<br/>
+    /// Creates the child if it doesn't exist. 
+    /// </summary>
+    /// <param name="parent">The parent <see cref="XElement"/>.</param>
+    /// <param name="childName">The name of the child <see cref="XElement"/> to get or create.</param>
+    /// <returns>The child <see cref="XElement"/> with the given name.</returns>
+    public static XElement GetOrCreateChild(XElement? parent, string childName)
+    {
+        var element = parent?.Element(childName);
+        if (element is not null) return element;
+        element = new XElement(childName);
+        parent?.Add(element);
+        return element;
+    }
     
     /// <summary>
     /// Gets or sets the PlcProjectName value.
@@ -122,12 +138,7 @@ public class XmlFile
         get => Settings?.Element(XmlTags.PLC_PROJECT_NAME)?.Value ?? "";
         set
         {
-            var element = Settings?.Element(XmlTags.PLC_PROJECT_NAME);
-            if (element is null)
-            {
-                element = new XElement(XmlTags.PLC_PROJECT_NAME);
-                Settings?.Add(element);
-            }
+            var element = GetOrCreateChild(Settings, XmlTags.PLC_PROJECT_NAME);
             element.Value = value;
             Save();
         }
@@ -141,12 +152,7 @@ public class XmlFile
         get => Settings?.Element(XmlTags.PLC_TASK_NAME)?.Value ?? "";
         set
         {
-            var element = Settings?.Element(XmlTags.PLC_TASK_NAME);
-            if (element is null)
-            {
-                element = new XElement(XmlTags.PLC_TASK_NAME);
-                Settings?.Add(element);
-            }
+            var element = GetOrCreateChild(Settings, XmlTags.PLC_TASK_NAME);
             element.Value = value;
             Save();
         }
@@ -160,12 +166,7 @@ public class XmlFile
         get => bool.TryParse(Settings?.Element(XmlTags.TASK_AUTO_UPDATE)?.Value, out var result) && result;
         set
         {
-            var element = Settings?.Element(XmlTags.TASK_AUTO_UPDATE);
-            if (element is null)
-            {
-                element = new XElement(XmlTags.TASK_AUTO_UPDATE);
-                Settings?.Add(element);
-            }
+            var element = GetOrCreateChild(Settings, XmlTags.TASK_AUTO_UPDATE);
             element.Value = value.ToString();
             Save();
         }
