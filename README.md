@@ -24,6 +24,11 @@ It is currently optimized for a connection to a TwinCAT3 Shell. Supported Versio
 Download the _OC.Assistant.exe_ from the Release page and start it.
 ``.NET 8.0`` is required to run the application.
 
+> [!NOTE]
+> Windows Defender might detect a threat when you download or unpack the OC.Assistant_vx.x.x.zip file from the Release page.
+> This happens because the executable isn't code-signed, so Windows can't verify it.
+> If you are concerned about using the prebuilt release, you always have the option to build the application yourself with [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
+
 
 ## Core Functionality
 
@@ -99,22 +104,22 @@ The scan will create Profinet nodes in the connected TwinCAT solution for each d
 ![ScanProfinet.png](Documentation%2FImages%2FScanProfinet.png)
 
 ## Plugin System
-Plugins enable the Assistant to connect to external systems such as PLCs, robot controllers, and other control data sources, making this data available to the TwinCAT solution via Global Variable Lists (_GVLs_). 
-**Note**: at the moment there are no plugins released yet.
+Plugins enable the Assistant to connect to external systems such as PLCs, robot controllers, and other control data sources, making this data available to the TwinCAT solution via Global Variable Lists (_GVLs_).
 
 ![OS_System](Documentation%2FImages%2FAssistant_Plugins_dark.png#gh-dark-mode-only)
 ![OS_System](Documentation%2FImages%2FAssistant_Plugins_light.png#gh-light-mode-only)
 
-There are plugins for:
+Plugin use cases:
   - Cyclic communication with various virtual PLCs
   - Cyclic communication with various virtual Robot controllers
   - Acyclic data handling (RecordData)
   - Modbus Server and Client communication
 
 ### Installation
-1. Locate the Plugins folder in the assistant's installation directory
-2. Move plugin files into this folder
-3. The plugin becomes available for use within the application
+1. Move the plugin folder into the directory of the `OC.Assistant.exe`.
+2. Start the `OC.Assistant.exe` application.
+3. The Assistant will automatically search through all subdirectories for `*.plugin` files and load any compatible plugin assemblies.
+4. Once loaded, the plugin will be available for use within the Assistant.
 
 ### Usage
 1. Create a new instance of a plugin using the `+` button
@@ -204,7 +209,8 @@ We have some basic rules and guidelines that make the contributing process easie
 
 After your pull request is reviewed and merged.
 
-**Note**: All contributions will be licensed under the project's license.
+> [!NOTE]
+> All contributions will be licensed under the project's license.
 
 ## Code Style Convention
 
