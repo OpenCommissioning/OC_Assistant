@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.6.0"></a>
+## [1.6.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.6.0) (2025-01-08)
+
+### Features
+
+* Assistant now automatically connects to the target NetId of the connected solution ([4743470](https://www.github.com/OpenCommissioning/OC_Assistant/commit/4743470dbfd5ebb194dce83eb16b491e8e13928a))
+* move the solution path label to the TcStateIndicator class (to the bottom right) ([e6166e1](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e6166e169c5a68255cc2ade2e372304ff6a7a303))
+* update TcState and TcStateIndicator to show the target AmsNetId ([982fa9b](https://www.github.com/OpenCommissioning/OC_Assistant/commit/982fa9b3c1a68978b11e19d38f6975601f49b3f9))
+* upgrade Sdk and Theme nuget packages ([61cfcdf](https://www.github.com/OpenCommissioning/OC_Assistant/commit/61cfcdf98a559c7974578031c41c4313eb7b7ef2))
+
+### Bug Fixes
+
+* add missing exception handling in FileMenu methods ([c36a198](https://www.github.com/OpenCommissioning/OC_Assistant/commit/c36a198d31fa4f16f29cb38c8353e41e2cccbd2b))
+* better implementation of the TcState class ([affc99d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/affc99d95e214ad36e22402049900d7ae047180c))
+* remove menu 'Open Config (readonly)' ([632e5f6](https://www.github.com/OpenCommissioning/OC_Assistant/commit/632e5f6a8d9bdd337b8c5ca51fd1659251b4b497))
+* TcState class improvements ([a755177](https://www.github.com/OpenCommissioning/OC_Assistant/commit/a755177ecdc172ff837781fda33abdf20e4f8a5b))
+
 <a name="1.5.2"></a>
 ## [1.5.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.5.2) (2024-11-18)
 
