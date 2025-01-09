@@ -1,6 +1,7 @@
 ﻿using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
@@ -13,6 +14,7 @@ internal class AdapterDropdown : ComboBox
     public AdapterDropdown()
     {
         Style = Application.Current.Resources["DefaultComboBoxStyle"] as Style;
+        Background = Application.Current.Resources["Dark1Brush"] as Brush;
         try
         {
             var defaultItem = SelectedItem;

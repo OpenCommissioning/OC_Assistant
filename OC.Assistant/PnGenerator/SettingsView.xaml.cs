@@ -7,32 +7,30 @@ using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
 
-internal partial class Window
+public partial class SettingsView
 {
-    public Window()
+    private string? _hwFilePath;
+    
+    public SettingsView()
     {
         InitializeComponent();
     }
-       
-    private Settings _settings;
-    public event Action<Settings>? OnStart;
-   
+    
+    public Settings Settings => new()
+    {
+        PnName = PnName.Text,
+        Adapter = SelectedAdapter,
+        HwFilePath = _hwFilePath
+    };
+    
     private NetworkInterface? SelectedAdapter
     {
         get
         {
             if (AdapterDropdown.SelectedIndex == -1) return null;
-            var selection = (ComboBoxItem)AdapterDropdown.SelectedItem;
-            return (NetworkInterface)selection.Tag;
+            var selection = (ComboBoxItem) AdapterDropdown.SelectedItem;
+            return selection?.Tag as NetworkInterface;
         }
-    }
-       
-    private void StartOnClick(object sender, RoutedEventArgs e)
-    {
-        _settings.PnName = PnName.Text;
-        _settings.Adapter = SelectedAdapter;
-        OnStart?.Invoke(_settings);
-        Close();
     }
        
     private void SelectHwFileOnClick(object sender, RoutedEventArgs e)
@@ -47,8 +45,8 @@ internal partial class Window
         try
         {
             _ = XDocument.Load(openFileDialog.FileName);
-            _settings.HwFilePath = openFileDialog.FileName;
-            HwFilePath.Text = _settings.HwFilePath;
+            _hwFilePath = openFileDialog.FileName;
+            HwFileTextBlock.Text = _hwFilePath;
         }
         catch (Exception ex)
         {
