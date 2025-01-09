@@ -99,8 +99,8 @@ internal class XtiUpdater
             .Elements("Vars")
             .FirstOrDefault(x => x.Attribute("VarGrpType")?.Value == "2");
 
-        if (inputVar != default) SetAddress(inputVar, matchedSubmodule, true);
-        if (outputVar != default) SetAddress(outputVar, matchedSubmodule, false);
+        if (inputVar != null) SetAddress(inputVar, matchedSubmodule, true);
+        if (outputVar != null) SetAddress(outputVar, matchedSubmodule, false);
     }
 
     private static void SetAddress(XContainer? var, XContainer matchedSubmodule, bool isInput)

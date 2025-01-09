@@ -56,13 +56,39 @@ public class Control(string scannerTool) : ControlBase
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\""
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\"",
+            //RedirectStandardOutput = true,
+            //RedirectStandardError = true,
+            //CreateNoWindow = true
+        };
+        
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                Logger.LogInfo(this, e.Data);
+            }
         };
 
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                Logger.LogError(this, e.Data);
+            }
+        };
+        
         try
         {
             process.Start();
+            //process.BeginOutputReadLine();
+            //process.BeginErrorReadLine();
             process.WaitForExit();
+            if (process.ExitCode != 0)
+            {
+                Logger.LogError(this, $"{scannerTool} has stopped with exit code 0x{process.ExitCode:x8}");
+                return;
+            }
             Logger.LogInfo(this, $"{scannerTool} has finished");
         }
         catch (Exception e)
@@ -119,7 +145,7 @@ public class Control(string scannerTool) : ControlBase
         if (tcPnDevice is null) return;
         
         // Add the *.hwml filename for information
-        if (_settings.HwFilePath != "") tcPnDevice.Comment = _settings.HwFilePath;
+        if (!string.IsNullOrEmpty(_settings.HwFilePath)) tcPnDevice.Comment = _settings.HwFilePath;
             
         // Set the network adapter
         var deviceDesc = $"{_settings.Adapter?.Name} ({_settings.Adapter?.Description})";
@@ -128,12 +154,12 @@ public class Control(string scannerTool) : ControlBase
             if ($"{adapter.Name} ({adapter.Description})" != deviceDesc) continue;
             var pnDevice = XDocument.Parse(tcPnDevice.ProduceXml());
             var pnp = pnDevice.Root?.Element("DeviceDef")?.Element("AddressInfo")?.Element("Pnp");
-            if (pnp is null) break;
+            if (pnp is null) return;
             pnp.Element("DeviceDesc")!.Value = deviceDesc;
             pnp.Element("DeviceName")!.Value = $"\\DEVICE\\{adapter.Id}";
             pnp.Element("DeviceData")!.Value = adapter.GetPhysicalAddress().ToString();
             tcPnDevice.ConsumeXml(pnDevice.ToString());
-            break;
+            return;
         }
     }
     
