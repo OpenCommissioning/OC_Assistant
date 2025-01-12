@@ -33,25 +33,15 @@ public partial class SettingsView
         }
     }
        
-    private void SelectHwFileOnClick(object sender, RoutedEventArgs e)
+    private void SelectAmlFileOnClick(object sender, RoutedEventArgs e)
     {
         var openFileDialog = new OpenFileDialog
         {
-            Filter = "hwml-Document (*.hwml)|*.hwml",
-            RestoreDirectory = true
+            Filter = "TIA aml export (*.aml)|*.aml"
         };
 
         if (openFileDialog.ShowDialog() != true) return;
-        try
-        {
-            _ = XDocument.Load(openFileDialog.FileName);
-            _hwFilePath = openFileDialog.FileName;
-            HwFileTextBlock.Text = _hwFilePath;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(this, "Error reading Hardware file.");
-            Logger.LogError(this, ex.Message);
-        }
+        _hwFilePath = openFileDialog.FileName;
+        HwFileTextBlock.Text = _hwFilePath;
     }
 }

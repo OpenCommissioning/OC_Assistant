@@ -144,7 +144,7 @@ public class Control(string scannerTool) : ControlBase
     {
         if (tcPnDevice is null) return;
         
-        // Add the *.hwml filename for information
+        // Add the *.aml filename for information
         if (!string.IsNullOrEmpty(_settings.HwFilePath)) tcPnDevice.Comment = _settings.HwFilePath;
             
         // Set the network adapter

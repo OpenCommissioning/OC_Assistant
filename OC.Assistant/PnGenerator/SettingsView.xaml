@@ -12,13 +12,13 @@
         x:Name="AdapterDropdown" 
         Margin="0 4 0 0">
     </local:AdapterDropdown>
-    <Label Margin="0 10 0 0">Hardware file (optional)</Label>
+    <Label Margin="0 10 0 0">TIA aml file (optional)</Label>
     <Grid Margin="0 4 0 0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="40"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" Background="{DynamicResource White6Brush}" HorizontalAlignment="Stretch" Click="SelectHwFileOnClick">...</Button>
+        <Button Grid.Column="0" Background="{DynamicResource White6Brush}" HorizontalAlignment="Stretch" Click="SelectAmlFileOnClick">...</Button>
         <Label Grid.Column="1" VerticalContentAlignment="Center" IsEnabled="False">
             <TextBlock x:Name="HwFileTextBlock" Margin="8 0 0 0">no file selected</TextBlock>
         </Label>
