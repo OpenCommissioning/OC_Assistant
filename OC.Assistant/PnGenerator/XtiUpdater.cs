@@ -1,20 +1,22 @@
 ﻿using System.Xml.Linq;
+using OC.Assistant.PnGenerator.Aml;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
 
 internal class XtiUpdater
 {
-    private XElement? _aml;
+    private XElement? _amlConverted;
     private List<string> _deviceNames = [];
         
     public void Run(string xtiFilePath, string amlFilePath)
     {
         try
         {
-            _aml = AmlConverter.Read(amlFilePath);
+            _deviceNames.Clear();
+            _amlConverted = new AmlConverter().Read(amlFilePath);
             
-            if (_aml is null)
+            if (_amlConverted is null)
             {
                 Logger.LogError(this, "Error reading aml file");
                 return;
@@ -144,16 +146,29 @@ internal class XtiUpdater
         return "3";
     }
 
+    private XElement? GetMatchedDevice(string boxName)
+    {
+        try
+        {
+            return _amlConverted?
+                .Descendants("Device")
+                .FirstOrDefault(x =>
+                    string.Equals(x.Attribute("Name")?.Value, boxName, StringComparison.CurrentCultureIgnoreCase));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private string? GetRemPeerPort(string typeOfSubmodule, string boxName, int submoduleIndex, int moduleIndex)
     {
         if (typeOfSubmodule != "2") return null;
             
         try
         {
-            var remPeerPort = _aml?
-                .Elements("Device")
-                .FirstOrDefault(x => string.Equals(x.Attribute("Name")?.Value, boxName, StringComparison.CurrentCultureIgnoreCase))?
-                .Element("Module" + moduleIndex)?
+            var remPeerPort = GetMatchedDevice(boxName)?
+                .Element($"Module{moduleIndex}")?
                 .Element("Ports")?
                 .Element("Port" + (submoduleIndex - 2))?
                 .Attribute("RemPeerPort")?
@@ -171,11 +186,9 @@ internal class XtiUpdater
     {
         try
         {
-            return _aml?
-                .Elements("Device")
-                .First(x => string.Equals(x.Attribute("Name")?.Value, boxName, StringComparison.CurrentCultureIgnoreCase))
-                .Element($"Module{moduleIndex}")
-                ?.Element($"Submodule{submoduleIndex}");
+            return GetMatchedDevice(boxName)?
+                .Element($"Module{moduleIndex}")?
+                .Element($"Submodule{submoduleIndex}");
         }
         catch
         {
