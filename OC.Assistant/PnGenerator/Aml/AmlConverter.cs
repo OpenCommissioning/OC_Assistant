@@ -68,13 +68,8 @@ public class AmlConverter
 
     private void GetDeviceItemAttributes(XElement deviceItem, XElement? parent, XElement deviceElement)
     {
-        var submodulesNo = parent is null ? 1 : parent.GetDeviceItems().Count();
+        var moduleElement = new XElement($"Module{deviceItem.GetPositionNumber() + 1}");
         
-        //Create module element (will be renamed as Submodule maybe later)
-        var moduleElement = new XElement("Module" + (deviceItem.GetPositionNumber() + 1), 
-            new XAttribute("Name", deviceItem.GetName() ?? "Unknown"));
-
-
         var portElement = new XElement("Ports");
         if (deviceElement.Element("Module1")?.Element(portElement.Name) is null)
         {
@@ -84,23 +79,21 @@ public class AmlConverter
         //Read address infos and check if this is a submodule
         var addresses = deviceItem.GetAddresses();
         var isSubModule = addresses is not null;
-        var hasIOs = false;
-        if (addresses is not null)
-        {
-            hasIOs = addresses.Aggregate(false, (current, address) => current | GetAddressAttributes(address, moduleElement));
-            
-            //Position number sometimes starts with 0, sometimes with 1
-            if (submodulesNo > 1 || deviceItem.GetPositionNumber() == 0)
-            {
-                _currentDeviceOffset = 1;
-            }
-            moduleElement.Name = "Submodule" + (deviceItem.GetPositionNumber() + _currentDeviceOffset);
-        }
+        var hasIOs = addresses?.Aggregate(false, (current, address) => current | GetAddressAttributes(address, moduleElement)) == true;
 
         switch (isSubModule)
         {
             case true when hasIOs: //this is a submodule with IOs
             {
+                var isHeadModule = deviceItem.IsHeadModule();
+                
+                //Position number of submodules sometimes starts with 0, sometimes with 1
+                if (!isHeadModule && deviceItem.GetPositionNumber() == 0)
+                {
+                    _currentDeviceOffset = 1;
+                }
+                moduleElement.Name = "Submodule" + (deviceItem.GetPositionNumber() + _currentDeviceOffset);
+                
                 //Read failsafe info
                 if (deviceItem.IsProfisafeItem())
                 {
@@ -108,35 +101,32 @@ public class AmlConverter
                 }
                 
                 //Because this is a submodule, add this element to a module
-                var moduleNo = "1";
-                    
-                //Parent deviceItem exists -> should be the right module
-                if (parent is not null)
-                {
-                    moduleNo = (parent.GetPositionNumber() + 1).ToString();
-                }
-                    
-                //There is no parent module. Create new module with submodule number. New submodule number is 1
-                if (parent is null)
+                var moduleName = "Module2";
+
+                if (isHeadModule)
                 {
                     moduleElement.Name = "Submodule1";
-                    moduleNo = (deviceItem.GetPositionNumber() + 1).ToString();
+                    moduleName = $"Module{deviceItem.GetPositionNumber() + 1}";
+                }
+                else if(parent?.GetPositionNumber() > 0)
+                {
+                    moduleName = $"Module{parent.GetPositionNumber() + 1}";
                 }
 
                 //Module does not exist yet -> create new
-                if (!deviceElement.ChildExists($"Module{moduleNo}"))
+                if (!deviceElement.ChildExists(moduleName))
                 {
-                    deviceElement.Add(new XElement($"Module{moduleNo}", new XAttribute("Name", deviceItem.Name)));
+                    deviceElement.Add(new XElement(moduleName));
                 }
 
                 //Add submodule to module
-                deviceElement.Element($"Module{moduleNo}")?.Add(moduleElement);
+                deviceElement.Element(moduleName)?.Add(moduleElement);
                 break;
             }
             case false: //This is a module -> add to device directly
             {
                 _currentDeviceOffset = 0;
-
+                
                 if (deviceElement.ChildExists(moduleElement.Name))
                 {
                     foreach (var item in moduleElement.Elements())
