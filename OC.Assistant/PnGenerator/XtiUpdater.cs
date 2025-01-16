@@ -80,6 +80,17 @@ internal class XtiUpdater
             submoduleIndex++;
         }
     }
+
+    private static void SetAttribute(XElement element, string attributeName, string attributeValue)
+    {
+        var attribute = element.Attribute(attributeName);
+        if (attribute is null)
+        {
+            element.Add(new XAttribute(attributeName, attributeValue));
+            return;
+        }
+        attribute.Value = attributeValue;
+    }
         
     private void UpdateSubModule(XElement subModule, int submoduleIndex, int moduleIndex, string boxName)
     {
@@ -88,15 +99,15 @@ internal class XtiUpdater
             
         var typeOfSubmodule = GetTypeOfSubmodule(subSlotNumber);
         var remPeerPort = GetRemPeerPort(typeOfSubmodule, boxName, submoduleIndex, moduleIndex);
-            
-        subModule.Add(new XAttribute("TypeOfSubModule", typeOfSubmodule));
+        
+        SetAttribute(subModule, "TypeOfSubModule", typeOfSubmodule);
             
         if (typeOfSubmodule == "2")
         {
-            subModule.Add(new XAttribute("PortData", "00000000000000000000000000000000000000000000000000000000"));
+            SetAttribute(subModule, "PortData", "00000000000000000000000000000000000000000000000000000000");
             if (remPeerPort is not null)
             {
-                subModule.Add(new XAttribute("RemPeerPort", remPeerPort));
+                SetAttribute(subModule, "RemPeerPort", remPeerPort);
             }
         }
             
