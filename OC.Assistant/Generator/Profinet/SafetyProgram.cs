@@ -11,8 +11,8 @@ internal class SafetyProgram
     private const string CONFIG_DEV_SIZE = "GVL_$NAME$.$INSTANCE$.stConfig.nDevDatasize := $VALUE$;\n";
     private const string CONFIG_INPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pFromBus := ADR(GVL_$NAME$.$VARNAME$);\n";
     private const string CONFIG_OUTPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pToBus := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_DEV_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pDevData := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_HST_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pHstData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_DEV_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pDevUserData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_HST_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pHstUserData := ADR(GVL_$NAME$.$VARNAME$);\n";
     private const string CALL = "GVL_$NAME$.$INSTANCE$(bReset := bReset);\n";
     private const string VAR_DECL = "$VARNAME$: $VARTYPE$;\n";
 
@@ -48,9 +48,9 @@ internal class SafetyProgram
             Parameter += CONFIG_SUB_SLOT
                 .Replace(Tags.VALUE, module.SubSlot.ToString());
             Parameter += CONFIG_HST_SIZE
-                .Replace(Tags.VALUE, module.HstUserSize.ToString());
+                .Replace(Tags.VALUE, module.HstSize.ToString());
             Parameter += CONFIG_DEV_SIZE
-                .Replace(Tags.VALUE, module.DevUserSize.ToString());
+                .Replace(Tags.VALUE, module.DevSize.ToString());
             Parameter += CONFIG_INPUT_ADDR
                 .Replace(Tags.VAR_NAME, module.InputAddress);
             Parameter += CONFIG_OUTPUT_ADDR
