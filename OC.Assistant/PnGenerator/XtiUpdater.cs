@@ -117,7 +117,10 @@ internal class XtiUpdater
         var name = subModule.Element("Name")?.Value;
         if (name is not null)
         {
-            name += GetFailsafeInfo(matchedSubmodule);
+            if (IsFailsafe(matchedSubmodule))
+            {
+                name += " #failsafe";
+            }
             subModule.Element("Name")!.Value = name;
         }
 
@@ -222,8 +225,8 @@ internal class XtiUpdater
         return -1;
     }
 
-    private static string GetFailsafeInfo(XElement matchedSubmodule)
+    private static bool IsFailsafe(XElement matchedSubmodule)
     {
-        return $" {matchedSubmodule.Element("FailsafeInfo")?.Value ?? ""}";
+        return bool.TryParse(matchedSubmodule.Attribute("IsFailsafe")?.Value, out var result) && result;
     }
 }

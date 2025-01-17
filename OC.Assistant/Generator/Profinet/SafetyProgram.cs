@@ -4,9 +4,9 @@ internal class SafetyProgram
 {
     private const string TYPE_NAME = "FB_ProfisafeDevice";
     private const string INFO = "\n//Profisafe Device $DEVICE$ - Slot $SLOT$ - SubSlot $SUBSLOT$\n";
-    private const string CONFIG_PORT = "GVL_$NAME$.$INSTANCE$.stConfig.stRecordIdent.nPort := $VALUE$;\n";
-    private const string CONFIG_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.stRecordIdent.nSlot := $VALUE$;\n";
-    private const string CONFIG_SUB_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.stRecordIdent.nSubSlot := $VALUE$;\n";
+    private const string CONFIG_PORT = "GVL_$NAME$.$INSTANCE$.stConfig.nPort := $VALUE$;\n";
+    private const string CONFIG_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.nSlot := $VALUE$;\n";
+    private const string CONFIG_SUB_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.nSubSlot := $VALUE$;\n";
     private const string CONFIG_HST_SIZE = "GVL_$NAME$.$INSTANCE$.stConfig.nHstDatasize := $VALUE$;\n";
     private const string CONFIG_DEV_SIZE = "GVL_$NAME$.$INSTANCE$.stConfig.nDevDatasize := $VALUE$;\n";
     private const string CONFIG_INPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pFromBus := ADR(GVL_$NAME$.$VARNAME$);\n";
