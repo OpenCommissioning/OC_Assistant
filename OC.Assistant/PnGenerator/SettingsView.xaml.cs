@@ -20,7 +20,8 @@ public partial class SettingsView
     {
         PnName = PnName.Text,
         Adapter = SelectedAdapter,
-        HwFilePath = _hwFilePath
+        HwFilePath = _hwFilePath,
+        Duration = int.TryParse(Duration.Text, out var result) ? result : 60
     };
     
     private NetworkInterface? SelectedAdapter
