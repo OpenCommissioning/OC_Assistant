@@ -9,10 +9,10 @@ internal class SafetyProgram
     private const string CONFIG_SUB_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.nSubSlot := $VALUE$;\n";
     private const string CONFIG_HST_SIZE = "GVL_$NAME$.$INSTANCE$.stConfig.nHstDatasize := $VALUE$;\n";
     private const string CONFIG_DEV_SIZE = "GVL_$NAME$.$INSTANCE$.stConfig.nDevDatasize := $VALUE$;\n";
-    private const string CONFIG_INPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pFromBus := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_OUTPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pToBus := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_DEV_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pDevUserData := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_HST_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pHstUserData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_INPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pControlData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_OUTPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pStatusData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_DEV_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pDevData := ADR(GVL_$NAME$.F$VARNAME$);\n";
+    private const string CONFIG_HST_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pHstData := ADR(GVL_$NAME$.F$VARNAME$);\n";
     private const string CALL = "GVL_$NAME$.$INSTANCE$(bReset := bReset);\n";
     private const string VAR_DECL = "$VARNAME$: $VARTYPE$;\n";
 
@@ -28,6 +28,10 @@ internal class SafetyProgram
                 .Replace(Tags.DEVICE, module.BoxName)
                 .Replace(Tags.SLOT, module.Slot.ToString())
                 .Replace(Tags.SUB_SLOT, module.SubSlot.ToString());
+            
+            var hstVar = $"F{module.InputAddress} : ARRAY[0..{module.HstSize-1}] OF BYTE;\n"; 
+            var devVar = $"F{module.OutputAddress} : ARRAY[0..{module.DevSize-1}] OF BYTE;\n";
+            Declaration += hstVar + devVar;
                 
             Declaration += VAR_DECL
                 .Replace(Tags.VAR_NAME, module.Name)
