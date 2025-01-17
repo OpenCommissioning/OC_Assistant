@@ -47,8 +47,8 @@ public class Control(string scannerTool) : ControlBase
     /// </summary>
     private void RunScanner()
     {
-        const int duration = 60;
-        Logger.LogInfo(this, $"Running {scannerTool}. This will take about {duration} seconds...");
+        var duration = _settings.Duration;
+        Logger.LogInfo(this, $"Running {scannerTool} for {duration} seconds...");
             
         var filePath = $"{TcProjectFolder}\\{_settings.PnName}.xti";
         

@@ -4,7 +4,6 @@ namespace OC.Assistant.PnGenerator.Aml;
 
 public class AmlConverter
 {
-    private int _currentDeviceOffset;
     private readonly Dictionary<string, string> _linkA = [];
     private readonly Dictionary<string, string> _linkB = [];
     private XElement? _aml;
@@ -78,39 +77,33 @@ public class AmlConverter
             
         //Read address infos and check if this is a submodule
         var addresses = deviceItem.GetAddresses();
-        var isSubModule = addresses is not null;
+        var isSubModule = addresses is not null && parent is not null;
         var hasIOs = addresses?.Aggregate(false, (current, address) => current | GetAddressAttributes(address, moduleElement)) == true;
 
         switch (isSubModule)
         {
             case true when hasIOs: //this is a submodule with IOs
             {
-                var isHeadModule = deviceItem.IsHeadModule();
-                
-                //Position number of submodules sometimes starts with 0, sometimes with 1
-                if (!isHeadModule && deviceItem.GetPositionNumber() == 0)
-                {
-                    _currentDeviceOffset = 1;
-                }
-                moduleElement.Name = "Submodule" + (deviceItem.GetPositionNumber() + _currentDeviceOffset);
-                
                 //Read failsafe info
                 if (deviceItem.IsProfisafeItem())
                 {
-                    moduleElement.Add(new XElement("FailsafeInfo", "#lp"));
+                    moduleElement.Add(new XAttribute("IsFailsafe", true));
                 }
                 
                 //Because this is a submodule, add this element to a module
-                var moduleName = "Module2";
-
-                if (isHeadModule)
+                string moduleName;
+                
+                if (parent?.GetPositionNumber() == 0)
                 {
                     moduleElement.Name = "Submodule1";
                     moduleName = $"Module{deviceItem.GetPositionNumber() + 1}";
                 }
-                else if(parent?.GetPositionNumber() > 0)
+                else
                 {
-                    moduleName = $"Module{parent.GetPositionNumber() + 1}";
+                    var pos = deviceItem.GetPositionNumber();
+                    if (pos == 0) pos = 1;
+                    moduleElement.Name = $"Submodule{pos}";
+                    moduleName = $"Module{parent?.GetPositionNumber() + 1}";
                 }
 
                 //Module does not exist yet -> create new
@@ -125,8 +118,6 @@ public class AmlConverter
             }
             case false: //This is a module -> add to device directly
             {
-                _currentDeviceOffset = 0;
-                
                 if (deviceElement.ChildExists(moduleElement.Name))
                 {
                     foreach (var item in moduleElement.Elements())

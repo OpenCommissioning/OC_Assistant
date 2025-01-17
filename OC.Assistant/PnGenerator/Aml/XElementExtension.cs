@@ -138,12 +138,4 @@ public static class XElementExtension
             .FirstOrDefault(x => x.Attribute("Name")?.Value == attributeName)?
             .Element("Value")?.Value;
     }
-
-    public static bool IsHeadModule(this XElement element)
-    {
-        return element
-            .Elements("Attribute")
-            .FirstOrDefault(x => x.Attribute("Name")?.Value == "DeviceItemType")?
-            .Element("Value")?.Value == "HeadModule";
-    }
 }
