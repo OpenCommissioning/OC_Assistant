@@ -13,9 +13,21 @@ namespace OC.Assistant.Core.TwinCat;
 public class TcDte
 {
     private readonly DTE? _dte;
+    
+    /// <summary>
+    /// Supported versions, prioritized in this order:<br/><br/>
+    /// <c>TcXaeShell.DTE.17.0</c> : TwinCAT Shell based on VS2022<br/>
+    /// <c>TcXaeShell.DTE.15.0</c> : TwinCAT Shell based on VS2017<br/>
+    /// <c>VisualStudio.DTE.17.0</c> : Visual Studio 2022<br/>
+    /// <c>VisualStudio.DTE.16.0</c> : Visual Studio 2019<br/>
+    /// <c>VisualStudio.DTE.15.0</c> : Visual Studio 2017<br/>
+    /// </summary>
     private static readonly Type? InstalledShell = 
-        Type.GetTypeFromProgID("TcXaeShell.DTE.17.0") ?? 
-        Type.GetTypeFromProgID("TcXaeShell.DTE.15.0");
+        Type.GetTypeFromProgID("TcXaeShell.DTE.17.0") ??
+        Type.GetTypeFromProgID("TcXaeShell.DTE.15.0") ??
+        Type.GetTypeFromProgID("VisualStudio.DTE.17.0") ??
+        Type.GetTypeFromProgID("VisualStudio.DTE.16.0") ??
+        Type.GetTypeFromProgID("VisualStudio.DTE.15.0");
     
     /// <summary>
     /// Creates a new instance of the <see cref="TcDte"/> class.
@@ -167,7 +179,7 @@ public class TcDte
             {
                 CreateBindCtx(0, out var bindCtx);
                 moniker[0].GetDisplayName(bindCtx, null, out var displayName);
-                if (!displayName.StartsWith("!TcXaeShell.DTE")) continue;
+                if (!displayName.StartsWith("!TcXaeShell.DTE") && !displayName.StartsWith("!VisualStudio.DTE")) continue;
                 if (runningObjectTable.GetObject(moniker[0], out var obj) != 0) continue;
                 var dte = (DTE) obj;
                 if (dte.Solution.FullName == string.Empty) continue;
