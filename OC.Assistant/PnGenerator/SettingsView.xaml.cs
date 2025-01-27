@@ -1,9 +1,7 @@
 ﻿using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Linq;
 using Microsoft.Win32;
-using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
 
