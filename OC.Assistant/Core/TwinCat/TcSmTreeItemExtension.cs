@@ -84,39 +84,4 @@ public static class TcSmTreeItemExtension
         main = foundItem;
         return success;
     }
-    
-    /// <summary>
-    /// Creates a zip file from given folder and integrates into the TwinCAT project.
-    /// </summary>
-    /// <param name="plcProjectItem">The <see cref="ITcSmTreeItem"/> of the plc project.</param>
-    /// <param name="folderName">The name of the folder to be zipped and integrated.</param>
-    public static void TcIntegrate(this ITcSmTreeItem plcProjectItem, string folderName)
-    {
-        var folder = $"{AppData.Path}\\{folderName}";
-        Directory.CreateDirectory(folder);
-        
-        //If folder is empty, do nothing
-        if (Directory.GetDirectories(folder).Length == 0)
-        {
-            Directory.Delete(folder, true);
-            return;
-        }
-
-        //Create ZIP file and delete temporary folder
-        var zipFile = folder + ".zip";
-        if (File.Exists(zipFile)) File.Delete(zipFile);
-        ZipFile.CreateFromDirectory(folder, zipFile);
-        Directory.Delete(folder, true);
-
-        Retry.Invoke(() =>
-        {
-            //Import ZIP file to TwinCAT and delete
-            var plcFolder = plcProjectItem.GetOrCreateChild(folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-            plcFolder?.ImportChild(zipFile);
-            File.Delete(zipFile);
-
-            //Remove the plc folder if it is empty
-            if (plcFolder?.ChildCount == 0) plcProjectItem.DeleteChild(folderName);
-        });
-    }
 }
