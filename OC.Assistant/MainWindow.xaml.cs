@@ -19,8 +19,6 @@ public partial class MainWindow
         Logger.Info += (sender, message) => LogViewer.Add(sender, message, MessageType.Info);
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
-        
-        _ = WinApi.TimeBeginPeriod(1);
     }
 
     private void ReadSettings()
@@ -49,7 +47,6 @@ public partial class MainWindow
     
     private void MainWindowOnClosing(object sender, CancelEventArgs e)
     {
-        _ = WinApi.TimeEndPeriod(1);
         WriteSettings();
     }
 }

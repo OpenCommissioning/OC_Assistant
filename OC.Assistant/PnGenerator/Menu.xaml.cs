@@ -24,14 +24,10 @@ public partial class Menu
         
     private void ScanOnClick(object sender, RoutedEventArgs e)
     {
-        var window = new Window();
-        window.OnStart += WindowOnStart;
-        window.ShowDialog();
-    }
-        
-    private void WindowOnStart(Settings settings)
-    {
-        _control.StartCapture(settings);
+        var settingsView = new SettingsView();
+        var result = Theme.MessageBox.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
+        if (result != MessageBoxResult.OK) return;
+        _control.StartCapture(settingsView.Settings);
     }
 
     private void MenuOnSubmenuOpened(object sender, RoutedEventArgs e)

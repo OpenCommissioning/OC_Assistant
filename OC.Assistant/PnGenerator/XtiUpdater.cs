@@ -1,27 +1,43 @@
 ﻿using System.Xml.Linq;
+using OC.Assistant.PnGenerator.Aml;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
 
 internal class XtiUpdater
 {
-    private XElement? _hwFile;
+    private XElement? _amlConverted;
     private List<string> _deviceNames = [];
         
-    public void Run(string xtiFilePath, string hwFilePath)
+    public void Run(string xtiFilePath, string amlFilePath)
     {
         try
         {
-            _hwFile = XDocument.Load(hwFilePath).Root;
-            if (_hwFile is null) return;
+            _deviceNames.Clear();
+            _amlConverted = new AmlConverter().Read(amlFilePath);
             
-            Logger.LogInfo(this, $"Updating {xtiFilePath} with {hwFilePath}");
-            var xti = XDocument.Load(xtiFilePath);
+            if (_amlConverted is null)
+            {
+                Logger.LogError(this, "Error reading aml file");
+                return;
+            }
             
-            xti.Root!.Element("Device")!.Element("Profinet")!.Attribute("PLCPortNr")!.Value = "852"; 
+            var xti = XDocument.Load(xtiFilePath).Root;
+            if (xti is null)
+            {
+                Logger.LogError(this, "Error reading xti file");
+                return;
+            }
             
-            var xContainers = xti.Descendants("Box");
-            var boxes = xContainers.ToList();
+            Logger.LogInfo(this, $"Updating {xtiFilePath} with {amlFilePath}");
+            
+            var plcPortNr = xti.Element("Device")?.Element("Profinet")?.Attribute("PLCPortNr");
+            if (plcPortNr is not null)
+            {
+                plcPortNr.Value = "852"; 
+            }
+            
+            var boxes = xti.Descendants("Box").ToList();
             if (boxes.Count == 0) return;
             
             _deviceNames = (from box in boxes select box.Element("Name")?.Value).ToList();
@@ -39,7 +55,7 @@ internal class XtiUpdater
         }
     }
 
-    private void UpdateBox(XContainer box)
+    private void UpdateBox(XElement box)
     {
         var boxName = box.Element("Name")?.Value;
         if (boxName is null) return;
@@ -55,7 +71,7 @@ internal class XtiUpdater
         }
     }
 
-    private void UpdateModule(XContainer module, int moduleIndex, string boxName)
+    private void UpdateModule(XElement module, int moduleIndex, string boxName)
     {
         var submoduleIndex = 1;
         foreach (var subModule in module.Elements("SubModule"))
@@ -63,6 +79,17 @@ internal class XtiUpdater
             UpdateSubModule(subModule, submoduleIndex, moduleIndex, boxName);
             submoduleIndex++;
         }
+    }
+
+    private static void SetAttribute(XElement element, string attributeName, string attributeValue)
+    {
+        var attribute = element.Attribute(attributeName);
+        if (attribute is null)
+        {
+            element.Add(new XAttribute(attributeName, attributeValue));
+            return;
+        }
+        attribute.Value = attributeValue;
     }
         
     private void UpdateSubModule(XElement subModule, int submoduleIndex, int moduleIndex, string boxName)
@@ -72,13 +99,16 @@ internal class XtiUpdater
             
         var typeOfSubmodule = GetTypeOfSubmodule(subSlotNumber);
         var remPeerPort = GetRemPeerPort(typeOfSubmodule, boxName, submoduleIndex, moduleIndex);
-            
-        subModule.Add(new XAttribute("TypeOfSubModule", typeOfSubmodule));
+        
+        SetAttribute(subModule, "TypeOfSubModule", typeOfSubmodule);
             
         if (typeOfSubmodule == "2")
         {
-            subModule.Add(new XAttribute("PortData", "00000000000000000000000000000000000000000000000000000000"));
-            if (remPeerPort != "") subModule.Add(new XAttribute("RemPeerPort", remPeerPort));
+            SetAttribute(subModule, "PortData", "00000000000000000000000000000000000000000000000000000000");
+            if (remPeerPort is not null)
+            {
+                SetAttribute(subModule, "RemPeerPort", remPeerPort);
+            }
         }
             
         var matchedSubmodule = GetMatchedSubmodule(boxName, moduleIndex, submoduleIndex);
@@ -87,7 +117,10 @@ internal class XtiUpdater
         var name = subModule.Element("Name")?.Value;
         if (name is not null)
         {
-            name += GetFailsafeInfo(matchedSubmodule);
+            if (IsFailsafe(matchedSubmodule))
+            {
+                name += " #failsafe";
+            }
             subModule.Element("Name")!.Value = name;
         }
 
@@ -99,11 +132,11 @@ internal class XtiUpdater
             .Elements("Vars")
             .FirstOrDefault(x => x.Attribute("VarGrpType")?.Value == "2");
 
-        if (inputVar != default) SetAddress(inputVar, matchedSubmodule, true);
-        if (outputVar != default) SetAddress(outputVar, matchedSubmodule, false);
+        if (inputVar != null) SetAddress(inputVar, matchedSubmodule, true);
+        if (outputVar != null) SetAddress(outputVar, matchedSubmodule, false);
     }
 
-    private static void SetAddress(XContainer? var, XContainer matchedSubmodule, bool isInput)
+    private static void SetAddress(XElement? var, XElement matchedSubmodule, bool isInput)
     {
         var name = var?.Element("Var")?.Element("Name");
         if (name is null) return;
@@ -127,28 +160,39 @@ internal class XtiUpdater
         return "3";
     }
 
-    private string GetRemPeerPort(string typeOfSubmodule, string boxName, int submoduleIndex, int moduleIndex)
+    private XElement? GetMatchedDevice(string boxName)
     {
-        if (typeOfSubmodule != "2") return "";
-            
         try
         {
-            var remPeerPort = _hwFile?
-                .Elements("Device")
-                .First(x => string.Equals(x.Attribute("Name")?.Value, boxName, StringComparison.CurrentCultureIgnoreCase))
-                .Element("Module" + moduleIndex)
-                !.Element("Ports")
-                !.Element("Port" + (submoduleIndex - 2))
-                !.Attribute("RemPeerPort")
-                !.Value;
-
-            var remPeerPort0 = remPeerPort?.Split('.')[0];
-
-            return _deviceNames.Any(x => remPeerPort0 is not null && x == remPeerPort0) ? remPeerPort ?? "" : "";
+            return _amlConverted?
+                .Descendants("Device")
+                .FirstOrDefault(x =>
+                    string.Equals(x.Attribute("Name")?.Value, boxName, StringComparison.CurrentCultureIgnoreCase));
         }
         catch
         {
-            return "";
+            return null;
+        }
+    }
+
+    private string? GetRemPeerPort(string typeOfSubmodule, string boxName, int submoduleIndex, int moduleIndex)
+    {
+        if (typeOfSubmodule != "2") return null;
+            
+        try
+        {
+            var remPeerPort = GetMatchedDevice(boxName)?
+                .Element($"Module{moduleIndex}")?
+                .Element("Ports")?
+                .Element("Port" + (submoduleIndex - 2))?
+                .Attribute("RemPeerPort")?
+                .Value;
+            
+            return _deviceNames.Any(x => x == remPeerPort?.Split('.')[0]) ? remPeerPort : null;
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -156,11 +200,9 @@ internal class XtiUpdater
     {
         try
         {
-            return _hwFile?
-                .Elements("Device")
-                .First(x => string.Equals(x.Attribute("Name")?.Value, boxName, StringComparison.CurrentCultureIgnoreCase))
-                .Element($"Module{moduleIndex}")
-                ?.Element($"Submodule{submoduleIndex}");
+            return GetMatchedDevice(boxName)?
+                .Element($"Module{moduleIndex}")?
+                .Element($"Submodule{submoduleIndex}");
         }
         catch
         {
@@ -168,7 +210,7 @@ internal class XtiUpdater
         }
     }
         
-    private static int GetStartAddress(XContainer matchedSubmodule, string filter)
+    private static int GetStartAddress(XElement matchedSubmodule, string filter)
     {
         var addresses = matchedSubmodule.Elements("Addresses");
 
@@ -183,8 +225,8 @@ internal class XtiUpdater
         return -1;
     }
 
-    private static string GetFailsafeInfo(XContainer matchedSubmodule)
+    private static bool IsFailsafe(XElement matchedSubmodule)
     {
-        return $" {matchedSubmodule.Element("FailsafeInfo")?.Value ?? ""}";
+        return bool.TryParse(matchedSubmodule.Attribute("IsFailsafe")?.Value, out var result) && result;
     }
 }
