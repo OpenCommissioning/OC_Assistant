@@ -18,9 +18,6 @@
     
     <ItemGroup>
       <EmbeddedResource Include="Resources\OC.TcTemplate.zip" />
-      <EmbeddedResource Include="Resources\TcDUT.xml" />
-      <EmbeddedResource Include="Resources\TcGVL.xml" />
-      <EmbeddedResource Include="Resources\TcPOU.xml" />
     </ItemGroup>
     
     <ItemGroup>

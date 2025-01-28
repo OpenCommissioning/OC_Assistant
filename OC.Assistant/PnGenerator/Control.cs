@@ -47,8 +47,8 @@ public class Control(string scannerTool) : ControlBase
     /// </summary>
     private void RunScanner()
     {
-        const int duration = 60;
-        Logger.LogInfo(this, $"Running {scannerTool}. This will take about {duration} seconds...");
+        var duration = _settings.Duration;
+        Logger.LogInfo(this, $"Running {scannerTool} for {duration} seconds...");
             
         var filePath = $"{TcProjectFolder}\\{_settings.PnName}.xti";
         
@@ -144,7 +144,7 @@ public class Control(string scannerTool) : ControlBase
     {
         if (tcPnDevice is null) return;
         
-        // Add the *.hwml filename for information
+        // Add the *.aml filename for information
         if (!string.IsNullOrEmpty(_settings.HwFilePath)) tcPnDevice.Comment = _settings.HwFilePath;
             
         // Set the network adapter

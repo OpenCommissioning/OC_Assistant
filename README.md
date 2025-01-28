@@ -96,7 +96,7 @@ To scan for Profinet devices:
 1. Click "Scan Profinet"
 2. Enter a name for the Profinet Node in TwinCAT
 3. Select the network adapter for scanning (must have TwinCAT Real-Time driver installed)
-4. Optionally, specify a .hwml file
+4. Optionally, specify an *.aml export file
 5. Click "Start" to begin the scan
 
 The scan will create Profinet nodes in the connected TwinCAT solution for each detected device.

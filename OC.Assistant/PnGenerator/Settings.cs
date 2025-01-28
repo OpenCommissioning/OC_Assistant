@@ -7,4 +7,5 @@ public struct Settings
     public string PnName { get; set; }
     public NetworkInterface? Adapter { get; set; }
     public string? HwFilePath { get; set; }
+    public int Duration { get; set; }
 }

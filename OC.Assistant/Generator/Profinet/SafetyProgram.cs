@@ -4,15 +4,15 @@ internal class SafetyProgram
 {
     private const string TYPE_NAME = "FB_ProfisafeDevice";
     private const string INFO = "\n//Profisafe Device $DEVICE$ - Slot $SLOT$ - SubSlot $SUBSLOT$\n";
-    private const string CONFIG_PORT = "GVL_$NAME$.$INSTANCE$.stConfig.stRecordIdent.nPort := $VALUE$;\n";
-    private const string CONFIG_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.stRecordIdent.nSlot := $VALUE$;\n";
-    private const string CONFIG_SUB_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.stRecordIdent.nSubSlot := $VALUE$;\n";
+    private const string CONFIG_PORT = "GVL_$NAME$.$INSTANCE$.stConfig.nPort := $VALUE$;\n";
+    private const string CONFIG_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.nSlot := $VALUE$;\n";
+    private const string CONFIG_SUB_SLOT = "GVL_$NAME$.$INSTANCE$.stConfig.nSubSlot := $VALUE$;\n";
     private const string CONFIG_HST_SIZE = "GVL_$NAME$.$INSTANCE$.stConfig.nHstDatasize := $VALUE$;\n";
     private const string CONFIG_DEV_SIZE = "GVL_$NAME$.$INSTANCE$.stConfig.nDevDatasize := $VALUE$;\n";
-    private const string CONFIG_INPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pFromBus := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_OUTPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pToBus := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_DEV_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pDevData := ADR(GVL_$NAME$.$VARNAME$);\n";
-    private const string CONFIG_HST_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pHstData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_INPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pControlData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_OUTPUT_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pStatusData := ADR(GVL_$NAME$.$VARNAME$);\n";
+    private const string CONFIG_DEV_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pDevData := ADR(GVL_$NAME$.F$VARNAME$);\n";
+    private const string CONFIG_HST_DATA_ADDR = "GVL_$NAME$.$INSTANCE$.stConfig.pHstData := ADR(GVL_$NAME$.F$VARNAME$);\n";
     private const string CALL = "GVL_$NAME$.$INSTANCE$(bReset := bReset);\n";
     private const string VAR_DECL = "$VARNAME$: $VARTYPE$;\n";
 
@@ -28,6 +28,10 @@ internal class SafetyProgram
                 .Replace(Tags.DEVICE, module.BoxName)
                 .Replace(Tags.SLOT, module.Slot.ToString())
                 .Replace(Tags.SUB_SLOT, module.SubSlot.ToString());
+            
+            var hstVar = $"F{module.InputAddress} : ARRAY[0..{module.HstSize-1}] OF BYTE;\n"; 
+            var devVar = $"F{module.OutputAddress} : ARRAY[0..{module.DevSize-1}] OF BYTE;\n";
+            Declaration += hstVar + devVar;
                 
             Declaration += VAR_DECL
                 .Replace(Tags.VAR_NAME, module.Name)
@@ -48,9 +52,9 @@ internal class SafetyProgram
             Parameter += CONFIG_SUB_SLOT
                 .Replace(Tags.VALUE, module.SubSlot.ToString());
             Parameter += CONFIG_HST_SIZE
-                .Replace(Tags.VALUE, module.HstUserSize.ToString());
+                .Replace(Tags.VALUE, module.HstSize.ToString());
             Parameter += CONFIG_DEV_SIZE
-                .Replace(Tags.VALUE, module.DevUserSize.ToString());
+                .Replace(Tags.VALUE, module.DevSize.ToString());
             Parameter += CONFIG_INPUT_ADDR
                 .Replace(Tags.VAR_NAME, module.InputAddress);
             Parameter += CONFIG_OUTPUT_ADDR

@@ -1,14 +1,14 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using OC.Assistant.Core;
 using OC.Assistant.Core.TwinCat;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator.Profinet;
 
+[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 internal class ProfinetGenerator(IProjectConnector projectConnector, string folderName)
 {
-    private const string VAR_DECLARATION = "{attribute 'TcLinkTo' := '$LINK$'}\n$VARNAME$ AT %$DIRECTION$* : $VARTYPE$;\n";
-
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
         Retry.Invoke(() =>
@@ -37,18 +37,16 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
                 var profinetParser = new ProfinetParser(xtiPath, item.Name);
                 File.Delete(xtiPath);
                 
-                GenerateFiles(item.Name, profinetParser.Variables, profinetParser.SafetyModules);
+                GenerateFiles(plcProjectItem, item.Name, profinetParser.Variables, profinetParser.SafetyModules);
             }
         });
-
-        
-        plcProjectItem.TcIntegrate(folderName);
     }
     
-    private void GenerateFiles(string pnName, IEnumerable<ProfinetVariable> pnVars, IEnumerable<SafetyModule> safetyModules)
+    private void GenerateFiles(ITcSmTreeItem plcProjectItem, string pnName, IEnumerable<ProfinetVariable> pnVars, IEnumerable<SafetyModule> safetyModules)
     {
         //Declaration variables
-        var gvl = pnVars.Aggregate("", (current, var) => current + VAR_DECLARATION
+        const string declarationTemplate = "{attribute 'TcLinkTo' := '$LINK$'}\n$VARNAME$ AT %$DIRECTION$* : $VARTYPE$;\n";
+        var gvlVariables = pnVars.Aggregate("", (current, var) => current + declarationTemplate
             .Replace(Tags.VAR_TYPE, var.Type)
             .Replace(Tags.DIRECTION, var.Direction)
             .Replace(Tags.LINK, var.Link)
@@ -57,16 +55,51 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
         //Create safety program
         var safetyProgram = new SafetyProgram(safetyModules, pnName);
 
-        //Create or get folder
-        Directory.CreateDirectory($"{AppData.Path}\\{folderName}\\{pnName}");
-
         //Create global variable list
-        (gvl + safetyProgram.Declaration).CreateGvl(folderName, pnName);
-            
+        var hil = plcProjectItem.GetOrCreateChild(folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
+        var pnFolder = hil?.GetOrCreateChild(pnName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
+        if (pnFolder?.GetOrCreateChild($"GVL_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not ITcPlcDeclaration gvlDecl) return;
+        
         //Create program
-        safetyProgram.Implementation.CreatePou(folderName, pnName, safetyProgram.Parameter);
+        if (pnFolder.GetOrCreateChild($"PRG_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG) is not { } prg) return;
+        if (prg.GetOrCreateChild("InitRun", TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD) is not {} initRun) return;
+        if (prg is not ITcPlcDeclaration prgDecl) return;
+        if (prg is not ITcPlcImplementation prgImpl) return;
+        if (initRun is not ITcPlcDeclaration initDecl) return;
+        if (initRun is not ITcPlcImplementation initImpl) return;
+        
+        prgDecl.DeclarationText = 
+            $"""
+            PROGRAM PRG_{pnName}
+            VAR
+                bInitRun    : BOOL := TRUE;
+                bReset      : BOOL;
+            END_VAR
+            """;
+
+        prgImpl.ImplementationText =
+            $"""
+             InitRun();
+             {safetyProgram.Implementation}
+             """;
+        
+        initDecl.DeclarationText = "METHOD PRIVATE InitRun";
+
+        initImpl.ImplementationText =
+            $"""
+            IF NOT bInitRun THEN RETURN; END_IF
+            bInitRun := FALSE;
+            {safetyProgram.Parameter}
+            """;
+        
+        gvlDecl.DeclarationText = GvlDeclaration(gvlVariables + safetyProgram.Declaration);
 
         //Add program name to xml for project generator
         XmlFile.AddHilProgram(pnName);
+    }
+    
+    private static string GvlDeclaration(string? variables)
+    {
+        return $"{{attribute 'qualified_only'}}\n{{attribute 'subsequent'}}\nVAR_GLOBAL\n{variables}END_VAR";
     }
 }

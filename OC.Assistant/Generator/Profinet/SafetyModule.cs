@@ -5,10 +5,6 @@ namespace OC.Assistant.Generator.Profinet;
 
 internal class SafetyModule
 {
-    private readonly int _hstSize;
-    private readonly int _devSize;
-    private string _protocol = "";
-        
     public int Port { get; }
     public int Slot { get; }
     public int SubSlot { get; }
@@ -17,9 +13,10 @@ internal class SafetyModule
     public string PnName { get; }
     public string InputAddress { get; } = "";
     public string OutputAddress { get; } = "";
-    public int HstUserSize => _protocol == ProfinetTags.BUS_LP ? _hstSize - 4 : _hstSize - 5;
-    public int DevUserSize => _protocol == ProfinetTags.BUS_LP ? _devSize - 4 : _devSize - 5;
-    public bool IsValid => HstUserSize >= 0 && DevUserSize >= 0;
+    public int HstSize { get; }
+    public int DevSize { get; }
+
+    public bool IsValid => HstSize >= 0 && DevSize >= 0;
         
     public SafetyModule (XElement? element, string pnName)
     {
@@ -29,7 +26,6 @@ internal class SafetyModule
         Slot = GetSlotNr(element?.Parent);
         SubSlot = GetSubSlotNr(element);
         Name = $"fb{Port}x{Slot}x{SubSlot}";
-        TranslateInfoString(element?.Element("Name")?.Value ?? ProfinetTags.BUS_LP);
 
         var inputs = new List<ProfinetVariable>();
         var outputs = new List<ProfinetVariable>();
@@ -53,21 +49,16 @@ internal class SafetyModule
 
         foreach (var input in inputs)
         {
-            _hstSize += input.Type.TcBitSize() / 8;
+            HstSize += input.Type.TcBitSize() / 8;
         }
             
         foreach (var output in outputs)
         {
-            _devSize += output.Type.TcBitSize() / 8;
+            DevSize += output.Type.TcBitSize() / 8;
         }
 
         InputAddress = inputs[0].Name;
         OutputAddress = outputs[0].Name;
-    }
-
-    private void TranslateInfoString(string info)
-    {
-        _protocol = info.Contains(ProfinetTags.BUS_LP) ? ProfinetTags.BUS_LP : ProfinetTags.BUS_XP;
     }
 
     /// <summary>
@@ -76,7 +67,10 @@ internal class SafetyModule
     private static bool IsFirstBox(XObject? element)
     {
         var parent = element?.Parent;
-        if (parent?.Name != "Box") return IsFirstBox(element?.Parent);
+        if (parent?.Name != "Box")
+        {
+            return IsFirstBox(element?.Parent);
+        }
         var previous = parent.PreviousNode as XElement;
         return previous?.Name != "Box";
     }

@@ -17,7 +17,7 @@ internal class ProfinetParser
             
         var subModules = (from elem in activeBoxes.Descendants("Name")
             where elem.Parent?.Name == "SubModule" 
-                  && !elem.Value.Contains(ProfinetTags.BUS_IGNORE)
+                  && !elem.Value.Contains("#ignore")
             select elem.Parent).ToList();
             
         var inputs = from elem in subModules.Descendants("BitOffs")
@@ -33,7 +33,7 @@ internal class ProfinetParser
         Variables = inputs.Concat(outputs).ToList();
             
         SafetyModules = (from elem in subModules.Descendants("Name")
-            where elem.Value.Contains(ProfinetTags.BUS_LP) || elem.Value.Contains(ProfinetTags.BUS_XP)
+            where elem.Value.Contains("#failsafe")
             select new SafetyModule(elem.Parent, pnName)).ToList();
     }
 }
