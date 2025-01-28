@@ -1,10 +1,12 @@
 # Open Commissioning Assistant
 The Open Commissioning Assistant is an application designed to facilitate engineering processes based on the Open Commissioning Framework. It specializes in implementing various plugins for virtual commissioning and optimizing TwinCAT project workflows.
 
-The goal of this application is to keep it as simple as possible with a clean design and let it only do what it needs to do.
-It is currently optimized for a connection to a TwinCAT3 Shell. Supported Versions:
-- ``TcXaeShell.DTE.15.0`` (based on VS2017, TwinCAT v3.1.4024.x)
-- ``TcXaeShell.DTE.17.0`` (based on VS2022, TwinCAT v3.1.4026.x)
+The Assistant is designed to connect to a TwinCAT3 solution. Supported Visual Studio Versions:
+- ``TwinCAT Shell based on Visual Studio 2022`` (comes with TwinCAT v3.1.4026.x)
+- ``TwinCAT Shell based on Visual Studio 2017`` (comes with TwinCAT v3.1.4024.x)
+- ``Visual Studio 2022``
+- ``Visual Studio 2019``
+- ``Visual Studio 2017``
 
 
 ## Target framework
