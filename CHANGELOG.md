@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.7.0"></a>
+## [1.7.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.7.0) (2025-01-28)
+
+### Features
+
+* add a scan duration setting for the PnGenerator ([40f074e](https://www.github.com/OpenCommissioning/OC_Assistant/commit/40f074ea96292d7ed5dba6405b3bf9d37769456e))
+* add support for Visual Studio 2017, 2019 and 2022 ([eada6e1](https://www.github.com/OpenCommissioning/OC_Assistant/commit/eada6e1c49e001b5328ee916ec7bb192bf3a760d))
+* TIA aml export files can now be used to extend generated Profinet devices with IO addresses, network peers and failsafe identification ([f5d55df](https://www.github.com/OpenCommissioning/OC_Assistant/commit/f5d55df119fe97bf33a1208df3fb4b18c0fad5d8))
+
+### Bug Fixes
+
+* module and submodule position when parsing TIA aml files ([c7dab4e](https://www.github.com/OpenCommissioning/OC_Assistant/commit/c7dab4ec077c3630f8a6df9ba267a7af0775b2fb))
+* prevent xml exception for the XtiUpdater when trying to create an existing attribute ([dc5aa8c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/dc5aa8c42571023ff8fe9b49f92c00af1a63058c))
+* remove usage of win api functions timeBeginPeriod and timeEndPeriod due to reported errors. high precision timing is now achieved via new StopwatchEx class in SDK version 1.6.0 or later. ([22aeaee](https://www.github.com/OpenCommissioning/OC_Assistant/commit/22aeaee2d596cbf0e847329a33245e95c5918b0a))
+* replace the settings Window with the Theme MessageBox ([6c9c29f](https://www.github.com/OpenCommissioning/OC_Assistant/commit/6c9c29f854f7272246ae63634a9e7b6a75ec092f))
+* show the exit code when the dsian.TcPnScanner.CLI fails. minor improvements for the PnScanner ([fcd8a9e](https://www.github.com/OpenCommissioning/OC_Assistant/commit/fcd8a9ecac6fa2e7cd6604cd09f59f28b1648b90))
+* update Profisafe generator to match imported aml info ([3438694](https://www.github.com/OpenCommissioning/OC_Assistant/commit/343869471f2c44b65c58ec06f0ed9237c22c526c))
+* update Profisafe generator to match new TwinCAT ProfisafeDevice ([18eeef8](https://www.github.com/OpenCommissioning/OC_Assistant/commit/18eeef86fb7c50782ea0edc1333bc2b06d7739b9))
+* upgrade to SDK 1.6.0 ([d735b14](https://www.github.com/OpenCommissioning/OC_Assistant/commit/d735b14ff338c3508a99a1598cae89961d33d1b4))
+* use TwinCAT automation interface instead of zip import to generate GVLs, DUTs and PRGs ([b20348a](https://www.github.com/OpenCommissioning/OC_Assistant/commit/b20348a752e3fdb84d838d721c936dc6ad4d7995))
+
 <a name="1.6.0"></a>
 ## [1.6.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.6.0) (2025-01-08)
 
