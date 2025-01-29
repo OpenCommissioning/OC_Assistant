@@ -82,4 +82,54 @@ public static class TcSmTreeItemExtension
         main = foundItem;
         return success;
     }
+
+    /// <summary>
+    /// Creates or overwrites a GVL item with the given content.
+    /// </summary>
+    /// <param name="parent">The parent <see cref="ITcSmTreeItem"/>.</param>
+    /// <param name="name">The name of the GVL. 'GVL_' is automatically added at the start.</param>
+    /// <param name="variables">The variable declarations.</param>
+    /// <returns>The GVL <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
+    public static ITcSmTreeItem? CreateGvl(this ITcSmTreeItem? parent, string name, string? variables)
+    {
+        if (parent?.GetOrCreateChild($"GVL_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not { } gvlItem)
+        {
+            return null;
+        }
+
+        if (gvlItem is not ITcPlcDeclaration gvlDecl)
+        {
+            return null;
+        }
+        
+        gvlDecl.DeclarationText = 
+            $"{{attribute 'qualified_only'}}\n{{attribute 'subsequent'}}\nVAR_GLOBAL\n{variables}END_VAR";
+        
+        return gvlItem;
+    }
+
+    /// <summary>
+    /// Creates or overwrites a DUT struct item with the given content.
+    /// </summary>
+    /// <param name="parent">The parent <see cref="ITcSmTreeItem"/>.</param>
+    /// <param name="name">The name of the DUT. 'ST_' is automatically added at the start.</param>
+    /// <param name="variables">The variable declarations.</param>
+    /// <returns>The DUT struct <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
+    public static ITcSmTreeItem? CreateDutStruct(this ITcSmTreeItem? parent, string name, string? variables)
+    {
+        if (parent?.GetOrCreateChild($"ST_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCDUTSTRUCT) is not { } dutItem)
+        {
+            return null;
+        }
+
+        if (dutItem is not ITcPlcDeclaration dutDecl)
+        {
+            return null;
+        }
+        
+        dutDecl.DeclarationText = 
+            $"{{attribute 'pack_mode' := '0'}}\nTYPE ST_{name} :\nSTRUCT\n{variables}END_STRUCT\nEND_TYPE"; 
+        
+        return dutItem;
+    }
 }

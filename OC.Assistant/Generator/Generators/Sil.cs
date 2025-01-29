@@ -67,23 +67,13 @@ internal static class Sil
         }
     }
 
-    private static string GvlDeclaration(string? variables)
-    {
-        return $"{{attribute 'qualified_only'}}\n{{attribute 'subsequent'}}\nVAR_GLOBAL\n{variables}END_VAR";
-    }
-    
-    private static string DutDeclaration(string name, string? variables)
-    {
-        return $"{{attribute 'pack_mode' := '0'}}\nTYPE ST_{name} :\nSTRUCT\n{variables}END_STRUCT\nEND_TYPE"; 
-    }
-
     private static void AddressVariables(XElement plugin, ITcSmTreeItem silFolder)
     {
         var pluginName = plugin.Attribute(XmlTags.PLUGIN_NAME)?.Value;
         if (pluginName is null) return;
         
         var pluginFolder = silFolder.GetOrCreateChild(pluginName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pluginFolder?.GetOrCreateChild($"GVL_{pluginName}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not ITcPlcDeclaration gvlDecl) return;
+        if (pluginFolder is null) return;
         
         var gvlVariables = "";
         
@@ -107,7 +97,7 @@ internal static class Sil
         gvlVariables = request.Aggregate(gvlVariables, (current, t) => 
             current + $"\tQ{t}: {TcType.Byte.Name()};\n");
 
-        gvlDecl.DeclarationText = GvlDeclaration(gvlVariables);
+        pluginFolder.CreateGvl(pluginName, gvlVariables);
     }
 
     private static void StructVariables(XElement plugin, ITcSmTreeItem silFolder)
@@ -116,30 +106,27 @@ internal static class Sil
         if (pluginName is null) return;
         
         var pluginFolder = silFolder.GetOrCreateChild(pluginName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pluginFolder?.GetOrCreateChild($"GVL_{pluginName}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not ITcPlcDeclaration gvlDecl) return;
-        if (pluginFolder.GetOrCreateChild($"ST_{pluginName}Inputs", TREEITEMTYPES.TREEITEMTYPE_PLCDUTSTRUCT) is not ITcPlcDeclaration inputDut) return;
-        if (pluginFolder.GetOrCreateChild($"ST_{pluginName}Outputs", TREEITEMTYPES.TREEITEMTYPE_PLCDUTSTRUCT) is not ITcPlcDeclaration outputDut) return;
+        if (pluginFolder is null) return;
         
         var inputStruct = plugin.Element(XmlTags.PLUGIN_INPUT_STRUCT);
         var outputStruct = plugin.Element(XmlTags.PLUGIN_OUTPUT_STRUCT);
         
-        //Inputs
-        var dutVariables = "";
-        dutVariables = inputStruct?.Elements()
-            .Aggregate(dutVariables, (current, var) => 
+        //Input struct
+        var variables = "";
+        variables = inputStruct?.Elements()
+            .Aggregate(variables, (current, var) => 
                 current + $"\t{var.Element(XmlTags.PLUGIN_NAME)?.Value}: {var.Element(XmlTags.PLUGIN_TYPE)?.Value};\n");
-        inputDut.DeclarationText = DutDeclaration($"{pluginName}Inputs", dutVariables);
+        pluginFolder.CreateDutStruct($"{pluginName}Inputs", variables);
                     
-        //Output
-        dutVariables = "";
-        dutVariables = outputStruct?.Elements()
-            .Aggregate(dutVariables, (current, var) => 
+        //Output struct
+        variables = "";
+        variables = outputStruct?.Elements()
+            .Aggregate(variables, (current, var) => 
                 current + $"\t{var.Element(XmlTags.PLUGIN_NAME)?.Value}: {var.Element(XmlTags.PLUGIN_TYPE)?.Value};\n");
-        outputDut.DeclarationText = DutDeclaration($"{pluginName}Outputs", dutVariables);
+        pluginFolder.CreateDutStruct($"{pluginName}Outputs", variables);
         
-        var gvlVariables = 
-            $"\tInputs : ST_{pluginName}Inputs;\n" +
-            $"\tOutputs : ST_{pluginName}Outputs;\n";
-        gvlDecl.DeclarationText = GvlDeclaration(gvlVariables);
+        //GVL
+        pluginFolder.CreateGvl(pluginName, 
+            $"\tInputs : ST_{pluginName}Inputs;\n\tOutputs : ST_{pluginName}Outputs;\n");
     }
 }

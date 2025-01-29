@@ -58,10 +58,9 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
         //Create global variable list
         var hil = plcProjectItem.GetOrCreateChild(folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
         var pnFolder = hil?.GetOrCreateChild(pnName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pnFolder?.GetOrCreateChild($"GVL_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not ITcPlcDeclaration gvlDecl) return;
         
         //Create program
-        if (pnFolder.GetOrCreateChild($"PRG_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG) is not { } prg) return;
+        if (pnFolder?.GetOrCreateChild($"PRG_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG) is not { } prg) return;
         if (prg.GetOrCreateChild("InitRun", TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD) is not {} initRun) return;
         if (prg is not ITcPlcDeclaration prgDecl) return;
         if (prg is not ITcPlcImplementation prgImpl) return;
@@ -91,15 +90,10 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
             bInitRun := FALSE;
             {safetyProgram.Parameter}
             """;
-        
-        gvlDecl.DeclarationText = GvlDeclaration(gvlVariables + safetyProgram.Declaration);
+
+        pnFolder.CreateGvl(pnName, gvlVariables + safetyProgram.Declaration);
 
         //Add program name to xml for project generator
         XmlFile.AddHilProgram(pnName);
-    }
-    
-    private static string GvlDeclaration(string? variables)
-    {
-        return $"{{attribute 'qualified_only'}}\n{{attribute 'subsequent'}}\nVAR_GLOBAL\n{variables}END_VAR";
     }
 }
