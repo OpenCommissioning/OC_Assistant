@@ -16,12 +16,6 @@ internal static class Project
 {
     private const string START_REGION = "{region generated code}";
     private const string END_REGION = "{endregion}";
-    private const string FB_SYSTEM = "FB_System";
-    private const string INIT_RUN = "InitRun";
-    private const string CYCLE = "Cycle";
-    private const string DEFAULT_IMPL = "\tInitRun();\n\tCycle();\n";
-    private const string INIT_IMPL = "\tIF NOT bInitRun THEN RETURN; END_IF\n\tbInitRun := FALSE;\n";
-    private const string DEFAULT_DECL = "\tbInitRun : BOOL := TRUE;\n";
     
     /// <summary>
     /// Updates the given plc project.
@@ -70,14 +64,14 @@ internal static class Project
     {
         Retry.Invoke(() =>
         {
-            var fbSystem = new PouInstanceCall(name: "fbSystem", type: FB_SYSTEM);
+            var fbSystem = new PouInstanceCall(name: "fbSystem", type: "FB_System");
             
             instances.Insert(0, fbSystem);
             PouStandardization(main, instances);
             instances.RemoveAt(0);
 
             //Create Cycle
-            var cycle = CreatePouAction(main, CYCLE);
+            var cycle = CreatePouAction(main, "Cycle");
 
             //fbSystem and HiL calls on top...
             var implementationText = XmlFile.HilPrograms?.Aggregate(
@@ -142,7 +136,7 @@ internal static class Project
             PouStandardization(fb, instances);
 
             //Create cycle
-            var cycle = CreatePouAction(fb, CYCLE);
+            var cycle = CreatePouAction(fb, "Cycle");
 
             //Cycle implementation
             Implementation(cycle, instances.Select(x => x.ImplementationText), true);
@@ -173,13 +167,13 @@ internal static class Project
             decl.DeclarationText = Cleanup(decl.DeclarationText);
 
             //Find and clean up or create actions
-            var initRun = CreatePouAction(pou, INIT_RUN);
+            var initRun = CreatePouAction(pou, "InitRun");
 
             //InitRun
-            Implementation(initRun, INIT_IMPL, true);
+            Implementation(initRun, "\tIF NOT bInitRun THEN RETURN; END_IF\n\tbInitRun := FALSE;\n", true);
 
             //Implementation
-            Implementation(impl, DEFAULT_IMPL, true);
+            Implementation(impl, "\tInitRun();\n\tCycle();\n", true);
 
             //Declaration
             if (instances.Count > 0)
@@ -248,7 +242,7 @@ internal static class Project
             //Add generated text to declaration
             declarationText += "\n" + START_REGION + "\n";
             declarationText += "VAR_INPUT\n";
-            declarationText += DEFAULT_DECL;
+            declarationText += "\tbInitRun : BOOL := TRUE;\n";
             declarationText += text;
             declarationText += "END_VAR\n";
             declarationText += END_REGION;
