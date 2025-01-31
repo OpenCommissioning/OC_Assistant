@@ -1,4 +1,5 @@
-﻿using OC.Assistant.Sdk;
+﻿using EnvDTE;
+using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Core.TwinCat;
@@ -8,6 +9,18 @@ namespace OC.Assistant.Core.TwinCat;
 /// </summary>
 public static class TcSysManagerExtension
 {
+    /// <summary>
+    /// Saves the <see cref="Project"/> associated with the given <see cref="ITcSysManager15"/>.
+    /// </summary>
+    /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
+    public static void SaveProject(this ITcSysManager15 sysManager)
+    {
+        Retry.Invoke(() =>
+        {
+            (sysManager.VsProject as Project)?.Save();
+        });
+    }
+    
     /// <summary>
     /// Gets an <see cref="ITcSmTreeItem"/> by the given name.
     /// </summary>

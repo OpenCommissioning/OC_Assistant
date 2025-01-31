@@ -28,7 +28,7 @@ internal static class Project
                 return;
             }
 
-            var instances = new List<PouInstanceCall>();
+            var instances = new List<PouInstance>();
             var main = XmlFile.Main;
             if (main is null) return;
 
@@ -38,20 +38,21 @@ internal static class Project
                 switch (child.Name.LocalName)
                 {
                     case "Device":
-                        instances.Add(new PouInstanceCall(child));
+                        instances.Add(new PouInstance(child));
                         continue;
                     case "Group":
-                        instances.Add(new PouInstanceCall(child));
+                        var childName = child.Attribute("Name")?.Value;
+                        instances.Add(new PouInstance(childName, childName));
                         CreateGroup(plcProjectItem, child);
                         continue;
                 }
             }
             
-            instances.Insert(0, new PouInstanceCall("fbSystem", "FB_System"));
+            instances.Insert(0, new PouInstance("fbSystem", "FB_System"));
             
             //HiL calls
             var additionalCycleText = XmlFile.HilPrograms?.
-                Aggregate("", (current, next) => $"{current}\tPRG_{next}();\r\n");
+                Aggregate("", (current, next) => $"{current}PRG_{next}();\n");
             
             SetPouContent(mainPrg, instances, additionalCycleText);
         });
@@ -62,7 +63,7 @@ internal static class Project
         Retry.Invoke(() =>
         {
             if (group is null) return;
-            var instances = new List<PouInstanceCall>();
+            var instances = new List<PouInstance>();
             var name = group.Attribute("Name")?.Value;
             name = name?.TcPlcCompatibleString();
             var fbName = parentName == "" ? name : $"{parentName}_{name}";
@@ -74,12 +75,11 @@ internal static class Project
                 switch (child.Name.LocalName)
                 {
                     case "Device":
-                        instances.Add(new PouInstanceCall(child));
+                        instances.Add(new PouInstance(child));
                         continue;
                     case "Group":
-                        instances.Add(new PouInstanceCall(
-                            child.Attribute("Name")?.Value, 
-                            $"{fbName}_{child.Attribute("Name")?.Value}"));
+                        var childName = child.Attribute("Name")?.Value;
+                        instances.Add(new PouInstance(childName, $"{fbName}_{childName}"));
                         CreateGroup(folder, child, fbName);
                         continue;
                 }
@@ -89,7 +89,7 @@ internal static class Project
         });
     }
     
-    private static void CreateFb(ITcSmTreeItem? parent, string? name, IReadOnlyCollection<PouInstanceCall> instances)
+    private static void CreateFb(ITcSmTreeItem? parent, string? name, IReadOnlyCollection<PouInstance> instances)
     {
         Retry.Invoke(() =>
         {
@@ -97,24 +97,22 @@ internal static class Project
         });
     }
     
-    private static void SetPouContent(ITcSmTreeItem? pou, IReadOnlyCollection<PouInstanceCall> instances, string? additionalCycleText = null)
+    private static void SetPouContent(ITcSmTreeItem? pou, IReadOnlyCollection<PouInstance> instances, string? additionalCycleText = null)
     {
         if (pou is null) return;
         
         Retry.Invoke(() =>
         {
-            //Get and clean up implementation and declaration
+            //Get implementation and declaration
             if (pou is not ITcPlcDeclaration decl) return;
             if (pou is not ITcPlcImplementation impl) return;
-            impl.ImplementationText = Cleanup(impl.ImplementationText);
-            decl.DeclarationText = Cleanup(decl.DeclarationText);
             
-            //Declaration
+            //Set Declaration
             SetDeclaration(decl, instances.Aggregate("", (current, next) => $"{current}{next.DeclarationText}"));
             
             //InitRun action
             var initRun = CreatePouAction(pou, "InitRun");
-            var initRunText = "\tIF NOT bInitRun THEN RETURN; END_IF\r\n\tbInitRun := FALSE;\r\n";
+            var initRunText = "\tIF NOT bInitRun THEN RETURN; END_IF\n\tbInitRun := FALSE;\n";
             initRunText = instances
                 .Aggregate(initRunText, (current, next) => $"{current}{next.InitRunText}");
             SetImplementation(initRun, initRunText);
@@ -125,8 +123,8 @@ internal static class Project
                 .Aggregate("", (current, next) => $"{current}{next.ImplementationText}");
             SetImplementation(cycle, cycleText + $"{additionalCycleText}");
 
-            //Implementation
-            SetImplementation(impl, "\tInitRun();\r\n\tCycle();\r\n");
+            //Set Implementation
+            SetImplementation(impl, "\tInitRun();\n\tCycle();\n");
         });
     }
     
@@ -135,9 +133,7 @@ internal static class Project
         return Retry.Invoke(() =>
         {
             var action = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCACTION);
-            if (action is not ITcPlcImplementation implementation) return null;
-            implementation.ImplementationText = Cleanup(implementation.ImplementationText);
-            return implementation;
+            return action as ITcPlcImplementation;
         });
     }
     
@@ -147,11 +143,19 @@ internal static class Project
         
         Retry.Invoke(() =>
         {
-            var existingText = impl.ImplementationText;
-            var generatedText = "{region generated code}\r\n";
+            var existing = impl.ImplementationText;
+            var customText = Cleanup(impl.ImplementationText);
+            var generatedText = "{region generated code}\n";
             generatedText += text;
-            generatedText += "{endregion}\r\n";
-            generatedText += existingText;
+            generatedText += "{endregion}\n";
+            generatedText += customText;
+            
+            
+            if (IsEqual(generatedText, existing))
+            {
+                return;
+            }
+            
             impl.ImplementationText = generatedText;
         });
     }
@@ -162,20 +166,38 @@ internal static class Project
         
         Retry.Invoke(() =>
         {
-            var generatedText = "\r\n{region generated code}\r\nVAR_INPUT\r\n";
-            generatedText += $"\tbInitRun : BOOL := TRUE;\r\n{text}";
-            generatedText += "END_VAR\r\n{endregion}";
-            decl.DeclarationText += generatedText;
+            var existing = decl.DeclarationText;
+            var customText = Cleanup(decl.DeclarationText);
+            var generatedText = "\n{region generated code}\nVAR_INPUT\n";
+            generatedText += $"\tbInitRun : BOOL := TRUE;\n{text}";
+            generatedText += "END_VAR\n{endregion}";
+            generatedText = customText + generatedText;
+            
+            if (IsEqual(generatedText, existing))
+            {
+                return;
+            }
+            
+            decl.DeclarationText = generatedText;
         });
     }
     
     private static string Cleanup(string input)
     {
         var result = Regex
-            .Replace(input, @"\s*\{region generated code\}.*?\{endregion\}\s*", "\r\n", RegexOptions.Singleline)
-            .Replace("VAR_INPUT\r\nEND_VAR\r\n", "")
-            .Replace("VAR_OUTPUT\r\nEND_VAR\r\n", "")
-            .Replace("VAR\r\nEND_VAR\r\n", "");
-        return result == "\r\n" ? "" : result;
+            .Replace(input, @"\s*\{region generated code\}.*?\{endregion\}\s*", "\n", RegexOptions.Singleline)
+            .Replace("VAR_INPUT\nEND_VAR\n", "")
+            .Replace("VAR_OUTPUT\nEND_VAR\n", "")
+            .Replace("VAR\nEND_VAR\n", "");
+        return result == "\n" ? "" : result;
+    }
+
+    private static bool IsEqual(string str1, string str2)
+    {
+        return string.Equals(
+            str1.Replace("\r", ""), 
+            str2.Replace("\r", ""), 
+            StringComparison.OrdinalIgnoreCase
+        );
     }
 }

@@ -56,17 +56,6 @@ public class TcDte
             throw new Exception("Creating instance of TwinCAT XAE Shell failed");
         }
     }
-    
-    /// <summary>
-    /// Executes the 'File.SaveAll' command.
-    /// </summary>
-    public void SaveAll()
-    {
-        Retry.Invoke(() =>
-        {
-            _dte?.ExecuteCommand("File.SaveAll");
-        });
-    }
 
     /// <summary>
     /// Opens a solution in the current <see cref="DTE"/> instance.

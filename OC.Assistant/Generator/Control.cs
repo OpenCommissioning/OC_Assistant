@@ -70,6 +70,7 @@ public class Control : ControlBase
                 if (plcProjectItem is null) return;
                 Generators.Hil.Update(this, plcProjectItem);
                 Generators.Project.Update(plcProjectItem);
+                TcSysManager?.SaveProject();
                 IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
@@ -94,6 +95,7 @@ public class Control : ControlBase
                 var plcProjectItem = GetPlcProject();
                 if (plcProjectItem is null) return;
                 Generators.Sil.UpdateAll(plcProjectItem);
+                TcSysManager?.SaveProject();
                 IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
@@ -117,6 +119,7 @@ public class Control : ControlBase
                 var plcProjectItem = GetPlcProject();
                 if (plcProjectItem is null) return;
                 Generators.Sil.Update(plcProjectItem, name, delete);
+                TcSysManager?.SaveProject();
                 IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
@@ -140,6 +143,7 @@ public class Control : ControlBase
                 var plcProjectItem = GetPlcProject();
                 if (plcProjectItem is null) return;
                 Generators.Project.Update(plcProjectItem);
+                TcSysManager?.SaveProject();
                 IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
@@ -157,17 +161,19 @@ public class Control : ControlBase
         
         Task.Run(() =>
         {
+            TcSysManager?.SaveProject();
             if (Generators.Task.CreateVariables(TcSysManager))
             {
                 Logger.LogInfo(this, "Task variables have been updated.");
             }
-            
+            TcSysManager?.SaveProject();
             IsBusy = false;
         });
     }
         
     private ITcSmTreeItem? GetPlcProject()
     {
+        TcSysManager?.SaveProject();
         var plcProjectItem = TcSysManager?.TryGetPlcProject();
         if (plcProjectItem is not null) return plcProjectItem;
         Logger.LogError(this, "No Plc project found");

@@ -103,7 +103,7 @@ public class Control(string scannerTool) : ControlBase
     private void ImportPnDevice()
     {
         //Save TwinCAT project first
-        TcDte?.SaveAll();
+        TcSysManager?.SaveProject();
 
         //No file found
         var xtiFilePath = $"{TcProjectFolder}\\{_settings.PnName}.xti";
