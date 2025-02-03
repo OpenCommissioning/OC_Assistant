@@ -144,7 +144,7 @@ internal static class Project
         Retry.Invoke(() =>
         {
             var existing = impl.ImplementationText;
-            var customText = Cleanup(impl.ImplementationText);
+            var customText = Cleanup(existing);
             var generatedText = "{region generated code}\n";
             generatedText += text;
             generatedText += "{endregion}\n";
@@ -167,7 +167,7 @@ internal static class Project
         Retry.Invoke(() =>
         {
             var existing = decl.DeclarationText;
-            var customText = Cleanup(decl.DeclarationText);
+            var customText = Cleanup(existing);
             var generatedText = "\n{region generated code}\nVAR_INPUT\n";
             generatedText += $"\tbInitRun : BOOL := TRUE;\n{text}";
             generatedText += "END_VAR\n{endregion}";
