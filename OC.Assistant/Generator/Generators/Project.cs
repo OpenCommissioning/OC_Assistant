@@ -28,7 +28,7 @@ internal static class Project
                 return;
             }
 
-            var instances = new List<PouInstance>();
+            var instances = new List<PouInstance>{ new("fbSystem", "FB_System") };
             var main = XmlFile.Main;
             if (main is null) return;
 
@@ -48,13 +48,11 @@ internal static class Project
                 }
             }
             
-            instances.Insert(0, new PouInstance("fbSystem", "FB_System"));
-            
             //HiL calls
-            var additionalCycleText = XmlFile.HilPrograms?.
+            var additionalImplementation = XmlFile.HilPrograms?.
                 Aggregate("", (current, next) => $"{current}PRG_{next}();\n");
             
-            SetPouContent(mainPrg, instances, additionalCycleText);
+            SetPouContent(mainPrg, instances, additionalImplementation);
         });
     }
     
@@ -63,13 +61,13 @@ internal static class Project
         Retry.Invoke(() =>
         {
             if (group is null) return;
-            var instances = new List<PouInstance>();
             var name = group.Attribute("Name")?.Value;
             name = name?.TcPlcCompatibleString();
             var fbName = parentName == "" ? name : $"{parentName}_{name}";
             fbName = fbName?.TcPlcCompatibleString();
             var folder = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-
+            var instances = new List<PouInstance>();
+            
             foreach (var child in group.Elements())
             {
                 switch (child.Name.LocalName)
@@ -97,7 +95,7 @@ internal static class Project
         });
     }
     
-    private static void SetPouContent(ITcSmTreeItem? pou, IReadOnlyCollection<PouInstance> instances, string? additionalCycleText = null)
+    private static void SetPouContent(ITcSmTreeItem? pou, IReadOnlyCollection<PouInstance> instances, string? additionalImplementation = null)
     {
         if (pou is null) return;
         
@@ -107,33 +105,37 @@ internal static class Project
             if (pou is not ITcPlcDeclaration decl) return;
             if (pou is not ITcPlcImplementation impl) return;
             
-            //Set Declaration
+            //Set declaration
             SetDeclaration(decl, instances.Aggregate("", (current, next) => $"{current}{next.DeclarationText}"));
             
-            //InitRun action
-            var initRun = CreatePouAction(pou, "InitRun");
-            var initRunText = "\tIF NOT bInitRun THEN RETURN; END_IF\n\tbInitRun := FALSE;\n";
-            initRunText = instances
-                .Aggregate(initRunText, (current, next) => $"{current}{next.InitRunText}");
-            SetImplementation(initRun, initRunText);
-            
-            //Cycle action
-            var cycle = CreatePouAction(pou, "Cycle");
-            var cycleText = instances
-                .Aggregate("", (current, next) => $"{current}{next.ImplementationText}");
-            SetImplementation(cycle, cycleText + $"{additionalCycleText}");
+            //Create or set InitRun method
+            SetInitRun(pou, instances);
 
-            //Set Implementation
-            SetImplementation(impl, "\tInitRun();\n\tCycle();\n");
+            //Set implementation
+            var cycleText = instances
+                .Aggregate("\tInitRun();\n", (current, next) => $"{current}{next.ImplementationText}");
+            SetImplementation(impl, cycleText + additionalImplementation);
         });
     }
     
-    private static ITcPlcImplementation? CreatePouAction(ITcSmTreeItem? parent, string name)
+    private static void SetInitRun(ITcSmTreeItem? parent, IReadOnlyCollection<PouInstance> instances)
     {
-        return Retry.Invoke(() =>
+        Retry.Invoke(() =>
         {
-            var action = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCACTION);
-            return action as ITcPlcImplementation;
+            //Create method 'InitRun'
+            var method = parent?.GetOrCreateChild("InitRun", TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD);
+            
+            //Get implementation and declaration
+            if (method is not ITcPlcDeclaration decl) return;
+            if (method is not ITcPlcImplementation impl) return;
+            
+            //Set declaration
+            SetDeclaration(decl, "\tbInitRun : BOOL := TRUE;\n", isMethod: true);
+            
+            //Set implementation
+            var text = instances.Aggregate("\tIF NOT bInitRun THEN RETURN; END_IF\n\tbInitRun := FALSE;\n", 
+                (current, next) => $"{current}{next.InitRunText}");
+            SetImplementation(impl, text);
         });
     }
     
@@ -150,7 +152,6 @@ internal static class Project
             generatedText += "{endregion}\n";
             generatedText += customText;
             
-            
             if (IsEqual(generatedText, existing))
             {
                 return;
@@ -160,7 +161,7 @@ internal static class Project
         });
     }
     
-    private static void SetDeclaration(ITcPlcDeclaration? decl, string? text)
+    private static void SetDeclaration(ITcPlcDeclaration? decl, string? text, bool isMethod = false)
     {
         if (decl is null || string.IsNullOrEmpty(text)) return;
         
@@ -168,8 +169,9 @@ internal static class Project
         {
             var existing = decl.DeclarationText;
             var customText = Cleanup(existing);
-            var generatedText = "\n{region generated code}\nVAR_INPUT\n";
-            generatedText += $"\tbInitRun : BOOL := TRUE;\n{text}";
+            var generatedText = "\n{region generated code}\n";
+            generatedText += isMethod ? "VAR_INST\n" : "VAR_INPUT\n";
+            generatedText += text;
             generatedText += "END_VAR\n{endregion}";
             generatedText = customText + generatedText;
             
