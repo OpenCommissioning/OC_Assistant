@@ -178,7 +178,7 @@ public class TcState : TcStateIndicator
 
     private Task UpdateNetId()
     {
-        if (!IsProjectConnected) return Task.CompletedTask;
+        if (BusyState.IsSet || !IsProjectConnected) return Task.CompletedTask;
         _amsNetId = GetCurrentNetId();
         return Task.CompletedTask;
     }
