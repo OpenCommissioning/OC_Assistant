@@ -11,35 +11,33 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
 {
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        Retry.Invoke(() =>
+        var tcSysManager = TcDte.GetInstance(projectConnector.SolutionFullName).GetTcSysManager();
+        if (tcSysManager is null) return;
+        
+        if (!tcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
         {
-            if (projectConnector.TcSysManager is null) return;
+            return;
+        }
+        
+        foreach (ITcSmTreeItem item in ioItem)
+        {
+            //Is not Profinet
+            if (item.ItemSubType != (int) TcSmTreeItemSubType.ProfinetIoDevice) continue;
             
-            if (!projectConnector.TcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
-            {
-                return;
-            }
-            
-            foreach (ITcSmTreeItem item in ioItem)
-            {
-                //Is not Profinet
-                if (item.ItemSubType != (int) TcSmTreeItemSubType.ProfinetIoDevice) continue;
-                
-                //Is disabled 
-                if (item.Disabled == DISABLED_STATE.SMDS_DISABLED) continue;
+            //Is disabled 
+            if (item.Disabled == DISABLED_STATE.SMDS_DISABLED) continue;
 
-                //Export profinet to xti file
-                var xtiPath = $"{AppData.Path}\\{item.Name}.xti";
-                if (File.Exists(xtiPath)) File.Delete(xtiPath);
-                item.Parent.ExportChild(item.Name, xtiPath);
-                
-                //Parse xti file and delete
-                var profinetParser = new ProfinetParser(xtiPath, item.Name);
-                File.Delete(xtiPath);
-                
-                GenerateFiles(plcProjectItem, item.Name, profinetParser.Variables, profinetParser.SafetyModules);
-            }
-        });
+            //Export profinet to xti file
+            var xtiPath = $"{AppData.Path}\\{item.Name}.xti";
+            if (File.Exists(xtiPath)) File.Delete(xtiPath);
+            item.Parent.ExportChild(item.Name, xtiPath);
+            
+            //Parse xti file and delete
+            var profinetParser = new ProfinetParser(xtiPath, item.Name);
+            File.Delete(xtiPath);
+            
+            GenerateFiles(plcProjectItem, item.Name, profinetParser.Variables, profinetParser.SafetyModules);
+        }
     }
     
     private void GenerateFiles(ITcSmTreeItem plcProjectItem, string pnName, IEnumerable<ProfinetVariable> pnVars, IEnumerable<SafetyModule> safetyModules)

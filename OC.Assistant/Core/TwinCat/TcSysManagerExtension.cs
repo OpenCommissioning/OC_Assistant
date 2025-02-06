@@ -15,10 +15,7 @@ public static class TcSysManagerExtension
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
     public static void SaveProject(this ITcSysManager15 sysManager)
     {
-        Retry.Invoke(() =>
-        {
-            (sysManager.VsProject as Project)?.Save();
-        });
+        (sysManager.VsProject as Project)?.Save();
     }
     
     /// <summary>
@@ -29,23 +26,20 @@ public static class TcSysManagerExtension
     /// <param name="name">The name of the <see cref="ITcSmTreeItem"/> to find.</param>
     public static ITcSmTreeItem? TryGetItem(this ITcSysManager15 sysManager, string rootItemName, string? name)
     {
-        return Retry.Invoke(() =>
+        if (!sysManager.TryLookupTreeItem(rootItemName, out var rootItem))
         {
-            if (!sysManager.TryLookupTreeItem(rootItemName, out var rootItem))
-            {
-                Logger.LogError(typeof(TcSysManagerExtension), $"RootItem {rootItemName} not found");
-                return null;
-            }
-            
-            foreach (var item in rootItem.Cast<ITcSmTreeItem>()
-                         .Where(item => name is null || item.Name == name))
-            {
-                return item;
-            }
-            
-            Logger.LogError(typeof(TcSysManagerExtension), $"Item {name} not found in category {rootItemName}");
+            Logger.LogError(typeof(TcSysManagerExtension), $"RootItem {rootItemName} not found");
             return null;
-        });
+        }
+        
+        foreach (var item in rootItem.Cast<ITcSmTreeItem>()
+                     .Where(item => name is null || item.Name == name))
+        {
+            return item;
+        }
+        
+        Logger.LogError(typeof(TcSysManagerExtension), $"Item {name} not found in category {rootItemName}");
+        return null;
     }
 
     /// <summary>
@@ -54,13 +48,10 @@ public static class TcSysManagerExtension
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
     public static ITcSmTreeItem? TryGetPlcProject(this ITcSysManager15 sysManager)
     {
-        return Retry.Invoke(() =>
-        {
-            return sysManager
-                .TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName)?
-                .Cast<ITcSmTreeItem>()
-                .FirstOrDefault(item => item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_PLCAPP);
-        });
+        return sysManager
+            .TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName)?
+            .Cast<ITcSmTreeItem>()
+            .FirstOrDefault(item => item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_PLCAPP);
     }
         
     /// <summary>
@@ -69,13 +60,10 @@ public static class TcSysManagerExtension
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
     public static ITcSmTreeItem? TryGetPlcInstance(this ITcSysManager15 sysManager)
     {
-        return Retry.Invoke(() =>
-        {
-            return sysManager
-                .TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName)?
-                .Cast<ITcSmTreeItem>()
-                .FirstOrDefault(item => item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_TCOMPLCOBJECT);
-        });
+        return sysManager
+            .TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName)?
+            .Cast<ITcSmTreeItem>()
+            .FirstOrDefault(item => item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_TCOMPLCOBJECT);
     }
 
     /// <summary>
@@ -87,14 +75,11 @@ public static class TcSysManagerExtension
     /// <returns>The updated or created IoDevice as <see cref="ITcSmTreeItem"/>.</returns>
     public static ITcSmTreeItem? UpdateIoDevice(this ITcSysManager15 sysManager, string deviceName, string xtiFilePath)
     {
-        return Retry.Invoke(() =>
+        if (sysManager.TryLookupTreeItem($"{TcShortcut.IO_DEVICE}^{deviceName}", out _))
         {
-            if (sysManager.TryLookupTreeItem($"{TcShortcut.IO_DEVICE}^{deviceName}", out _))
-            {
-                sysManager.LookupTreeItem(TcShortcut.IO_DEVICE).DeleteChild(deviceName);
-            }
-            
-            return sysManager.LookupTreeItem(TcShortcut.IO_DEVICE).ImportChild(xtiFilePath);
-        });
+            sysManager.LookupTreeItem(TcShortcut.IO_DEVICE).DeleteChild(deviceName);
+        }
+        
+        return sysManager.LookupTreeItem(TcShortcut.IO_DEVICE).ImportChild(xtiFilePath);
     }
 }

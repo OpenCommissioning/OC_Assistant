@@ -5,7 +5,7 @@ namespace OC.Assistant.Core;
 
 public class XmlFile
 {
-    public const string DEFAULT_FILE_NAME = "OC.Assistant.xml";
+    private const string DEFAULT_FILE_NAME = "OC.Assistant.xml";
     private static readonly Lazy<XmlFile> LazyInstance = new(() => new XmlFile());
     private static string? _path;
     private XDocument? _doc;
@@ -154,20 +154,6 @@ public class XmlFile
         {
             var element = GetOrCreateChild(Settings, XmlTags.PLC_TASK_NAME);
             element.Value = value;
-            Save();
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets the TaskAutoUpdate value.
-    /// </summary>
-    public bool TaskAutoUpdate
-    {
-        get => bool.TryParse(Settings?.Element(XmlTags.TASK_AUTO_UPDATE)?.Value, out var result) && result;
-        set
-        {
-            var element = GetOrCreateChild(Settings, XmlTags.TASK_AUTO_UPDATE);
-            element.Value = value.ToString();
             Save();
         }
     }

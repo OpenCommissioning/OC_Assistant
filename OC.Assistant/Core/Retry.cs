@@ -35,11 +35,7 @@ public static class Retry
                 Thread.Sleep(100);
             }
         }
-
-        if (exception is System.Runtime.InteropServices.COMException)
-        {
-            ComException.Raise();
-        }
+        
         throw exception;
     }
     
@@ -69,11 +65,7 @@ public static class Retry
                 Thread.Sleep(100);
             }
         }
-
-        if (exception is System.Runtime.InteropServices.COMException)
-        {
-            ComException.Raise();
-        }
+        
         throw exception;
     }
 }

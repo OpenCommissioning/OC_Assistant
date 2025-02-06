@@ -1,4 +1,4 @@
-﻿using OC.Assistant.Core.TwinCat;
+﻿using EnvDTE;
 
 namespace OC.Assistant.Core;
 
@@ -10,7 +10,7 @@ public interface IProjectSelector
     /// <summary>
     /// Is raised when a solution has been selected. 
     /// </summary>
-    public event Action<TcDte>? DteSelected;
+    public event Action<DTE>? DteSelected;
     
     /// <summary>
     /// Is raised when a connected solution has been closed. 

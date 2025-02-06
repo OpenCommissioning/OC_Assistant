@@ -14,10 +14,7 @@ public static class TcSmTreeItemExtension
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? TryLookupChild(this ITcSmTreeItem parent, string? childName)
     {
-        return Retry.Invoke(() =>
-        {
-            return parent.Cast<ITcSmTreeItem>().FirstOrDefault(c => c.Name == childName);
-        });
+        return parent.Cast<ITcSmTreeItem>().FirstOrDefault(c => c.Name == childName);
     }
 
     /// <summary>
@@ -29,12 +26,9 @@ public static class TcSmTreeItemExtension
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? TryLookupChild(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
     {
-        return Retry.Invoke(() =>
-        {
-            var child = parent.TryLookupChild(childName);
-            if (child is null) return null;
-            return child.ItemType == (int) type ? child : null;
-        });
+        var child = parent.TryLookupChild(childName);
+        if (child is null) return null;
+        return child.ItemType == (int) type ? child : null;
     }
     
     /// <summary>
@@ -46,41 +40,34 @@ public static class TcSmTreeItemExtension
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? GetOrCreateChild(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
     {
-        return Retry.Invoke(() =>
-        {
-            var item = parent.TryLookupChild(childName, type) ?? parent.CreateChild(childName, nSubType: (int)type);
-            return item;
-        });
+        var item = parent.TryLookupChild(childName, type) ?? parent.CreateChild(childName, nSubType: (int)type);
+        return item;
     }
     
     /// <summary>
     /// Finds the MAIN program.
     /// </summary>
-    /// <param name="plcProjectItem">The plc project as <see cref="ITcSmTreeItem"/>.</param>
+    /// <param name="parent">The plc project as <see cref="ITcSmTreeItem"/>.</param>
     /// <param name="main">The main program as <see cref="ITcSmTreeItem"/></param>
     /// <returns>True if successful, otherwise false.</returns>
-    public static bool FindMain(this ITcSmTreeItem plcProjectItem, out ITcSmTreeItem? main)
+    public static bool FindMain(this ITcSmTreeItem parent, out ITcSmTreeItem? main)
     {
-        ITcSmTreeItem? foundItem = null;
-
-        var success = Retry.Invoke(() =>
+        foreach (ITcSmTreeItem child in parent)
         {
-            foreach (ITcSmTreeItem item in plcProjectItem)
+            if (child.Name.Equals("MAIN", StringComparison.CurrentCultureIgnoreCase) && child.ItemType == (int)TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG)
             {
-                if (item.Name.Equals("MAIN", StringComparison.CurrentCultureIgnoreCase) && item.ItemType == (int)TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG)
-                {
-                    foundItem = item;
-                    return true;
-                }
-
-                if (FindMain(item, out foundItem)) return true;
+                main = child;
+                return true;
             }
 
-            return false;
-        });
-
-        main = foundItem;
-        return success;
+            if (FindMain(child, out main))
+            {
+                return true;
+            }
+        }
+        
+        main = null;
+        return false;
     }
 
     /// <summary>

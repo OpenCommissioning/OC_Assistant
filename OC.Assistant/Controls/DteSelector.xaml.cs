@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using EnvDTE;
 using OC.Assistant.Core.TwinCat;
 
 namespace OC.Assistant.Controls;
@@ -8,7 +9,7 @@ namespace OC.Assistant.Controls;
 /// </summary>
 public partial class DteSelector
 {
-    public event Action<TcDte>? Selected;
+    public event Action<DTE>? Selected;
 
     public DteSelector()
     {
@@ -24,13 +25,13 @@ public partial class DteSelector
         {
             var subMenuItem = new MenuItem
             {
-                Header = instance.SolutionFullName,
+                Header = instance.GetSolutionFullName(),
                 Tag = instance
             };
             
             subMenuItem.Click += (obj, _) =>
             {
-                if (((MenuItem)obj).Tag is TcDte dte)
+                if (((MenuItem)obj).Tag is DTE dte)
                 {
                     Selected?.Invoke(dte);
                 }
