@@ -55,7 +55,7 @@ connected to a TwinCAT solution and this solution is in _Config Mode_.
 ![ProjectMenu.png](Documentation%2FImages%2FProjectMenu.png)
 
 
-- _Recreate Project_: Updates the conected TwinCAT project based on the current [configuration](#configuration-file). When the configuration includes _device_ entries, 
+- _Recreate Project_: Updates the connected TwinCAT project based on the current [configuration](#configuration-file). When the configuration includes _device_ entries, 
 this function automatically generates corresponding behavior models within the connected TwinCAT solution. __Note__ that this function is automatically called when
 using the _Update TwinCAT Project_ function of the `Client` component in the [Open Commissioning Unity package](https://github.com/OpenCommissioning/OC_Unity_Core), so in most cases this funcion does not need to be called via this menu.
 
@@ -75,11 +75,9 @@ and links those to the corresponding variables in the _PLC Project_.
 
 ![ProjetctSettings.png](Documentation%2FImages%2FProjectSettings.png)
 
-  - _PlcName_: specifies the name of the PLC project in the connected solution in which the device models should be generated in when using _Update Project_
+  - _PlcName_: specifies the name of the PLC project in the connected solution in which the device models should be generated in when using _Recreate Project_
 
   - _PlcTaskName_: specifies the name of the Task in which the input and output variables should be generated in when using _Update Task_
-
-  - _Task AutoUpdate_: if checked, the TwinCAT task gets updated automatically with the new input and ouptut variables when the _PLC Project_ is build.
 
 
 
@@ -164,13 +162,28 @@ This is an example configuration file containing a Plugin configuration and _Dev
     <Main>
       <Group Name="Devices">
         <Group Name="Cylinders">
-          <Device Name="Cylinder_1" Type="FB_Cylinder" />
+            
+            <!-- This is a device with cyclic assignment -->
+          <Device Name="Cylinder_1" Type="FB_Cylinder" >
+              <Label>++ST001+FG001-CYL001</Label>
+              <Control Name="bRetract" Assignment="PLC1.Q0.0" />
+              <Control Name="bExtend" Assignment="PLC1.Q0.1" />
+              <Status Name="bRetracted" Assignment="PLC1.I0.0" />
+              <Status Name="bExtended" Assignment="PLC1.I0.1" />
+          </Device>
+            
           <Device Name="Cylinder_2" Type="FB_Cylinder" />
           <Device Name="Cylinder_3" Type="FB_Cylinder" />
           <Device Name="Cylinder_4" Type="FB_Cylinder" />
         </Group>
         <Group Name="Drives">
-          <Device Name="Drive_Position" Type="FB_Drive" />
+            
+            <!-- This is a device with address assignment -->
+          <Device Name="Drive_Position" Type="FB_Drive" >
+              <Label>++ST001+FG001-DRV001</Label>
+              <Address Control="PLC1.Q2" Status="PLC1.Q2" />
+          </Device>
+            
           <Device Name="Drive_Simple" Type="FB_Drive" />
           <Device Name="Drive_Speed" Type="FB_Drive" />
         </Group>

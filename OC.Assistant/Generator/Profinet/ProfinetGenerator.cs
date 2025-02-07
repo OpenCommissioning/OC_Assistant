@@ -11,35 +11,33 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
 {
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        Retry.Invoke(() =>
+        var tcSysManager = TcDte.GetInstance(projectConnector.SolutionFullName).GetTcSysManager();
+        if (tcSysManager is null) return;
+        
+        if (!tcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
         {
-            if (projectConnector.TcSysManager is null) return;
+            return;
+        }
+        
+        foreach (ITcSmTreeItem item in ioItem)
+        {
+            //Is not Profinet
+            if (item.ItemSubType != (int) TcSmTreeItemSubType.ProfinetIoDevice) continue;
             
-            if (!projectConnector.TcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
-            {
-                return;
-            }
-            
-            foreach (ITcSmTreeItem item in ioItem)
-            {
-                //Is not Profinet
-                if (item.ItemSubType != (int) TcSmTreeItemSubType.ProfinetIoDevice) continue;
-                
-                //Is disabled 
-                if (item.Disabled == DISABLED_STATE.SMDS_DISABLED) continue;
+            //Is disabled 
+            if (item.Disabled == DISABLED_STATE.SMDS_DISABLED) continue;
 
-                //Export profinet to xti file
-                var xtiPath = $"{AppData.Path}\\{item.Name}.xti";
-                if (File.Exists(xtiPath)) File.Delete(xtiPath);
-                item.Parent.ExportChild(item.Name, xtiPath);
-                
-                //Parse xti file and delete
-                var profinetParser = new ProfinetParser(xtiPath, item.Name);
-                File.Delete(xtiPath);
-                
-                GenerateFiles(plcProjectItem, item.Name, profinetParser.Variables, profinetParser.SafetyModules);
-            }
-        });
+            //Export profinet to xti file
+            var xtiPath = $"{AppData.Path}\\{item.Name}.xti";
+            if (File.Exists(xtiPath)) File.Delete(xtiPath);
+            item.Parent.ExportChild(item.Name, xtiPath);
+            
+            //Parse xti file and delete
+            var profinetParser = new ProfinetParser(xtiPath, item.Name);
+            File.Delete(xtiPath);
+            
+            GenerateFiles(plcProjectItem, item.Name, profinetParser.Variables, profinetParser.SafetyModules);
+        }
     }
     
     private void GenerateFiles(ITcSmTreeItem plcProjectItem, string pnName, IEnumerable<ProfinetVariable> pnVars, IEnumerable<SafetyModule> safetyModules)
@@ -58,10 +56,9 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
         //Create global variable list
         var hil = plcProjectItem.GetOrCreateChild(folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
         var pnFolder = hil?.GetOrCreateChild(pnName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pnFolder?.GetOrCreateChild($"GVL_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not ITcPlcDeclaration gvlDecl) return;
         
         //Create program
-        if (pnFolder.GetOrCreateChild($"PRG_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG) is not { } prg) return;
+        if (pnFolder?.GetOrCreateChild($"PRG_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG) is not { } prg) return;
         if (prg.GetOrCreateChild("InitRun", TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD) is not {} initRun) return;
         if (prg is not ITcPlcDeclaration prgDecl) return;
         if (prg is not ITcPlcImplementation prgImpl) return;
@@ -91,15 +88,10 @@ internal class ProfinetGenerator(IProjectConnector projectConnector, string fold
             bInitRun := FALSE;
             {safetyProgram.Parameter}
             """;
-        
-        gvlDecl.DeclarationText = GvlDeclaration(gvlVariables + safetyProgram.Declaration);
+
+        pnFolder.CreateGvl(pnName, gvlVariables + safetyProgram.Declaration);
 
         //Add program name to xml for project generator
         XmlFile.AddHilProgram(pnName);
-    }
-    
-    private static string GvlDeclaration(string? variables)
-    {
-        return $"{{attribute 'qualified_only'}}\n{{attribute 'subsequent'}}\nVAR_GLOBAL\n{variables}END_VAR";
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using EnvDTE;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using TwinCAT.Ads;
@@ -119,7 +120,7 @@ public class TcState : TcStateIndicator
     /// Connects the <see cref="TcState"/> instance a project.
     /// </summary>
     /// <param name="tcDte">The given <see cref="TcDte"/></param>
-    public void ConnectProject(TcDte tcDte)
+    public void ConnectProject(DTE tcDte)
     {
         if (_adsNotOk) return;
 
@@ -129,7 +130,7 @@ public class TcState : TcStateIndicator
             _amsNetId = GetCurrentNetId();
             ApiLocal.Interface.NetId = _amsNetId;
             _cancellationTokenSource = new CancellationTokenSource();
-            SetSolutionPath(tcDte.SolutionFileName);
+            SetSolutionPath(tcDte.GetSolutionFileName());
 
             StartPolling(UpdateNetId, 2000);
             StartPolling(UpdateAdsState, 100);
@@ -178,7 +179,7 @@ public class TcState : TcStateIndicator
 
     private Task UpdateNetId()
     {
-        if (!IsProjectConnected) return Task.CompletedTask;
+        if (BusyState.IsSet || !IsProjectConnected) return Task.CompletedTask;
         _amsNetId = GetCurrentNetId();
         return Task.CompletedTask;
     }

@@ -32,8 +32,8 @@ public class Control(string scannerTool) : ControlBase
             Logger.LogError(this, "No adapter selected");
             return;
         }
-
-        Task.Run(() =>
+        
+        SingleThread.Run(() =>
         {
             IsBusy = true;
             RunScanner();
@@ -56,7 +56,7 @@ public class Control(string scannerTool) : ControlBase
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\"",
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\""
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true
@@ -103,7 +103,8 @@ public class Control(string scannerTool) : ControlBase
     private void ImportPnDevice()
     {
         //Save TwinCAT project first
-        TcDte?.SaveAll();
+        var tcSysManager = TcDte.GetInstance(SolutionFullName).GetTcSysManager();
+        tcSysManager?.SaveProject();
 
         //No file found
         var xtiFilePath = $"{TcProjectFolder}\\{_settings.PnName}.xti";
@@ -129,7 +130,7 @@ public class Control(string scannerTool) : ControlBase
             
         //Import and delete xti file 
         Logger.LogInfo(this, $"Import {xtiFilePath}...");
-        var tcPnDevice = TcSysManager?.UpdateIoDevice(_settings.PnName, xtiFilePath);
+        var tcPnDevice = tcSysManager?.UpdateIoDevice(_settings.PnName, xtiFilePath);
         File.Delete(xtiFilePath);
             
         UpdateTcPnDevice(tcPnDevice);

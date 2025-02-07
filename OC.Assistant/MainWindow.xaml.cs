@@ -41,7 +41,7 @@ public partial class MainWindow
             Width = (int) Width, 
             PosX = (int) Left, 
             PosY = (int) Top, 
-            ConsoleHeight = (int) ConsoleRow.Height.Value, 
+            ConsoleHeight = (int) ConsoleRow.Height.Value
         }.Write();
     }
     

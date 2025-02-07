@@ -9,7 +9,6 @@ public partial class Settings
         if (Core.XmlFile.Path is null) return;
         PlcProjectName.Text = Core.XmlFile.Instance.PlcProjectName;
         PlcTaskName.Text = Core.XmlFile.Instance.PlcTaskName;
-        TaskAutoUpdate.IsChecked = Core.XmlFile.Instance.TaskAutoUpdate;
     }
 
     public void Save()
@@ -19,7 +18,6 @@ public partial class Settings
         {
             Core.XmlFile.Instance.PlcProjectName = PlcProjectName.Text;
             Core.XmlFile.Instance.PlcTaskName = PlcTaskName.Text;
-            Core.XmlFile.Instance.TaskAutoUpdate = TaskAutoUpdate.IsChecked == true;
         });
     }
 }

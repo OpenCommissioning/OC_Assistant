@@ -10,5 +10,4 @@
     <TextBox x:Name="PlcProjectName" Margin="0 5 0 10"></TextBox>
     <Label>PlcTaskName</Label>
     <TextBox x:Name="PlcTaskName" Margin="0 5 0 10"></TextBox>
-    <CheckBox x:Name="TaskAutoUpdate">TaskAutoUpdate</CheckBox>
 </StackPanel>
