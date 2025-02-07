@@ -88,8 +88,6 @@ internal static class Project
     
     private static void SetPouContent(ITcSmTreeItem? pou, IReadOnlyCollection<PouInstance> instances, string? additionalImplementation = null)
     {
-        if (pou is null) return;
-        
         //Get implementation and declaration
         if (pou is not ITcPlcDeclaration decl) return;
         if (pou is not ITcPlcImplementation impl) return;

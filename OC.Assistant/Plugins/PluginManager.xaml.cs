@@ -155,7 +155,7 @@ public partial class PluginManager
             
         XmlFile.UpdatePlugin(plugin);
 
-        if (_plugins.FirstOrDefault(x => x.Name == plugin.Name) == default)
+        if (_plugins.FirstOrDefault(x => x.Name == plugin.Name) is null)
         {
             _plugins.Add(plugin);
             AddPlugin(plugin);

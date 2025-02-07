@@ -60,7 +60,7 @@ public class Control(string scannerTool) : ControlBase
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\"",
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\""
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true

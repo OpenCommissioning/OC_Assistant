@@ -64,20 +64,41 @@ public partial class Menu
     
     private async void InstallOnClick(object sender, RoutedEventArgs e)
     {
-        await Dotnet($"tool install {SCANNER_TOOL} -g");
-        await IsScannerInstalled();
+        try
+        {
+            await Dotnet($"tool install {SCANNER_TOOL} -g");
+            await IsScannerInstalled();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
 
     private async void UpdateOnClick(object sender, RoutedEventArgs e)
     {
-        await Dotnet($"tool update {SCANNER_TOOL} -g");
-        await IsScannerInstalled();
+        try
+        {
+            await Dotnet($"tool update {SCANNER_TOOL} -g");
+            await IsScannerInstalled();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
     
     private async void UninstallOnClick(object sender, RoutedEventArgs e)
     {
-        await Dotnet($"tool uninstall {SCANNER_TOOL} -g");
-        await IsScannerInstalled();
+        try
+        {
+            await Dotnet($"tool uninstall {SCANNER_TOOL} -g");
+            await IsScannerInstalled();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
     }
 
     private async Task<string> Dotnet(string arguments, bool logOutput = true)
