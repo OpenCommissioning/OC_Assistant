@@ -32,6 +32,32 @@ public static class TcSmTreeItemExtension
     }
     
     /// <summary>
+    /// Tries to find a <see cref="ITcSmTreeItem"/> recursive.
+    /// </summary>
+    /// <param name="parent">The parent <see cref="ITcSmTreeItem"/>.</param>
+    /// <param name="childName">The name of the child item.</param>
+    /// <param name="type">The <see cref="TREEITEMTYPES"/> of the child item.</param>
+    /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
+    public static ITcSmTreeItem? FindChildRecursive(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
+    {
+        foreach (ITcSmTreeItem child in parent)
+        {
+            if (child.Name.Equals(childName, StringComparison.CurrentCultureIgnoreCase) && child.ItemType == (int)type)
+            {
+                return child;
+            }
+
+            var grandChild = FindChildRecursive(child, childName, type);
+            if (grandChild is not null)
+            {
+                return grandChild;
+            }
+        }
+        
+        return null;
+    }
+    
+    /// <summary>
     /// Gets a child in the given tree by name and type. Creates the child if not existent.
     /// </summary>
     /// <param name="parent">The parent <see cref="ITcSmTreeItem"/></param>
@@ -40,36 +66,12 @@ public static class TcSmTreeItemExtension
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? GetOrCreateChild(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
     {
-        var item = parent.TryLookupChild(childName, type) ?? parent.CreateChild(childName, nSubType: (int)type);
-        return item;
+        var item = parent.TryLookupChild(childName, type);
+        if (item is not null) return item;
+        Thread.Sleep(1); //"Breathing room" for the COM interface
+        return parent.CreateChild(childName, nSubType: (int)type);
     }
     
-    /// <summary>
-    /// Finds the MAIN program.
-    /// </summary>
-    /// <param name="parent">The plc project as <see cref="ITcSmTreeItem"/>.</param>
-    /// <param name="main">The main program as <see cref="ITcSmTreeItem"/></param>
-    /// <returns>True if successful, otherwise false.</returns>
-    public static bool FindMain(this ITcSmTreeItem parent, out ITcSmTreeItem? main)
-    {
-        foreach (ITcSmTreeItem child in parent)
-        {
-            if (child.Name.Equals("MAIN", StringComparison.CurrentCultureIgnoreCase) && child.ItemType == (int)TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG)
-            {
-                main = child;
-                return true;
-            }
-
-            if (FindMain(child, out main))
-            {
-                return true;
-            }
-        }
-        
-        main = null;
-        return false;
-    }
-
     /// <summary>
     /// Creates or overwrites a GVL item with the given content.
     /// </summary>

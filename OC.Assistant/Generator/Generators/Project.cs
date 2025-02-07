@@ -18,10 +18,11 @@ internal static class Project
     /// </summary>
     public static void Update(ITcSmTreeItem plcProjectItem)
     {
-        //Search MAIN program
-        if (!plcProjectItem.FindMain(out var mainPrg))
+        //Search main program
+        var mainPrg = plcProjectItem.FindChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
+        if (mainPrg is null)
         {
-            Logger.LogError(typeof(Project), "MAIN program not found");
+            Logger.LogError(typeof(Project), "Main program not found");
             return;
         }
 

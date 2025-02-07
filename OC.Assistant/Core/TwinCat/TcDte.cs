@@ -49,6 +49,16 @@ public static class TcDte
         
         return dte;
     }
+
+    /// <summary>
+    /// Enables the <see cref="DTE.UserControl"/> property to show the environment in case it was launched by automation.
+    /// </summary>
+    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
+    public static void EnableUserControl(this DTE? dte)
+    {
+        if (dte is null) return;
+        Retry.Invoke(() => { dte.UserControl = true; });
+    }
     
     /// <summary>
     /// Tries to get the path of the project folder.

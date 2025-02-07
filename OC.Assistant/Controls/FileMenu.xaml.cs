@@ -109,10 +109,8 @@ internal partial class FileMenu : IProjectSelector
         }
         
         Logger.LogInfo(this, dte.GetSolutionFullName() + " connected");
-
-        //Show the shell
-        if (!dte.UserControl) dte.UserControl = true;
-
+        
+        dte.EnableUserControl();
         DteSelected?.Invoke(dte);
     }
     
