@@ -32,15 +32,11 @@ public class Control(string scannerTool) : ControlBase
             Logger.LogError(this, "No adapter selected");
             return;
         }
-
-        Task.Run(() =>
-        {
-            IsBusy = true;
-            RunScanner();
-        });
         
         SingleThread.Run(() =>
         {
+            IsBusy = true;
+            RunScanner();
             ImportPnDevice();
             IsBusy = false;
         });
