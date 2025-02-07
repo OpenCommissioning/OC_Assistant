@@ -90,7 +90,7 @@ internal partial class FileMenu : IProjectSelector
     {
         await Task.Run(() =>
         {
-            var selection = TcDte.GetInstances().FirstOrDefault(x => x.GetSolutionFullName() == path);
+            var selection = TcDte.GetInstance(path);
             if (selection == null)
             {
                 Logger.LogError(this, $"There is no open solution {path}.");
