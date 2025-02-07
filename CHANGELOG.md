@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.8.0"></a>
+## [1.8.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.0) (2025-02-07)
+
+### Features
+
+* rework of project generator with new mapping feature ([b7ce809](https://www.github.com/OpenCommissioning/OC_Assistant/commit/b7ce809b6a8540e91dbd3ee2f50377b29aa883c2))
+* the project generator will no longer create 'Cycle' actions. Cyclic text is now called directly in the FB implementation section. Caution: already generated TwinCAT projects will not be compatible with this version. ([633bded](https://www.github.com/OpenCommissioning/OC_Assistant/commit/633bdedb414d1680117ed3b4f5da000be30275d3))
+
+### Bug Fixes
+
+* don't query NedId while Assistant is busy ([820fc7d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/820fc7db153edcda1a5c91b328526c78c91ba885))
+* minor improvements for DTE stability ([f99972f](https://www.github.com/OpenCommissioning/OC_Assistant/commit/f99972fb98107877f863600949ced5d4ade4d0bc))
+* performance and stability improvements for the TwinCAT project generator ([b401708](https://www.github.com/OpenCommissioning/OC_Assistant/commit/b401708367c2a36109d12ada070436fbc35eb827))
+
 <a name="1.7.0"></a>
 ## [1.7.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.7.0) (2025-01-28)
 
