@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
+using EnvDTE;
 using OC.Assistant.Core.TwinCat;
 
 namespace OC.Assistant.Core;
@@ -83,13 +84,14 @@ public class ProjectManager
     /// <summary>
     /// Connects all subscribed controls to the given project.
     /// </summary>
-    /// <param name="selectedDte"><see cref="TcDte"/> solution of the project.</param>
-    private void Connect(TcDte selectedDte)
+    /// <param name="selectedDte"><see cref="DTE"/> solution of the project.</param>
+    private void Connect(DTE selectedDte)
     {
         _grid.Dispatcher.Invoke(() =>
         {
-            if (selectedDte.SolutionFileName is null) return;
-            if (RestartIfConnected(selectedDte.SolutionFileName)) return;
+            var solutionFileName = selectedDte.GetSolutionFileName();
+            if (solutionFileName is null) return;
+            if (RestartIfConnected(solutionFileName)) return;
         
             XmlFile.Directory = selectedDte.GetProjectFolder();
             

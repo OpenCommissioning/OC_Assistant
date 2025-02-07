@@ -1,5 +1,5 @@
-﻿using OC.Assistant.Core.TwinCat;
-using TCatSysManagerLib;
+﻿using EnvDTE;
+using OC.Assistant.Core.TwinCat;
 
 namespace OC.Assistant.Core;
 
@@ -10,11 +10,10 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
         ProjectManager.Instance.Subscribe(this);
     }
     
-    void IProjectConnector.Connect(TcDte tcDte)
+    void IProjectConnector.Connect(DTE tcDte)
     {
-        TcDte = tcDte;
         TcProjectFolder = tcDte.GetProjectFolder();
-        TcSysManager = tcDte.GetTcSysManager();
+        SolutionFullName = tcDte.GetSolutionFullName();
     }
     
     public abstract void OnConnect();
@@ -29,15 +28,10 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
     {
         set => IsEnabled = !value;
     }
-    
-    public ITcSysManager15? TcSysManager { get; private set; }
-    
+
+    public string? SolutionFullName { get; private set; }
+
     public string? TcProjectFolder { get; private set; }
-    
-    /// <summary>
-    /// The connected <see cref="TcDte"/>.
-    /// </summary>
-    protected TcDte? TcDte { get; private set; }
 
     /// <summary>
     /// Sets the <see cref="BusyState"/> for this control.

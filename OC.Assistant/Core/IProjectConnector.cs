@@ -1,5 +1,5 @@
-﻿using OC.Assistant.Core.TwinCat;
-using TCatSysManagerLib;
+﻿using EnvDTE;
+using OC.Assistant.Core.TwinCat;
 
 namespace OC.Assistant.Core;
 
@@ -12,7 +12,7 @@ public interface IProjectConnector : IConnectionState
     /// Connects a TwinCAT project.
     /// </summary>
     /// <param name="tcDte">The <see cref="TcDte"/> to connect.</param>
-    void Connect(TcDte tcDte);
+    void Connect(DTE tcDte);
     
     /// <summary>
     /// Is called when TwinCAT started running.
@@ -30,9 +30,9 @@ public interface IProjectConnector : IConnectionState
     bool IsLocked { set; }
     
     /// <summary>
-    /// The <see cref="ITcSysManager15"/> of the connected solution.
+    /// The TwinCAT solution path.
     /// </summary>
-    ITcSysManager15? TcSysManager { get; }
+    string? SolutionFullName { get; }
     
     /// <summary>
     /// The TwinCAT project folder path.

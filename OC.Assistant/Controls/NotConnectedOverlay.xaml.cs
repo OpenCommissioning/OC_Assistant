@@ -1,6 +1,6 @@
 using System.Windows;
+using EnvDTE;
 using OC.Assistant.Core;
-using OC.Assistant.Core.TwinCat;
 
 namespace OC.Assistant.Controls;
 
@@ -22,7 +22,7 @@ public partial class NotConnectedOverlay : IConnectionState
         Visibility = Visibility.Visible;
     }
     
-    private void DteOnSelected(TcDte dte)
+    private void DteOnSelected(DTE dte)
     {
         FileMenu.ConnectSolution(dte);
     }

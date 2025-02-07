@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
@@ -9,8 +8,6 @@ namespace OC.Assistant.Generator;
 
 public class Control : ControlBase
 {
-    private BuildEvents? _buildEvents;
-
     public Control()
     {
         ApiLocal.Interface.ConfigReceived += ApiOnConfigReceived;
@@ -30,22 +27,10 @@ public class Control : ControlBase
 
     public override void OnConnect()
     {
-        _buildEvents = TcDte?.BuildEvents;
-        if (_buildEvents is null) return;
-        _buildEvents.OnBuildDone += BuildEvents_OnBuildDone;
     }
         
     public override void OnDisconnect()
     {
-        if (_buildEvents is null) return;
-        try
-        {
-            _buildEvents.OnBuildDone -= BuildEvents_OnBuildDone;
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(this, e.Message, true);
-        }
     }
 
     public override void OnTcStopped()
@@ -61,7 +46,7 @@ public class Control : ControlBase
         IsBusy = true;
         Logger.LogInfo(this, "Project will be updated. Please wait...");
 
-        Task.Run(() =>
+        SingleThread.Run(() =>
         {
             try
             {
@@ -86,7 +71,7 @@ public class Control : ControlBase
         IsBusy = true;
         Logger.LogInfo(this, "Project will be updated. Please wait...");
 
-        Task.Run(() =>
+        SingleThread.Run(() =>
         {
             try
             {
@@ -110,7 +95,7 @@ public class Control : ControlBase
         IsBusy = true;
         Logger.LogInfo(this, "Project will be updated. Please wait...");
 
-        Task.Run(() =>
+        SingleThread.Run(() =>
         {
             try
             {
@@ -133,7 +118,7 @@ public class Control : ControlBase
         IsBusy = true;
         Logger.LogInfo(this, "Project will be updated. Please wait...");
 
-        Task.Run(() =>
+        SingleThread.Run(() =>
         {
             try
             {
@@ -155,34 +140,26 @@ public class Control : ControlBase
     {
         IsBusy = true;
         
-        Task.Run(() =>
+        SingleThread.Run(() =>
         {
-            if (Generators.Task.CreateVariables(TcSysManager))
+            var tcSysManager = TcDte.GetInstance(SolutionFullName).GetTcSysManager();
+            tcSysManager?.SaveProject();
+            if (Generators.Task.CreateVariables(tcSysManager))
             {
                 Logger.LogInfo(this, "Task variables have been updated.");
             }
-            
             IsBusy = false;
         });
     }
         
     private ITcSmTreeItem? GetPlcProject()
     {
-        var plcProjectItem = TcSysManager?.TryGetPlcProject();
+        var tcSysManager = TcDte.GetInstance(SolutionFullName).GetTcSysManager();
+        tcSysManager?.SaveProject();
+        var plcProjectItem = tcSysManager?.TryGetPlcProject();
         if (plcProjectItem is not null) return plcProjectItem;
         Logger.LogError(this, "No Plc project found");
         IsBusy = false;
         return null;
-    }
-
-    private void BuildEvents_OnBuildDone(vsBuildScope scope, vsBuildAction action)
-    {
-        if (!XmlFile.XmlBase.TaskAutoUpdate) return;
-        if (action == vsBuildAction.vsBuildActionClean) return;
-        if (IsBusy) return;
-        if (TcDte?.SolutionBuild?.LastBuildInfo != 0) return;
-            
-        IsBusy = true;
-        CreateTask();
     }
 }

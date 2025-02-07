@@ -33,38 +33,37 @@ internal class EtherCatGenerator
     /// <param name="plcProjectItem">The <see cref="ITcSmTreeItem"/> of the plc project.</param>
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        Retry.Invoke(() =>
+        var tcSysManager = TcDte.GetInstance(_projectConnector.SolutionFullName).GetTcSysManager();
+        
+        if (tcSysManager is null) return;
+        
+        //Get io area of project
+        if (!tcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
         {
-            if (_projectConnector.TcSysManager is null) return;
+            return;
+        }
+        
+        foreach (ITcSmTreeItem item in ioItem)
+        {
+            //Is not etherCat simulation
+            if (item.ItemSubType != (int) TcSmTreeItemSubType.EtherCatSimulation) continue;
             
-            //Get io area of project
-            if (!_projectConnector.TcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
-            {
-                return;
-            }
+            //Is disabled
+            if (item.Disabled == DISABLED_STATE.SMDS_DISABLED) continue;
             
-            foreach (ITcSmTreeItem item in ioItem)
-            {
-                //Is not etherCat simulation
-                if (item.ItemSubType != (int) TcSmTreeItemSubType.EtherCatSimulation) continue;
-                
-                //Is disabled
-                if (item.Disabled == DISABLED_STATE.SMDS_DISABLED) continue;
-                
-                //Export etherCat simulation to xti file
-                var name = item.Name.TcRemoveBrackets().TcPlcCompatibleString();
-                var xtiFile = $"{AppData.Path}\\{name}.xti";
-                if (File.Exists(xtiFile)) File.Delete(xtiFile);
-                item.Parent.ExportChild(item.Name, xtiFile);
-                
-                //Parse etherCat and implement plc devices with tcLink attributes
-                ParseXti(XDocument.Load(xtiFile));
-                Implement(name, plcProjectItem);
-                
-                //Delete xti file
-                File.Delete(xtiFile);
-            }
-        });
+            //Export etherCat simulation to xti file
+            var name = item.Name.TcRemoveBrackets().TcPlcCompatibleString();
+            var xtiFile = $"{AppData.Path}\\{name}.xti";
+            if (File.Exists(xtiFile)) File.Delete(xtiFile);
+            item.Parent.ExportChild(item.Name, xtiFile);
+            
+            //Parse etherCat and implement plc devices with tcLink attributes
+            ParseXti(XDocument.Load(xtiFile));
+            Implement(name, plcProjectItem);
+            
+            //Delete xti file
+            File.Delete(xtiFile);
+        }
     }
     
     private void ParseXti(XContainer xtiDocument)
@@ -92,7 +91,7 @@ internal class EtherCatGenerator
             var productCode = box.Element("EcatSimuBox")?.Element("BoxSettings")?.Attribute("ProductCode")?.Value;
             var template = eCatCollection.FirstOrDefault(x => type.StartsWith(x.ProductDescription));
             
-            if (template == default)
+            if (template is null)
             {
                 foreach (var variable in new EtherCatVariables(name, box))
                 {
@@ -116,36 +115,33 @@ internal class EtherCatGenerator
 
     private void Implement(string name, ITcSmTreeItem plcProjectItem)
     {
-        Retry.Invoke(() =>
+        var hilFolder = plcProjectItem.GetOrCreateChild(_folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
+        var busFolder = hilFolder?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
+        var gvl = busFolder?.GetOrCreateChild($"GVL_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL);
+        var prg = busFolder?.GetOrCreateChild($"PRG_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
+        
+        var declarationText = "{attribute 'qualified_only'}\n{attribute 'subsequent'}\nVAR_GLOBAL";
+        declarationText += _instance
+            .Aggregate("", (current, link) => current + $"\n{link.DeclarationText}");
+        declarationText += "\nEND_VAR";
+        
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (gvl is ITcPlcDeclaration decl) decl.DeclarationText = declarationText;
+        
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (prg is ITcPlcImplementation impl)
         {
-            var hilFolder = plcProjectItem.GetOrCreateChild(_folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-            var busFolder = hilFolder?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-            var gvl = busFolder?.GetOrCreateChild($"GVL_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL);
-            var prg = busFolder?.GetOrCreateChild($"PRG_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
-            
-            var declarationText = "{attribute 'qualified_only'}\n{attribute 'subsequent'}\nVAR_GLOBAL";
-            declarationText += _instance
-                .Aggregate("", (current, link) => current + $"\n{link.DeclarationText}");
-            declarationText += "\nEND_VAR";
-            
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            if (gvl is ITcPlcDeclaration decl) decl.DeclarationText = declarationText;
-            
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            if (prg is ITcPlcImplementation impl)
-            {
-                impl.ImplementationText = _instance
-                    .Where(x => x.CyclicCall)
-                    .Aggregate("", (current, device) => current + $"GVL_{name}.{device.InstanceName}();\n");
-            }
+            impl.ImplementationText = _instance
+                .Where(x => x.CyclicCall)
+                .Aggregate("", (current, device) => current + $"GVL_{name}.{device.InstanceName}();\n");
+        }
 
-            
-            XmlFile.AddHilProgram(name);
+        
+        XmlFile.AddHilProgram(name);
 
-            var mappingText = _instance
-                .Aggregate("", (current, link) => current + $"{link.MappingText}");
-            File.WriteAllText($"{_projectConnector.TcProjectFolder}\\MappingTemplate.txt", mappingText);
-        });
+        var mappingText = _instance
+            .Aggregate("", (current, link) => current + $"{link.MappingText}");
+        File.WriteAllText($"{_projectConnector.TcProjectFolder}\\MappingTemplate.txt", mappingText);
     }
     
     private IEnumerable<EtherCatTemplate> TcEtherCatTemplates
