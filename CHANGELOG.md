@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.8.1"></a>
+## [1.8.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.1) (2025-02-08)
+
+### Bug Fixes
+
+* adjust TwinCAT template project to match new generated project structure ([fdd8f2c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/fdd8f2c88256875ac3ccbe2154714bfcc53283b9))
+* don't create not supported VAR_INST variables in program methods ([3611a3d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/3611a3d49d5457a081d8f5b6fe1257f3f02f46b3))
+
 <a name="1.8.0"></a>
 ## [1.8.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.0) (2025-02-07)
 
