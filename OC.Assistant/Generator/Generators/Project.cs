@@ -18,19 +18,10 @@ internal static class Project
     /// </summary>
     public static void Update(ITcSmTreeItem plcProjectItem)
     {
-        //Search main program
-        var mainPrg = plcProjectItem.FindChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
-        if (mainPrg is null)
-        {
-            Logger.LogError(typeof(Project), "Main program not found");
-            return;
-        }
-
-        var instances = new List<PouInstance>{ new("fbSystem", "FB_System") };
         var main = XmlFile.Main;
         if (main is null) return;
-
-        //Iterate elements under main
+        var instances = new List<PouInstance>();
+        
         foreach (var child in main.Elements())
         {
             switch (child.Name.LocalName)
@@ -46,20 +37,14 @@ internal static class Project
             }
         }
         
-        //HiL calls
-        var additionalImplementation = XmlFile.HilPrograms?.
-            Aggregate("", (current, next) => $"{current}PRG_{next}();\n");
-        
-        SetPouContent(mainPrg, instances, additionalImplementation);
+        CreateMainPrg(plcProjectItem, instances);
     }
     
-    private static void CreateGroup(ITcSmTreeItem? parent, XElement? group, string? parentName = "")
+    private static void CreateGroup(ITcSmTreeItem? parent, XElement? group, string? parentName = null)
     {
         if (group is null) return;
-        var name = group.Attribute("Name")?.Value;
-        name = name?.TcPlcCompatibleString();
-        var fbName = parentName == "" ? name : $"{parentName}_{name}";
-        fbName = fbName?.TcPlcCompatibleString();
+        var name = group.Attribute("Name")?.Value.TcPlcCompatibleString();
+        var fbName = parentName is null ? name : $"{parentName}_{name}".TcPlcCompatibleString();
         var folder = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
         var instances = new List<PouInstance>();
         
@@ -77,46 +62,77 @@ internal static class Project
                     continue;
             }
         }
-
+        
         CreateFb(folder, fbName, instances);
     }
     
-    private static void CreateFb(ITcSmTreeItem? parent, string? name, IReadOnlyCollection<PouInstance> instances)
+    private static void CreateMainPrg(ITcSmTreeItem? parent, IReadOnlyCollection<PouInstance> instances)
     {
-        SetPouContent(parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCPOUFB), instances);
-    }
-    
-    private static void SetPouContent(ITcSmTreeItem? pou, IReadOnlyCollection<PouInstance> instances, string? additionalImplementation = null)
-    {
+        //Find or create main program
+        var pou = parent?.FindChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
+        pou ??= parent?.GetOrCreateChild("MAIN", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
+        
         //Get implementation and declaration
         if (pou is not ITcPlcDeclaration decl) return;
         if (pou is not ITcPlcImplementation impl) return;
         
         //Set declaration
-        SetDeclaration(decl, instances.Aggregate("", (current, next) => $"{current}{next.DeclarationText}"));
+        const string declaration = "\tbInitRun : BOOL := TRUE;\n\tfbSystem : FB_System;\n";
+        SetDeclaration(decl, instances
+            .Aggregate(declaration, (current, next) => $"{current}{next.DeclarationText}"));
         
         //Create or set InitRun method
-        SetInitRun(pou, instances);
+        CreateInitRun(pou, instances, true);
+        
+        //InitRun() and fbSystem()
+        var implementation = "\tInitRun();\n\tfbSystem();\n";
+        
+        //HiL calls
+        implementation = XmlFile.HilPrograms?.
+            Aggregate(implementation, (current, next) => $"{current}PRG_{next}();\n");
+
+        //Instance calls
+        implementation = instances
+            .Aggregate(implementation, (current, next) => $"{current}{next.ImplementationText}");
+        
+        //Set implementation
+        SetImplementation(impl, implementation);
+    }
+    
+    private static void CreateFb(ITcSmTreeItem? parent, string? name, IReadOnlyCollection<PouInstance> instances)
+    {
+        var pou = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCPOUFB);
+        
+        //Get implementation and declaration
+        if (pou is not ITcPlcDeclaration decl) return;
+        if (pou is not ITcPlcImplementation impl) return;
+        
+        //Set declaration
+        SetDeclaration(decl, instances
+            .Aggregate("", (current, next) => $"{current}{next.DeclarationText}"));
+        
+        //Create or set InitRun method
+        CreateInitRun(pou, instances);
 
         //Set implementation
         var cycleText = instances
             .Aggregate("\tInitRun();\n", (current, next) => $"{current}{next.ImplementationText}");
-        SetImplementation(impl, cycleText + additionalImplementation);
+        SetImplementation(impl, cycleText);
     }
     
-    private static void SetInitRun(ITcSmTreeItem? parent, IReadOnlyCollection<PouInstance> instances)
+    private static void CreateInitRun(ITcSmTreeItem? parent, IReadOnlyCollection<PouInstance> instances, bool isProgram = false)
     {
         //Create method 'InitRun'
         var method = parent?.GetOrCreateChild("InitRun", TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD);
         
-        //Get implementation and declaration
-        if (method is not ITcPlcDeclaration decl) return;
-        if (method is not ITcPlcImplementation impl) return;
-        
         //Set declaration
-        SetDeclaration(decl, "\tbInitRun : BOOL := TRUE;\n", isMethod: true);
+        if (!isProgram && method is ITcPlcDeclaration decl)
+        {
+            SetDeclaration(decl, "\tbInitRun : BOOL := TRUE;\n", isMethod: true);
+        }
         
         //Set implementation
+        if (method is not ITcPlcImplementation impl) return;
         var text = instances.Aggregate("\tIF NOT bInitRun THEN RETURN; END_IF\n\tbInitRun := FALSE;\n", 
             (current, next) => $"{current}{next.InitRunText}");
         SetImplementation(impl, text);
