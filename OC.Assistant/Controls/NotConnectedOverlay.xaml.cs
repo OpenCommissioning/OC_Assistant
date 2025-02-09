@@ -12,7 +12,7 @@ public partial class NotConnectedOverlay : IConnectionState
         ProjectManager.Instance.Subscribe(this);
     }
 
-    void IConnectionState.OnConnect()
+    void IConnectionState.OnConnect(string solutionFullName)
     {
         Visibility = Visibility.Hidden;
     }

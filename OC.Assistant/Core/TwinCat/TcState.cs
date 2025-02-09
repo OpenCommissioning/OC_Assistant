@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using EnvDTE;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using TwinCAT.Ads;
@@ -9,7 +8,7 @@ namespace OC.Assistant.Core.TwinCat;
 /// <summary>
 /// Manages the TwinCAT state.
 /// </summary>
-public class TcState : TcStateIndicator
+public class TcState : TcStateIndicator, IConnectionState
 {
     private AdsState _lastRunState = AdsState.Idle;
     private ITcSysManager15? _tcSysManager;
@@ -33,6 +32,7 @@ public class TcState : TcStateIndicator
     {
         try
         {
+            ProjectManager.Instance.Subscribe(this);
             await Task.Run(() =>
             {
                 BusyState.Set(this);
@@ -115,32 +115,25 @@ public class TcState : TcStateIndicator
     /// Is raised when TwinCAT stops running.
     /// </summary>
     public event Action? StoppedRunning;
-
-    /// <summary>
-    /// Connects the <see cref="TcState"/> instance a project.
-    /// </summary>
-    /// <param name="tcDte">The given <see cref="TcDte"/></param>
-    public void ConnectProject(DTE tcDte)
+    
+    public void OnConnect(string solutionFullName)
     {
         if (_adsNotOk) return;
 
         lock (_lock)
         {
-            _tcSysManager = tcDte.GetTcSysManager();
+            _tcSysManager = TcDte.GetInstance(solutionFullName).GetTcSysManager();
             _amsNetId = GetCurrentNetId();
             ApiLocal.Interface.NetId = _amsNetId;
             _cancellationTokenSource = new CancellationTokenSource();
-            SetSolutionPath(tcDte.GetSolutionFullName());
+            SetSolutionPath(solutionFullName);
 
             StartPolling(UpdateNetId, 2000);
             StartPolling(UpdateAdsState, 100);
         }
     }
-
-    /// <summary>
-    /// Disconnects the <see cref="TcState"/> instance from any project.
-    /// </summary>
-    public void DisconnectProject()
+    
+    public void OnDisconnect()
     {
         lock (_lock)
         {

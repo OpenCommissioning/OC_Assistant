@@ -6,17 +6,6 @@
 public interface IProjectConnector : IConnectionState
 {
     /// <summary>
-    /// Connects a TwinCAT project.
-    /// </summary>
-    /// <param name="solutionFullName">The full path of the solution file.</param>
-    void Connect(string solutionFullName);
-    
-    /// <summary>
-    /// Disconnects the TwinCAT project.
-    /// </summary>
-    void Disconnect();
-    
-    /// <summary>
     /// Is called when TwinCAT started running.
     /// </summary>
     void OnTcStarted();

@@ -164,8 +164,11 @@ public class Control(string scannerTool) : ControlBase
         }
     }
     
-    public override void OnConnect()
+    private string? SolutionFullName { get; set; }
+
+    public override void OnConnect(string solutionFullName)
     {
+        SolutionFullName = solutionFullName;
     }
 
     public override void OnDisconnect()

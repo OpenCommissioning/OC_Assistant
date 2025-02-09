@@ -25,9 +25,12 @@ public class Control : ControlBase
         XmlFile.ClientUpdate(config);
         CreateProject();
     }
+    
+    private string? SolutionFullName { get; set; }
 
-    public override void OnConnect()
+    public override void OnConnect(string solutionFullName)
     {
+        SolutionFullName = solutionFullName;
     }
         
     public override void OnDisconnect()

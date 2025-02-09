@@ -7,17 +7,7 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
         ProjectManager.Instance.Subscribe(this);
     }
     
-    void IProjectConnector.Connect(string solutionFullName)
-    {
-        SolutionFullName = solutionFullName;
-    }
-    
-    void IProjectConnector.Disconnect()
-    {
-        SolutionFullName = null;
-    }
-    
-    public abstract void OnConnect();
+    public abstract void OnConnect(string solutionFullName);
     
     public abstract void OnDisconnect();
     
@@ -29,11 +19,6 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
     {
         set => IsEnabled = !value;
     }
-
-    /// <summary>
-    /// The TwinCAT solution path.
-    /// </summary>
-    protected string? SolutionFullName { get; private set; }
     
     /// <summary>
     /// Sets the <see cref="BusyState"/> for this control.

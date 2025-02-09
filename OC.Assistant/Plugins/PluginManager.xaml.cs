@@ -33,10 +33,10 @@ public partial class PluginManager
     
     private void XmlOnReloaded()
     {
-        Dispatcher.Invoke(OnConnect);
+        Dispatcher.Invoke(Initialize);
     }
-    
-    public override void OnConnect()
+
+    private void Initialize()
     {
         OnDisconnect();
         Core.XmlFile.Instance.Reloaded += XmlOnReloaded;
@@ -51,6 +51,11 @@ public partial class PluginManager
         ControlPanel.Children.Add(BtnAdd);
         ScrollView.ScrollToEnd();
         BtnAdd.Visibility = Visibility.Visible;
+    }
+
+    public override void OnConnect(string solutionFullName)
+    {
+        Initialize();
     }
     
     public override void OnDisconnect()
