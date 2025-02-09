@@ -78,7 +78,6 @@ internal partial class FileMenu : IProjectSelector
     {
         if (!File.Exists(AppData.PreselectedProject)) return;
         var path = await File.ReadAllTextAsync(AppData.PreselectedProject);
-        if (!Path.GetExtension(path).Equals(".sln", StringComparison.CurrentCultureIgnoreCase)) return;
         File.Delete(AppData.PreselectedProject);
         
         BusyState.Set(this);

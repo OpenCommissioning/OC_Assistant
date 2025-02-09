@@ -130,7 +130,7 @@ public class TcState : TcStateIndicator
             _amsNetId = GetCurrentNetId();
             ApiLocal.Interface.NetId = _amsNetId;
             _cancellationTokenSource = new CancellationTokenSource();
-            SetSolutionPath(tcDte.GetSolutionFileName());
+            SetSolutionPath(tcDte.GetSolutionFullName());
 
             StartPolling(UpdateNetId, 2000);
             StartPolling(UpdateAdsState, 100);

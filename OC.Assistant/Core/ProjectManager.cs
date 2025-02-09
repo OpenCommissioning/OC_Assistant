@@ -89,15 +89,15 @@ public class ProjectManager
     {
         _grid.Dispatcher.Invoke(() =>
         {
-            var solutionFileName = selectedDte.GetSolutionFileName();
-            if (solutionFileName is null) return;
-            if (RestartIfConnected(solutionFileName)) return;
+            var solutionFullName = selectedDte.GetSolutionFullName();
+            if (solutionFullName is null) return;
+            if (RestartIfConnected(solutionFullName)) return;
         
             XmlFile.Directory = selectedDte.GetProjectFolder();
             
             foreach (var control in _controls.OfType<IProjectConnector>())
             {
-                control.Connect(selectedDte);
+                control.Connect(solutionFullName);
             }
             foreach (var control in _controls.OfType<IConnectionState>())
             {
@@ -121,6 +121,7 @@ public class ProjectManager
             
             foreach (var control in _controls.OfType<IProjectConnector>())
             {
+                control.Disconnect();
                 control.IsLocked = true;
             }
             foreach (var control in _controls.OfType<IConnectionState>())

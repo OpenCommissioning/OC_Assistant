@@ -50,7 +50,7 @@ public class Control(string scannerTool) : ControlBase
         var duration = _settings.Duration;
         Logger.LogInfo(this, $"Running {scannerTool} for {duration} seconds...");
             
-        var filePath = $"{TcProjectFolder}\\{_settings.PnName}.xti";
+        var filePath = $"{AppData.Path}\\{_settings.PnName}.xti";
         
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo
@@ -107,7 +107,7 @@ public class Control(string scannerTool) : ControlBase
         tcSysManager?.SaveProject();
 
         //No file found
-        var xtiFilePath = $"{TcProjectFolder}\\{_settings.PnName}.xti";
+        var xtiFilePath = $"{AppData.Path}\\{_settings.PnName}.xti";
         if (!File.Exists(xtiFilePath))
         {
             Logger.LogInfo(this, "Nothing created");

@@ -1,7 +1,4 @@
-﻿using EnvDTE;
-using OC.Assistant.Core.TwinCat;
-
-namespace OC.Assistant.Core;
+﻿namespace OC.Assistant.Core;
 
 public abstract class ControlBase : System.Windows.Controls.UserControl, IProjectConnector
 {
@@ -10,10 +7,14 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
         ProjectManager.Instance.Subscribe(this);
     }
     
-    void IProjectConnector.Connect(DTE tcDte)
+    void IProjectConnector.Connect(string solutionFullName)
     {
-        TcProjectFolder = tcDte.GetProjectFolder();
-        SolutionFullName = tcDte.GetSolutionFullName();
+        SolutionFullName = solutionFullName;
+    }
+    
+    void IProjectConnector.Disconnect()
+    {
+        SolutionFullName = null;
     }
     
     public abstract void OnConnect();
@@ -29,10 +30,11 @@ public abstract class ControlBase : System.Windows.Controls.UserControl, IProjec
         set => IsEnabled = !value;
     }
 
-    public string? SolutionFullName { get; private set; }
-
-    public string? TcProjectFolder { get; private set; }
-
+    /// <summary>
+    /// The TwinCAT solution path.
+    /// </summary>
+    protected string? SolutionFullName { get; private set; }
+    
     /// <summary>
     /// Sets the <see cref="BusyState"/> for this control.
     /// <returns>True if the global <see cref="BusyState"/> is set, otherwise false.</returns>

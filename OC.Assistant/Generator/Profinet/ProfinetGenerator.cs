@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Core.TwinCat;
 using TCatSysManagerLib;
@@ -7,11 +8,11 @@ using TCatSysManagerLib;
 namespace OC.Assistant.Generator.Profinet;
 
 [SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
-internal class ProfinetGenerator(IProjectConnector projectConnector, string folderName)
+internal class ProfinetGenerator(DTE dte, string folderName)
 {
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        var tcSysManager = TcDte.GetInstance(projectConnector.SolutionFullName).GetTcSysManager();
+        var tcSysManager = dte.GetTcSysManager();
         if (tcSysManager is null) return;
         
         if (!tcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))

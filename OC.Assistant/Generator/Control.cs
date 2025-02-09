@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
@@ -51,9 +52,11 @@ public class Control : ControlBase
             try
             {
                 Core.XmlFile.Instance.Reload();
-                var plcProjectItem = GetPlcProject();
+                var dte = TcDte.GetInstance(SolutionFullName);
+                if (dte is null) return;
+                var plcProjectItem = GetPlcProject(dte);
                 if (plcProjectItem is null) return;
-                Generators.Hil.Update(this, plcProjectItem);
+                Generators.Hil.Update(dte, plcProjectItem);
                 Generators.Project.Update(plcProjectItem);
                 IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
@@ -152,9 +155,10 @@ public class Control : ControlBase
         });
     }
         
-    private ITcSmTreeItem? GetPlcProject()
+    private ITcSmTreeItem? GetPlcProject(DTE? dte = null)
     {
-        var tcSysManager = TcDte.GetInstance(SolutionFullName).GetTcSysManager();
+        dte ??= TcDte.GetInstance(SolutionFullName);
+        var tcSysManager = dte?.GetTcSysManager();
         tcSysManager?.SaveProject();
         var plcProjectItem = tcSysManager?.TryGetPlcProject();
         if (plcProjectItem is not null) return plcProjectItem;
