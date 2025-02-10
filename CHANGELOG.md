@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.8.3"></a>
+## [1.8.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.3) (2025-02-10)
+
+### Bug Fixes
+
+* DTE optimization when selecting and closing the TwinCAT solution. ([d8381d9](https://www.github.com/OpenCommissioning/OC_Assistant/commit/d8381d9a0679eafd86e7fe91d789a8440072f885))
+
 <a name="1.8.2"></a>
 ## [1.8.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.2) (2025-02-10)
 
