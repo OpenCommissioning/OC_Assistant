@@ -114,15 +114,6 @@ public static class TcDte
     }
 
     /// <summary>
-    /// Gets the <see cref="Solution.FileName"/>.
-    /// </summary>
-    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    public static string? GetSolutionFileName(this DTE? dte)
-    {
-        return Retry.Invoke(() => dte?.Solution?.FileName);
-    }
-
-    /// <summary>
     /// Gets the <see cref="Events.SolutionEvents"/>.
     /// </summary>
     /// <param name="dte">The given <see cref="DTE"/> interface.</param>

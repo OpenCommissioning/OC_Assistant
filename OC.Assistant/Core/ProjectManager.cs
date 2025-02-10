@@ -16,7 +16,6 @@ public class ProjectManager
     private readonly List<object> _controls = [];
     private bool _hasBeenConnected;
     private readonly Grid _grid = new ();
-    private readonly TcState _tcState = new ();
     private static readonly Lazy<ProjectManager> LazyInstance = new(() => new ProjectManager());
     private bool _initialized;
     
@@ -27,12 +26,15 @@ public class ProjectManager
     {
         if (LazyInstance.IsValueCreated) return;
         
-        _tcState.HorizontalAlignment = HorizontalAlignment.Right;
-        _tcState.Margin = new Thickness(0, 0, 6, 0);
-        _tcState.StartedRunning += OnStartedRunning;
-        _tcState.StoppedRunning += OnStoppedRunning;
+        var tcState = new TcState
+        {
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Margin = new Thickness(0, 0, 6, 0)
+        };
+        tcState.StartedRunning += OnStartedRunning;
+        tcState.StoppedRunning += OnStoppedRunning;
         
-        _grid.Children.Add(_tcState);
+        _grid.Children.Add(tcState);
     }
     
     /// <summary>
@@ -89,22 +91,17 @@ public class ProjectManager
     {
         _grid.Dispatcher.Invoke(() =>
         {
-            var solutionFileName = selectedDte.GetSolutionFileName();
-            if (solutionFileName is null) return;
-            if (RestartIfConnected(solutionFileName)) return;
+            var solutionFullName = selectedDte.GetSolutionFullName();
+            if (solutionFullName is null) return;
+            if (RestartIfConnected(solutionFullName)) return;
         
             XmlFile.Directory = selectedDte.GetProjectFolder();
             
-            foreach (var control in _controls.OfType<IProjectConnector>())
-            {
-                control.Connect(selectedDte);
-            }
             foreach (var control in _controls.OfType<IConnectionState>())
             {
-                control.OnConnect();
+                control.OnConnect(solutionFullName);
             }
             
-            _tcState.ConnectProject(selectedDte);
             _hasBeenConnected = true;
         });
     }
@@ -117,7 +114,6 @@ public class ProjectManager
         _grid.Dispatcher.Invoke(() =>
         {
             Sdk.Logger.LogWarning(this, "TwinCAT Project closed");
-            _tcState.DisconnectProject();
             
             foreach (var control in _controls.OfType<IProjectConnector>())
             {

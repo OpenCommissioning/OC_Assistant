@@ -6,9 +6,10 @@ namespace OC.Assistant.Core;
 public interface IConnectionState
 {
     /// <summary>
-    /// Is called when a project has been connected.
+    /// Is called when a TwinCAT project has been connected.
     /// </summary>
-    void OnConnect();
+    /// <param name="solutionFullName">The full path of the solution file.</param>
+    void OnConnect(string solutionFullName);
         
     /// <summary>
     /// Is called when the project has been disconnected.

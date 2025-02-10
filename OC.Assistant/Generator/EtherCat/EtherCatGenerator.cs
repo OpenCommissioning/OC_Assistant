@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Xml.Linq;
+using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
@@ -12,18 +13,20 @@ namespace OC.Assistant.Generator.EtherCat;
 /// </summary>
 internal class EtherCatGenerator
 {
-    private readonly IProjectConnector _projectConnector;
+    private readonly DTE _dte;
     private readonly List<EtherCatInstance> _instance = [];
+    private readonly string? _projectFolder;
     private readonly string _folderName;
         
     /// <summary>
     /// Instance of the <see cref="EtherCatGenerator"/>.
     /// </summary>
-    /// <param name="projectConnector">Interface for the connected TwinCAT project.</param>
+    /// <param name="dte">The <see cref="DTE"/> interface of the connected project.</param>
     /// <param name="folderName">The plc folder locating the created GVL(s).</param>
-    public EtherCatGenerator(IProjectConnector projectConnector, string folderName)
+    public EtherCatGenerator(DTE dte, string folderName)
     {
-        _projectConnector = projectConnector;
+        _dte = dte;
+        _projectFolder = dte.GetProjectFolder();
         _folderName = folderName;
     }
         
@@ -33,7 +36,7 @@ internal class EtherCatGenerator
     /// <param name="plcProjectItem">The <see cref="ITcSmTreeItem"/> of the plc project.</param>
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        var tcSysManager = TcDte.GetInstance(_projectConnector.SolutionFullName).GetTcSysManager();
+        var tcSysManager =_dte.GetTcSysManager();
         
         if (tcSysManager is null) return;
         
@@ -141,14 +144,14 @@ internal class EtherCatGenerator
 
         var mappingText = _instance
             .Aggregate("", (current, link) => current + $"{link.MappingText}");
-        File.WriteAllText($"{_projectConnector.TcProjectFolder}\\MappingTemplate.txt", mappingText);
+        File.WriteAllText($"{_projectFolder}\\MappingTemplate.txt", mappingText);
     }
     
     private IEnumerable<EtherCatTemplate> TcEtherCatTemplates
     {
         get
         {
-            return Directory.GetFiles($"{_projectConnector.TcProjectFolder}", "*.ethml")
+            return Directory.GetFiles($"{_projectFolder}", "*.ethml")
                 .Select(XDocument.Load).SelectMany(doc => doc.Root?.Elements("Device")
                 .Select(device => new EtherCatTemplate(device)) ?? new List<EtherCatTemplate>());
         }
@@ -158,7 +161,7 @@ internal class EtherCatGenerator
     {
         get
         {
-            return Directory.GetFiles($"{_projectConnector.TcProjectFolder}", "*.ethml")
+            return Directory.GetFiles($"{_projectFolder}", "*.ethml")
                 .Select(XDocument.Load).SelectMany(doc => doc.Root?.Element("Ignore")?.Elements("Device")
                 .Select(device => device.Attribute("ProductDescription")?.Value) ?? new List<string>());
         }

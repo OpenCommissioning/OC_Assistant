@@ -16,7 +16,7 @@ The Assistant is designed to connect to a TwinCAT3 solution. Supported Visual St
 ## Used packages:
 - ``OC.Assistant.Sdk``, see [nuget package](https://www.nuget.org/packages/OC.Assistant.Sdk)
 - ``OC.Assistant.Theme``, see [nuget package](https://www.nuget.org/packages/OC.Assistant.Theme)
-- ``envdte``, see [nuget package](https://www.nuget.org/packages/envdte)
+- ``Microsoft.VisualStudio.Shell.Interop``, see [nuget package](https://www.nuget.org/packages/Microsoft.VisualStudio.Shell.Interop)
 - ``Beckhoff.TwinCAT.Ads``, see [nuget package](https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads)
 - ``TCatSysManagerLib``, see [nuget package](https://www.nuget.org/packages/TCatSysManagerLib)
 
@@ -142,7 +142,10 @@ This is an example configuration file containing a Plugin configuration and _Dev
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Config>
-  <TaskAutoUpdate />
+  <Settings>
+    <PlcProjectName>OC</PlcProjectName>
+    <PlcTaskName>PlcTask</PlcTaskName>
+  </Settings>
   <Plugins>
     <Plugin Name="PLC1" Type="PlcSimAdvanced" IoType="Address">
       <Parameter>
@@ -163,7 +166,7 @@ This is an example configuration file containing a Plugin configuration and _Dev
       <Group Name="Devices">
         <Group Name="Cylinders">
             
-            <!-- This is a device with cyclic assignment -->
+          <!-- This is a device with cyclic assignment -->
           <Device Name="Cylinder_1" Type="FB_Cylinder" >
               <Label>++ST001+FG001-CYL001</Label>
               <Control Name="bRetract" Assignment="PLC1.Q0.0" />
@@ -178,7 +181,7 @@ This is an example configuration file containing a Plugin configuration and _Dev
         </Group>
         <Group Name="Drives">
             
-            <!-- This is a device with address assignment -->
+          <!-- This is a device with address assignment -->
           <Device Name="Drive_Position" Type="FB_Drive" >
               <Label>++ST001+FG001-DRV001</Label>
               <Address Control="PLC1.Q2" Status="PLC1.Q2" />
