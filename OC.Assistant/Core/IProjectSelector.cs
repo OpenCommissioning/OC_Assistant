@@ -11,9 +11,4 @@ public interface IProjectSelector
     /// Is raised when a solution has been selected. 
     /// </summary>
     public event Action<DTE>? DteSelected;
-    
-    /// <summary>
-    /// Is raised when a connected solution has been closed. 
-    /// </summary>
-    public event Action? DteClosed;
 }

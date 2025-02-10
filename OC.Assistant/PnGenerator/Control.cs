@@ -102,10 +102,6 @@ public class Control(string scannerTool) : ControlBase
     /// </summary>
     private void ImportPnDevice()
     {
-        //Save TwinCAT project first
-        var tcSysManager = TcDte.GetInstance(SolutionFullName).GetTcSysManager();
-        tcSysManager?.SaveProject();
-
         //No file found
         var xtiFilePath = $"{AppData.Path}\\{_settings.PnName}.xti";
         if (!File.Exists(xtiFilePath))
@@ -127,6 +123,10 @@ public class Control(string scannerTool) : ControlBase
         {
             new XtiUpdater().Run(xtiFilePath, _settings.HwFilePath);
         }
+        
+        var dte = TcDte.GetInstance(SolutionFullName);
+        var tcSysManager = dte.GetTcSysManager();
+        tcSysManager?.SaveProject();
             
         //Import and delete xti file 
         Logger.LogInfo(this, $"Import {xtiFilePath}...");
@@ -134,7 +134,8 @@ public class Control(string scannerTool) : ControlBase
         File.Delete(xtiFilePath);
             
         UpdateTcPnDevice(tcPnDevice);
-            
+        dte.Finalize();
+        
         Logger.LogInfo(this, "Finished");
     }
         
