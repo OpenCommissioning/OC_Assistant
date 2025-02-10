@@ -47,97 +47,91 @@ public class Control : ControlBase
     
     public void CreateProjectAndHil()
     {
-        IsBusy = true;
-        Logger.LogInfo(this, "Project will be updated. Please wait...");
-
         SingleThread.Run(() =>
         {
+            if (GetDte() is not {} dte) return;
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
             try
             {
                 Core.XmlFile.Instance.Reload();
-                var dte = TcDte.GetInstance(SolutionFullName);
-                if (dte is null) return;
-                var plcProjectItem = GetPlcProject(dte);
-                if (plcProjectItem is null) return;
                 Generators.Hil.Update(dte, plcProjectItem);
                 Generators.Project.Update(plcProjectItem);
-                IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
             catch (Exception e)
             {
                 Logger.LogError(this, $"Error updating project: {e.Message}");
-                IsBusy = false;
+            }
+            finally
+            {
+                FinalizeDte(dte);
             }
         });
     }
     
     public void CreatePlugins()
     {
-        IsBusy = true;
-        Logger.LogInfo(this, "Project will be updated. Please wait...");
-
         SingleThread.Run(() =>
         {
+            if (GetDte() is not {} dte) return;
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
             try
             {
                 Core.XmlFile.Instance.Reload();
-                var plcProjectItem = GetPlcProject();
-                if (plcProjectItem is null) return;
                 Generators.Sil.UpdateAll(plcProjectItem);
-                IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
             catch (Exception e)
             {
                 Logger.LogError(this, $"Error updating project: {e.Message}");
-                IsBusy = false;
+            }
+            finally
+            {
+                FinalizeDte(dte);
             }
         });
     }
 
     private void CreatePlugin(string name, bool delete)
     {
-        IsBusy = true;
-        Logger.LogInfo(this, "Project will be updated. Please wait...");
-
         SingleThread.Run(() =>
         {
+            if (GetDte() is not {} dte) return;
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
             try
             {
-                var plcProjectItem = GetPlcProject();
-                if (plcProjectItem is null) return;
                 Generators.Sil.Update(plcProjectItem, name, delete);
-                IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
             catch (Exception e)
             {
                 Logger.LogError(this, $"Error updating project: {e.Message}");
-                IsBusy = false;
+            }
+            finally
+            {
+                FinalizeDte(dte);
             }
         });
     }
 
     private void CreateProject()
     {
-        IsBusy = true;
-        Logger.LogInfo(this, "Project will be updated. Please wait...");
-
         SingleThread.Run(() =>
         {
+            if (GetDte() is not {} dte) return;
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
             try
             {
-                var plcProjectItem = GetPlcProject();
-                if (plcProjectItem is null) return;
                 Generators.Project.Update(plcProjectItem);
-                IsBusy = false;
                 Logger.LogInfo(this, "Project update successful.");
             }
             catch (Exception e)
             {
                 Logger.LogError(this, $"Error updating project: {e.Message}");
-                IsBusy = false;
+            }
+            finally
+            {
+                FinalizeDte(dte);
             }
         });
     }
@@ -148,25 +142,46 @@ public class Control : ControlBase
         
         SingleThread.Run(() =>
         {
-            var tcSysManager = TcDte.GetInstance(SolutionFullName).GetTcSysManager();
-            tcSysManager?.SaveProject();
-            if (Generators.Task.CreateVariables(tcSysManager))
+            if (GetDte() is not {} dte) return;
+
+            try
             {
-                Logger.LogInfo(this, "Task variables have been updated.");
+                Generators.Task.CreateVariables(dte);
+                Logger.LogInfo(this, "Project update successful.");
             }
-            IsBusy = false;
+            catch (Exception e)
+            {
+                Logger.LogError(this, $"Error updating project: {e.Message}");
+            }
+            finally
+            {
+                FinalizeDte(dte);
+            }
         });
     }
-        
-    private ITcSmTreeItem? GetPlcProject(DTE? dte = null)
+    
+    private DTE? GetDte()
     {
-        dte ??= TcDte.GetInstance(SolutionFullName);
+        IsBusy = true;
+        Logger.LogInfo(this, "Project will be updated. Please wait...");
+        if (TcDte.GetInstance(SolutionFullName) is {} dte) return dte;
+        IsBusy = false;
+        return null;
+    }
+    
+    private ITcSmTreeItem? GetPlcProject(DTE? dte)
+    {
         var tcSysManager = dte?.GetTcSysManager();
         tcSysManager?.SaveProject();
-        var plcProjectItem = tcSysManager?.TryGetPlcProject();
-        if (plcProjectItem is not null) return plcProjectItem;
+        if (tcSysManager?.TryGetPlcProject() is {} plcProjectItem) return plcProjectItem;
         Logger.LogError(this, "No Plc project found");
         IsBusy = false;
         return null;
+    }
+
+    private void FinalizeDte(DTE? dte)
+    {
+        dte?.Finalize();
+        IsBusy = false;
     }
 }

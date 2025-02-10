@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using EnvDTE;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using TwinCAT.Ads;
@@ -11,6 +12,7 @@ namespace OC.Assistant.Core.TwinCat;
 public class TcState : TcStateIndicator, IConnectionState
 {
     private AdsState _lastRunState = AdsState.Idle;
+    private DTE? _dte;
     private ITcSysManager15? _tcSysManager;
     private readonly object _lock = new();
     private readonly AdsClient _adsClient = new();
@@ -99,8 +101,10 @@ public class TcState : TcStateIndicator, IConnectionState
                 var netId = _tcSysManager?.GetTargetNetId();
                 return netId is null ? _amsNetId : new AmsNetId(netId);
             }
-            catch
+            catch (InvalidCastException)
             {
+                Disconnect();
+                Disconnected?.Invoke();
                 return _amsNetId;
             }
         }
@@ -116,13 +120,16 @@ public class TcState : TcStateIndicator, IConnectionState
     /// </summary>
     public event Action? StoppedRunning;
     
+    public event Action? Disconnected;
+    
     public void OnConnect(string solutionFullName)
     {
         if (_adsNotOk) return;
 
         lock (_lock)
         {
-            _tcSysManager = TcDte.GetInstance(solutionFullName).GetTcSysManager();
+            _dte = TcDte.GetInstance(solutionFullName);
+            _tcSysManager = _dte.GetTcSysManager();
             _amsNetId = GetCurrentNetId();
             ApiLocal.Interface.NetId = _amsNetId;
             _cancellationTokenSource = new CancellationTokenSource();
@@ -135,11 +142,16 @@ public class TcState : TcStateIndicator, IConnectionState
     
     public void OnDisconnect()
     {
+    }
+
+    private void Disconnect()
+    {
         lock (_lock)
         {
             _cancellationTokenSource.CancelAsync();
             _tcSysManager = null;
             _adsClient.Disconnect();
+            _dte?.Finalize();
             IndicateDisconnected();
         }
     }
@@ -162,7 +174,7 @@ public class TcState : TcStateIndicator, IConnectionState
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(this, $"Polling error: {e.Message}");
+                    Logger.LogError(this, $"Polling error: {e.Message}", true);
                 }
 
                 await Task.Delay(delayMs, token).ConfigureAwait(false);

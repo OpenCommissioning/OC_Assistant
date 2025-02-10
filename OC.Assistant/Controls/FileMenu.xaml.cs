@@ -11,26 +11,11 @@ namespace OC.Assistant.Controls;
 
 internal partial class FileMenu : IProjectSelector
 {
-    private bool _solutionIsOpen;
-    private SolutionEvents? _solutionEvents;
-    
     private static event Action<DTE>? OnConnectSolution;
     private static event Action? OnOpenSolution;
     private static event Action? OnCreateSolution;
     
     public event Action<DTE>? DteSelected;
-    public event Action? DteClosed;
-    
-    private void SolutionEventsOnAfterClosing()
-    {
-        if (_solutionEvents is not null)
-        {
-            _solutionEvents.AfterClosing -= SolutionEventsOnAfterClosing;
-            _solutionEvents = null;
-        }
-        
-        DteClosed?.Invoke();
-    }
     
     public FileMenu()
     {
@@ -101,16 +86,10 @@ internal partial class FileMenu : IProjectSelector
     
     private void SelectDte(DTE dte)
     {
-        _solutionEvents = dte.GetSolutionEvents();
-        if (_solutionEvents is not null)
-        {
-            _solutionEvents.AfterClosing += SolutionEventsOnAfterClosing;
-        }
-        
         Logger.LogInfo(this, dte.GetSolutionFullName() + " connected");
-        
         dte.EnableUserControl();
         DteSelected?.Invoke(dte);
+        dte.Finalize();
     }
     
     private async void OpenSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
@@ -171,17 +150,9 @@ internal partial class FileMenu : IProjectSelector
             {
                 var dte = TcDte.Create();
                 Logger.LogInfo(this, $"Open project '{path}' ...");
-
-                _solutionIsOpen = false;
-
-                _solutionEvents = dte.GetSolutionEvents();
-                if (_solutionEvents is not null)
-                {
-                    _solutionEvents.Opened += SolutionEventsOnOpened;
-                }
                 
                 dte.OpenSolution(path);
-                while (!_solutionIsOpen) await Task.Delay(100);
+                while (!dte.GetSolutionIsOpen()) await Task.Delay(100);
                 SelectDte(dte);
             }
             catch (Exception e)
@@ -191,13 +162,6 @@ internal partial class FileMenu : IProjectSelector
         });
     }
     
-    private void SolutionEventsOnOpened()
-    {
-        _solutionIsOpen = true;
-        if (_solutionEvents is null) return;
-        _solutionEvents.Opened -= SolutionEventsOnOpened;
-    }
-
     private async Task CreateSolution(string slnFilePath)
     {
         const string templateName = "OC.TcTemplate";

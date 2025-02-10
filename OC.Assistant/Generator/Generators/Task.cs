@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Xml.Linq;
+using EnvDTE;
 using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
@@ -14,12 +15,14 @@ internal static class Task
     /// <summary>
     /// Creates variables for a task, based on the plc instance.
     /// </summary>
-    /// <param name="tcSysManager">The connected <see cref="ITcSysManager15"/> interface.</param>
-    public static bool CreateVariables(ITcSysManager15? tcSysManager)
+    public static void CreateVariables(DTE? dte)
     {
+        var tcSysManager = dte?.GetTcSysManager();
+        tcSysManager?.SaveProject();
+        
         //Get plc instance
         var instance = tcSysManager?.TryGetPlcInstance();
-        if (instance is null) return false;
+        if (instance is null) return;
         
         //Collect all symbols with 'simulation_interface' attribute
         var filter = instance.GetSymbolsWithAttribute("simulation_interface");
@@ -29,14 +32,14 @@ internal static class Task
         if (task is null)
         {
             Logger.LogWarning(typeof(Task), "Task not found");
-            return false;
+            return;
         }
            
         //Task has no image
         if (task.ItemSubType == (int)TcSmTreeItemSubType.TaskWithoutImage)
         {
             Logger.LogWarning(typeof(Task), "Task has no image");
-            return false;
+            return;
         }
         
         var inputVariables = new List<ITcSmTreeItem>();
@@ -74,7 +77,7 @@ internal static class Task
             }
         }
 
-        return true;
+        Logger.LogInfo(typeof(Task), "Task variables have been updated.");
     }
 
     private static HashSet<string?> GetSymbolsWithAttribute(this ITcSmTreeItem instance, string attribute)

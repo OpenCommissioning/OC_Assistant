@@ -33,6 +33,7 @@ public class ProjectManager
         };
         tcState.StartedRunning += OnStartedRunning;
         tcState.StoppedRunning += OnStoppedRunning;
+        tcState.Disconnected += Disconnect;
         
         _grid.Children.Add(tcState);
     }
@@ -60,7 +61,6 @@ public class ProjectManager
                     break;
                 case IProjectSelector projectSelector:
                     projectSelector.DteSelected += Connect;
-                    projectSelector.DteClosed += Disconnect;
                     break;
             }
         }

@@ -49,6 +49,18 @@ public static class TcDte
         
         return dte;
     }
+    
+    /// <summary>
+    /// Releases all references to the given <see cref="DTE"/> interface and forces a garbage collection.
+    /// </summary>
+    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
+    public static void Finalize(this DTE? dte)
+    {
+        if (dte is null) return;
+        Marshal.FinalReleaseComObject(dte);
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+    }
 
     /// <summary>
     /// Enables the <see cref="DTE.UserControl"/> property to show the environment in case it was launched by automation.
@@ -112,14 +124,14 @@ public static class TcDte
     {
         return Retry.Invoke(() => dte?.Solution?.FullName);
     }
-
+    
     /// <summary>
-    /// Gets the <see cref="Events.SolutionEvents"/>.
+    /// Gets a value indicating whether a solution is open.
     /// </summary>
     /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    public static SolutionEvents? GetSolutionEvents(this DTE? dte)
+    public static bool GetSolutionIsOpen(this DTE? dte)
     {
-        return Retry.Invoke(() => dte?.Events.SolutionEvents);
+        return Retry.Invoke(() => dte?.Solution.IsOpen == true);
     }
     
     /// <summary>
