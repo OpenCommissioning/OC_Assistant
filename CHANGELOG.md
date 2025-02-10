@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.8.2"></a>
+## [1.8.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.2) (2025-02-10)
+
+### Bug Fixes
+
+* upgrade visual studio shell interop package reference ([7c098d9](https://www.github.com/OpenCommissioning/OC_Assistant/commit/7c098d939abb40a51ed446f1819bbc343abdc5f4))
+
 <a name="1.8.1"></a>
 ## [1.8.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.1) (2025-02-08)
 
