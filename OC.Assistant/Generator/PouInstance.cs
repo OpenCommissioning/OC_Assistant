@@ -26,17 +26,19 @@ internal class PouInstance
         
         _label = element.Element("Label")?.Value;
         
-        var address = element.Element("Address");
-        _controlAddress = address?.Attribute("Control")?.Value;
-        _statusAddress = address?.Attribute("Status")?.Value;
+        //var address = element.Element("Address");
+        _controlAddress = null;// address?.Attribute("Control")?.Value;
+        _statusAddress = null;// address?.Attribute("Status")?.Value;
 
         _assignments = element
-            .Elements("Control")
+            .Elements()
+            .Where(x => x.Name.LocalName is "Control" or "In" or "Address")
             .Aggregate("", (current, next) => 
                 current + $"\n\t\t{next.Attribute("Name")?.Value} := GVL_{next.Attribute("Assignment")?.Value},");
 
         _assignments = element
-            .Elements("Status")
+            .Elements()
+            .Where(x => x.Name.LocalName is "Status" or "Out")
             .Aggregate(_assignments, (current, next) => 
                 current + $"\n\t\t{next.Attribute("Name")?.Value} => GVL_{next.Attribute("Assignment")?.Value},");
 
