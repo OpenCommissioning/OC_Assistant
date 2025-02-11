@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 using EnvDTE;
-using OC.Assistant.Core.TwinCat;
+using OC.Assistant.Core;
 
 namespace OC.Assistant.Controls;
 

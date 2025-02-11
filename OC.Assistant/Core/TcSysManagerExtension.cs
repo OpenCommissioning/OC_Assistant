@@ -2,7 +2,7 @@
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
-namespace OC.Assistant.Core.TwinCat;
+namespace OC.Assistant.Core;
 
 /// <summary>
 /// Extension for the <see cref="ITcSysManager15"/> interface.

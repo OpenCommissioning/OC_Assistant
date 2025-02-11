@@ -8,10 +8,7 @@ internal class PouInstance
     private readonly string? _name;
     private readonly string? _type;
     private readonly string? _label;
-    private readonly string? _controlAddress;
-    private readonly string? _statusAddress;
     private readonly string? _assignments;
-    
 
     public PouInstance(string? name, string? type)
     {
@@ -26,10 +23,6 @@ internal class PouInstance
         
         _label = element.Element("Label")?.Value;
         
-        //var address = element.Element("Address");
-        _controlAddress = null;// address?.Attribute("Control")?.Value;
-        _statusAddress = null;// address?.Attribute("Status")?.Value;
-
         _assignments = element
             .Elements()
             .Where(x => x.Name.LocalName is "Control" or "In" or "Address")
@@ -63,16 +56,5 @@ internal class PouInstance
     
     public string ImplementationText => $"\t{_name}({_assignments});\n";
     
-
-    public string InitRunText
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(_controlAddress) || string.IsNullOrEmpty(_statusAddress))
-            {
-                return "";
-            }
-            return $"\t{_name}.AssignProcessData(aControlData := GVL_{_controlAddress}, aStatusData := GVL_{_statusAddress});\n";
-        }
-    }
+    public string InitRunText => "";
 }

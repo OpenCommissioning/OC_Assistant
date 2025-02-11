@@ -26,5 +26,13 @@
       <PackageReference Include="OC.Assistant.Theme" Version="1.4.5" />
       <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Page Update="Controls\ProjectStateView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using OC.Assistant.Core.TwinCat;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Generator.Profinet;

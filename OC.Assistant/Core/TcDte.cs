@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using EnvDTE;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
-using EnvDTE;
 
-namespace OC.Assistant.Core.TwinCat;
+namespace OC.Assistant.Core;
 
 /// <summary>
 /// Represents a static class with methods to extend the <see cref="EnvDTE.DTE"/> interface for TwinCAT specific usings.

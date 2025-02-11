@@ -4,20 +4,21 @@ using OC.Assistant.Core;
 
 namespace OC.Assistant.Controls;
 
-public partial class NotConnectedOverlay : IConnectionState
+public partial class NotConnectedOverlay
 {
     public NotConnectedOverlay()
     {
         InitializeComponent();
-        ProjectManager.Instance.Subscribe(this);
+        ProjectState.Events.Connected += OnConnect;
+        ProjectState.Events.Disconnected += OnDisconnect;
     }
 
-    void IConnectionState.OnConnect(string solutionFullName)
+    private void OnConnect(string solutionFullName)
     {
         Visibility = Visibility.Hidden;
     }
 
-    void IConnectionState.OnDisconnect()
+    private void OnDisconnect()
     {
         Visibility = Visibility.Visible;
     }

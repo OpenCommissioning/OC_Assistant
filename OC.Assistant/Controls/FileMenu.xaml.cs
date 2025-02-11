@@ -4,18 +4,15 @@ using System.Windows;
 using EnvDTE;
 using Microsoft.Win32;
 using OC.Assistant.Core;
-using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;
 
-internal partial class FileMenu : IProjectSelector
+internal partial class FileMenu
 {
     private static event Action<DTE>? OnConnectSolution;
     private static event Action? OnOpenSolution;
     private static event Action? OnCreateSolution;
-    
-    public event Action<DTE>? DteSelected;
     
     public FileMenu()
     {
@@ -23,7 +20,6 @@ internal partial class FileMenu : IProjectSelector
         OnConnectSolution += SelectDte;
         OnOpenSolution += () => OpenSlnOnClick();
         OnCreateSolution += () => CreateSlnOnClick();
-        ProjectManager.Instance.Subscribe(this);
     }
     
     public static void ConnectSolution(DTE dte)
@@ -86,9 +82,8 @@ internal partial class FileMenu : IProjectSelector
     
     private void SelectDte(DTE dte)
     {
-        Logger.LogInfo(this, dte.GetSolutionFullName() + " connected");
         dte.EnableUserControl();
-        DteSelected?.Invoke(dte);
+        ProjectState.Solution.Connect(dte);
         dte.Finalize();
     }
     

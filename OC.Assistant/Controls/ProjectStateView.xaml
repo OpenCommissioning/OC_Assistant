@@ -1,0 +1,43 @@
+﻿<StackPanel x:Class="OC.Assistant.Controls.ProjectStateView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="30" d:DesignWidth="300"
+             Orientation="Horizontal"
+             Margin="6 0 6 0"
+             HorizontalAlignment="Right">
+    <Border VerticalAlignment="Center"
+            CornerRadius="{DynamicResource ControlCornerRadius}" 
+            Background="{DynamicResource White4Brush}"
+            Margin="0 0 3 0"
+            Padding="5 0 5 0">
+        <Label x:Name="SolutionLabel"
+               VerticalAlignment="Center" 
+               HorizontalAlignment="Center"
+               Foreground="{DynamicResource ForegroundBaseBrush}">
+        </Label>
+    </Border>
+    <Border VerticalAlignment="Center" 
+            CornerRadius="{DynamicResource ControlCornerRadius}" 
+            Background="{DynamicResource White4Brush}"
+            Margin="0 0 3 0"
+            Padding="5 0 5 0">
+        <Label x:Name="NedIdLabel"
+               VerticalAlignment="Center" 
+               HorizontalAlignment="Center"
+               Foreground="{DynamicResource ForegroundBaseBrush}">
+        </Label>
+    </Border>
+    <Border x:Name="StateBorder" 
+            Width="50" 
+            VerticalAlignment="Center" 
+            CornerRadius="{DynamicResource ControlCornerRadius}">
+        <Label x:Name="StateLabel" 
+               VerticalAlignment="Center" 
+               HorizontalAlignment="Center"
+               Foreground="{DynamicResource ForegroundBaseBrush}">
+        </Label>
+    </Border>
+</StackPanel>
