@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using System.Windows;
-using EnvDTE;
 using Microsoft.Win32;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
@@ -10,21 +9,14 @@ namespace OC.Assistant.Controls;
 
 internal partial class FileMenu
 {
-    private static event Action<DTE>? OnConnectSolution;
     private static event Action? OnOpenSolution;
     private static event Action? OnCreateSolution;
     
     public FileMenu()
     {
         InitializeComponent();
-        OnConnectSolution += SelectDte;
         OnOpenSolution += () => OpenSlnOnClick();
         OnCreateSolution += () => CreateSlnOnClick();
-    }
-    
-    public static void ConnectSolution(DTE dte)
-    {
-        OnConnectSolution?.Invoke(dte);
     }
     
     public static void OpenSolution()
@@ -41,8 +33,11 @@ internal partial class FileMenu
     {
         try
         {
-            DteSelector.Selected += SelectDte;
-            await InitializeDte();
+            await Task.Delay(10);
+            if (!File.Exists(AppData.PreselectedProject)) return;
+            var path = await File.ReadAllTextAsync(AppData.PreselectedProject);
+            File.Delete(AppData.PreselectedProject);
+            ProjectState.Solution.Connect(path);
         }
         catch (Exception exception)
         {
@@ -53,38 +48,6 @@ internal partial class FileMenu
     private void ExitOnClick(object sender, RoutedEventArgs e)
     {
         Application.Current.Shutdown();
-    }
-
-    private async Task InitializeDte()
-    {
-        if (!File.Exists(AppData.PreselectedProject)) return;
-        var path = await File.ReadAllTextAsync(AppData.PreselectedProject);
-        File.Delete(AppData.PreselectedProject);
-        
-        BusyState.Set(this);
-        await GetSolutionFromPath(path);
-        BusyState.Reset(this);
-    }
-
-    private async Task GetSolutionFromPath(string path)
-    {
-        await Task.Run(() =>
-        {
-            var selection = TcDte.GetInstance(path);
-            if (selection == null)
-            {
-                Logger.LogError(this, $"There is no open solution {path}.");
-                return;
-            }
-            SelectDte(selection);
-        });
-    }
-    
-    private void SelectDte(DTE dte)
-    {
-        dte.EnableUserControl();
-        ProjectState.Solution.Connect(dte);
-        dte.Finalize();
     }
     
     private async void OpenSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
@@ -148,7 +111,9 @@ internal partial class FileMenu
                 
                 dte.OpenSolution(path);
                 while (!dte.GetSolutionIsOpen()) await Task.Delay(100);
-                SelectDte(dte);
+                dte.EnableUserControl();
+                ProjectState.Solution.Connect(path);
+                dte.Finalize();
             }
             catch (Exception e)
             {

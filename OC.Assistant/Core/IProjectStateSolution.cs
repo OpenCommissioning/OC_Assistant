@@ -10,8 +10,8 @@ public interface IProjectStateSolution
     /// <summary>
     /// Connects to a Visual Studio Solution via <see cref="DTE"/> interface.
     /// </summary>
-    /// <param name="dte">The <see cref="DTE"/> interface of the Visual Studio Solution.</param>
-    public void Connect(DTE dte);
+    /// <param name="solutionFullName">The path of the Visual Studio Solution.</param>
+    public void Connect(string solutionFullName);
     
     /// <summary>
     /// Gets the full name of the Visual Studio Solution.

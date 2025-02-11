@@ -22,11 +22,6 @@ public partial class NotConnectedOverlay
     {
         Visibility = Visibility.Visible;
     }
-    
-    private void DteOnSelected(DTE dte)
-    {
-        FileMenu.ConnectSolution(dte);
-    }
 
     private void OpenOnClick(object sender, RoutedEventArgs e)
     {

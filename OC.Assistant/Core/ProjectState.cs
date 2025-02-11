@@ -74,45 +74,42 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         }
     }
     
-    public void Connect(DTE dte)
+    public void Connect(string path)
     {
-        if (_adsNotOk || dte.GetSolutionFullName() is not {} solutionFullName) return;
-        if (RestartIfConnected(solutionFullName)) return;
-        XmlFile.Directory = dte.GetProjectFolder();
-        FullName = solutionFullName;
-        
-        _dte = TcDte.GetInstance(solutionFullName);
-        _tcSysManager = _dte.GetTcSysManager();
-        _amsNetId = GetCurrentNetId();
-        ApiLocal.Interface.NetId = _amsNetId;
-        _cancellationTokenSource = new CancellationTokenSource();
-        SetSolutionPath(solutionFullName);
-        StartPolling(UpdateNetId, 1000);
-        StartPolling(UpdateAdsState, 100);
-        
         Dispatcher.Invoke(() =>
         {
-            Connected?.Invoke(solutionFullName);
-        });
+            if (_adsNotOk || TcDte.GetInstance(path) is not {} dte) return;
+            if (RestartIfConnected(path)) return;
+            
+            _dte = dte;
+            XmlFile.Directory = dte.GetProjectFolder();
+            FullName = path;
         
-        Logger.LogInfo(this, dte.GetSolutionFullName() + " connected");
+            _tcSysManager = _dte.GetTcSysManager();
+            _amsNetId = GetCurrentNetId();
+            ApiLocal.Interface.NetId = _amsNetId;
+            _cancellationTokenSource = new CancellationTokenSource();
+            SetSolutionPath(path);
+            StartPolling(UpdateNetId, 1000);
+            StartPolling(UpdateAdsState, 100);
+            Connected?.Invoke(path);
+            Logger.LogInfo(this, $"{path} connected");
+        });
     }
     
     private void Disconnect()
     {
-        Logger.LogWarning(this, "TwinCAT Project closed");
-        FullName = null;
-        
         Dispatcher.Invoke(() =>
         {
+            Logger.LogWarning(this, "TwinCAT Project closed");
+            FullName = null;
             Disconnected?.Invoke();
             Locked?.Invoke(true);
+            _cancellationTokenSource.Cancel();
+            _adsClient.Disconnect();
+            _dte?.Finalize();
+            IndicateDisconnected();
         });
-        
-        _cancellationTokenSource.Cancel();
-        _adsClient.Disconnect();
-        _dte?.Finalize();
-        IndicateDisconnected();
     }
     
     private bool RestartIfConnected(string projectPath)
@@ -160,8 +157,6 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         }
         catch (Exception e)
         {
-            _adsNotOk = true;
-            _cancellationTokenSource.Cancel();
             Logger.LogError(this, e.Message);
             return AdsState.Exception;
         }
@@ -174,9 +169,13 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
             var netId = _tcSysManager?.GetTargetNetId();
             return netId is null ? _amsNetId : new AmsNetId(netId);
         }
+        catch (InvalidCastException)
+        {
+            Disconnect();
+        }
         catch (Exception e)
         {
-            if (e.HResult == -2147023174) //0x800706BA : RPC Server unavailable 
+            if ((uint)e.HResult != 0x8001010A) //Server is busy; try later
             {
                 Disconnect();
             }
