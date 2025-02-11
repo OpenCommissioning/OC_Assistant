@@ -79,10 +79,10 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         Dispatcher.Invoke(() =>
         {
             if (_adsNotOk || TcDte.GetInstance(path) is not {} dte) return;
-            if (RestartIfConnected(path)) return;
+            if (dte.GetProjectFolder() is not {} projectFolder) return;
+            if (IsProjectConnected) Disconnect();
             
             _dte = dte;
-            XmlFile.Directory = dte.GetProjectFolder();
             FullName = path;
         
             _tcSysManager = _dte.GetTcSysManager();
@@ -92,6 +92,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
             SetSolutionPath(path);
             StartPolling(UpdateNetId, 1000);
             StartPolling(UpdateAdsState, 100);
+            XmlFile.Instance.SetDirectory(projectFolder);
             Connected?.Invoke(path);
             Logger.LogInfo(this, $"{path} connected");
         });
@@ -105,29 +106,12 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
             FullName = null;
             Disconnected?.Invoke();
             Locked?.Invoke(true);
+            _lastRunState = AdsState.Idle;
             _cancellationTokenSource.Cancel();
             _adsClient.Disconnect();
             _dte?.Finalize();
             IndicateDisconnected();
         });
-    }
-    
-    private bool RestartIfConnected(string projectPath)
-    {
-        if (_tcSysManager is null)
-        {
-            return false;
-        }
-        
-        System.IO.File.WriteAllText(AppData.PreselectedProject, projectPath);
-
-        var processPath = Environment.ProcessPath;
-        if (!string.IsNullOrEmpty(processPath))
-        {
-            System.Diagnostics.Process.Start(processPath);
-        }
-        Application.Current.Shutdown();
-        return true;
     }
 
     private AdsState GetAdsState()
@@ -168,10 +152,6 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         {
             var netId = _tcSysManager?.GetTargetNetId();
             return netId is null ? _amsNetId : new AmsNetId(netId);
-        }
-        catch (InvalidCastException)
-        {
-            Disconnect();
         }
         catch (Exception e)
         {

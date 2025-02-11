@@ -12,7 +12,7 @@ public partial class PluginManager
     public PluginManager()
     {
         InitializeComponent();
-        ProjectState.Events.Connected += OnConnect;
+        Core.XmlFile.Instance.Reloaded += XmlOnReloaded;
         ProjectState.Events.Disconnected += OnDisconnect;
         ProjectState.Events.StartedRunning += OnStartedRunning;
         ProjectState.Events.StoppedRunning += OnStoppedRunning;
@@ -43,7 +43,6 @@ public partial class PluginManager
     private void Initialize()
     {
         OnDisconnect();
-        Core.XmlFile.Instance.Reloaded += XmlOnReloaded;
         ControlPanel.Children.Remove(BtnAdd);
         _plugins = XmlFile.LoadPlugins();
 
@@ -57,15 +56,8 @@ public partial class PluginManager
         BtnAdd.Visibility = Visibility.Visible;
     }
 
-    private void OnConnect(string solutionFullName)
-    {
-        Initialize();
-    }
-
     private void OnDisconnect()
     {
-        Core.XmlFile.Instance.Reloaded -= XmlOnReloaded;
-        
         foreach (var plugin in _plugins)
         {
             RemovePlugin(plugin);

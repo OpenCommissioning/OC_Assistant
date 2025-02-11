@@ -27,7 +27,7 @@ public partial class Menu
                 Core.XmlFile.Instance.Reload();
                 Generators.Hil.Update(dte, plcProjectItem);
                 Generators.Project.Update(plcProjectItem);
-                Logger.LogInfo(this, "Project update successful.");
+                Logger.LogInfo(this, "Project update finished.");
             }
             catch (Exception ex)
             {
@@ -45,7 +45,7 @@ public partial class Menu
                 if (GetPlcProject(dte) is not {} plcProjectItem) return;
                 Core.XmlFile.Instance.Reload();
                 Generators.Sil.UpdateAll(plcProjectItem);
-                Logger.LogInfo(this, "Project update successful.");
+                Logger.LogInfo(this, "Project update finished.");
             }
             catch (Exception ex)
             {
@@ -61,7 +61,7 @@ public partial class Menu
             try
             {
                 Generators.Task.CreateVariables(dte);
-                Logger.LogInfo(this, "Project update successful.");
+                Logger.LogInfo(this, "Project update finished.");
             }
             catch (Exception ex)
             {
@@ -90,7 +90,7 @@ public partial class Menu
             {
                 if (GetPlcProject(dte) is not {} plcProjectItem) return;
                 Generators.Sil.Update(plcProjectItem, name, delete);
-                Logger.LogInfo(this, "Project update successful.");
+                Logger.LogInfo(this, "Project update finished.");
             }
             catch (Exception e)
             {
@@ -108,7 +108,7 @@ public partial class Menu
             {
                 if (GetPlcProject(dte) is not {} plcProjectItem) return;
                 Generators.Project.Update(plcProjectItem);
-                Logger.LogInfo(this, "Project update successful.");
+                Logger.LogInfo(this, "Project update finished.");
             }
             catch (Exception e)
             {

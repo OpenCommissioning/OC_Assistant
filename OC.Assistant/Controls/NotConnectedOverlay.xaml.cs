@@ -1,5 +1,4 @@
 using System.Windows;
-using EnvDTE;
 using OC.Assistant.Core;
 
 namespace OC.Assistant.Controls;
@@ -25,11 +24,11 @@ public partial class NotConnectedOverlay
 
     private void OpenOnClick(object sender, RoutedEventArgs e)
     {
-        FileMenu.OpenSolution();
+        FileMenu.OpenSolution(sender, e);
     }
     
     private void CreateOnClick(object sender, RoutedEventArgs e)
     {
-        FileMenu.CreateSolution();
+        FileMenu.CreateSolution(sender, e);
     }
 }

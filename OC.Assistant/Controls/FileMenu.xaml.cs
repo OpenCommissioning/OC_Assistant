@@ -9,40 +9,24 @@ namespace OC.Assistant.Controls;
 
 internal partial class FileMenu
 {
-    private static event Action? OnOpenSolution;
-    private static event Action? OnCreateSolution;
+    private static event RoutedEventHandler? OnOpenSolution;
+    private static event RoutedEventHandler? OnCreateSolution;
     
     public FileMenu()
     {
         InitializeComponent();
-        OnOpenSolution += () => OpenSlnOnClick();
-        OnCreateSolution += () => CreateSlnOnClick();
+        OnOpenSolution += OpenSlnOnClick;
+        OnCreateSolution += CreateSlnOnClick;
     }
     
-    public static void OpenSolution()
+    public static void OpenSolution(object sender, RoutedEventArgs e)
     {
-        OnOpenSolution?.Invoke();
+        OnOpenSolution?.Invoke(sender, e);
     }
     
-    public static void CreateSolution()
+    public static void CreateSolution(object sender, RoutedEventArgs e)
     {
-        OnCreateSolution?.Invoke();
-    }
-
-    private async void FileMenuOnLoaded(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            await Task.Delay(10);
-            if (!File.Exists(AppData.PreselectedProject)) return;
-            var path = await File.ReadAllTextAsync(AppData.PreselectedProject);
-            File.Delete(AppData.PreselectedProject);
-            ProjectState.Solution.Connect(path);
-        }
-        catch (Exception exception)
-        {
-            Logger.LogError(this, exception.Message);
-        }
+        OnCreateSolution?.Invoke(sender, e);
     }
     
     private void ExitOnClick(object sender, RoutedEventArgs e)
@@ -50,7 +34,7 @@ internal partial class FileMenu
         Application.Current.Shutdown();
     }
     
-    private async void OpenSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
+    private async void OpenSlnOnClick(object sender, RoutedEventArgs e)
     {
         try
         {
@@ -108,9 +92,11 @@ internal partial class FileMenu
             {
                 var dte = TcDte.Create();
                 Logger.LogInfo(this, $"Open project '{path}' ...");
-                
                 dte.OpenSolution(path);
-                while (!dte.GetSolutionIsOpen()) await Task.Delay(100);
+                while (!dte.GetSolutionIsOpen())
+                {
+                    await Task.Delay(100);
+                }
                 dte.EnableUserControl();
                 ProjectState.Solution.Connect(path);
                 dte.Finalize();
