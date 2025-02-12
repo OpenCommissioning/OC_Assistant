@@ -28,7 +28,6 @@ public static class DteSingleThread
             catch (Exception e)
             {
                 Sdk.Logger.LogError(typeof(DteSingleThread), e.Message);
-                throw;
             }
             finally
             {
