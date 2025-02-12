@@ -146,7 +146,7 @@ public partial class PluginManager
         BusyState.Reset(this);
         BtnAdd_Click(this, null);
         if (plugin.PluginController?.IoType == IoType.None) return;
-        Sdk.ApiLocal.Interface.UpdateSil(plugin.Name, true);
+        UpdateProject(plugin.Name, true);
     }
 
     private void Editor_OnConfirm(Plugin plugin)
@@ -172,7 +172,7 @@ public partial class PluginManager
         Plugin_OnEdit(plugin);
         if (plugin.PluginController is null) return;
         if (!plugin.PluginController.IoChanged) return;
-        Sdk.ApiLocal.Interface.UpdateSil(plugin.Name, false);
+        UpdateProject(plugin.Name, false);
     }
         
     private void Editor_OnCancel()
@@ -205,5 +205,20 @@ public partial class PluginManager
         {
             plugin.IsSelected = false;
         }
+    }
+    
+    private void UpdateProject(string name, bool delete)
+    {
+        DteSingleThread.Run(dte =>
+        {
+            var tcSysManager = dte.GetTcSysManager();
+            tcSysManager?.SaveProject();
+            if (tcSysManager?.TryGetPlcProject() is not { } plcProjectItem)
+            {
+                Sdk.Logger.LogError(this, "No Plc project found");
+                return;
+            }
+            Generator.Generators.Sil.Update(plcProjectItem, name, delete);
+        });
     }
 }

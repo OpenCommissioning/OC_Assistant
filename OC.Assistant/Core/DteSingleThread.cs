@@ -17,15 +17,24 @@ public static class DteSingleThread
     {
         var thread = new System.Threading.Thread(() =>
         {
-            BusyState.Set(action);
-            MessageFilter.Register();
-            if (TcDte.GetInstance(ProjectState.Solution.FullName) is {} dte)
+            try
             {
+                BusyState.Set(action);
+                MessageFilter.Register();
+                if (TcDte.GetInstance(ProjectState.Solution.FullName) is not { } dte) return;
                 action(dte);
                 dte.Finalize();
             }
-            MessageFilter.Revoke();
-            BusyState.Reset(action);
+            catch (Exception e)
+            {
+                Sdk.Logger.LogError(typeof(DteSingleThread), e.Message);
+                throw;
+            }
+            finally
+            {
+                MessageFilter.Revoke();
+                BusyState.Reset(action);
+            }
         });
         
         thread.SetApartmentState(ApartmentState.STA);

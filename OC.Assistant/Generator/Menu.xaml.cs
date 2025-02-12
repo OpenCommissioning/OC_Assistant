@@ -14,25 +14,17 @@ public partial class Menu
         InitializeComponent();
         ProjectState.Events.Locked += isLocked => IsEnabled = !isLocked;
         ApiLocal.Interface.ConfigReceived += ApiOnConfigReceived;
-        ApiLocal.Interface.SilUpdate += ApiOnSilUpdate;
     }
 
     private void CreateProjectOnClick(object sender, RoutedEventArgs e)
     {
         DteSingleThread.Run(dte =>
         {
-            try
-            {
-                if (GetPlcProject(dte) is not {} plcProjectItem) return;
-                Core.XmlFile.Instance.Reload();
-                Generators.Hil.Update(dte, plcProjectItem);
-                Generators.Project.Update(plcProjectItem);
-                Logger.LogInfo(this, "Project update finished.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(this, $"Error updating project: {ex.Message}");
-            }
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            Core.XmlFile.Instance.Reload();
+            Generators.Hil.Update(dte, plcProjectItem);
+            Generators.Project.Update(plcProjectItem);
+            Logger.LogInfo(this, "Project update finished.");
         });
     }
     
@@ -40,17 +32,10 @@ public partial class Menu
     {
         DteSingleThread.Run(dte =>
         {
-            try
-            {
-                if (GetPlcProject(dte) is not {} plcProjectItem) return;
-                Core.XmlFile.Instance.Reload();
-                Generators.Sil.UpdateAll(plcProjectItem);
-                Logger.LogInfo(this, "Project update finished.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(this, $"Error updating project: {ex.Message}");
-            }
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            Core.XmlFile.Instance.Reload();
+            Generators.Sil.UpdateAll(plcProjectItem);
+            Logger.LogInfo(this, "Project update finished.");
         });
     }
     
@@ -58,15 +43,8 @@ public partial class Menu
     {
         DteSingleThread.Run(dte =>
         {
-            try
-            {
-                Generators.Task.CreateVariables(dte);
-                Logger.LogInfo(this, "Project update finished.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(this, $"Error updating project: {ex.Message}");
-            }
+            Generators.Task.CreateVariables(dte);
+            Logger.LogInfo(this, "Project update finished.");
         });
     }
     
@@ -82,38 +60,14 @@ public partial class Menu
         }
     }
     
-    private void ApiOnSilUpdate(string name, bool delete)
-    {
-        DteSingleThread.Run(dte =>
-        {
-            try
-            {
-                if (GetPlcProject(dte) is not {} plcProjectItem) return;
-                Generators.Sil.Update(plcProjectItem, name, delete);
-                Logger.LogInfo(this, "Project update finished.");
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(this, $"Error updating project: {e.Message}");
-            }
-        });
-    }
-    
     private void ApiOnConfigReceived(XElement config)
     {
         XmlFile.ClientUpdate(config);
         DteSingleThread.Run(dte =>
         {
-            try
-            {
-                if (GetPlcProject(dte) is not {} plcProjectItem) return;
-                Generators.Project.Update(plcProjectItem);
-                Logger.LogInfo(this, "Project update finished.");
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(this, $"Error updating project: {e.Message}");
-            }
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            Generators.Project.Update(plcProjectItem);
+            Logger.LogInfo(this, "Project update finished.");
         });
     }
     
