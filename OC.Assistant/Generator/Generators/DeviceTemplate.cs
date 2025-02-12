@@ -62,7 +62,7 @@ public static class DeviceTemplate
 		status.SetContent(STATUS_STRUCT.Replace(Tags.NAME, name));
 		config.SetContent(CONFIG_STRUCT.Replace(Tags.NAME, name));
 		initRun.SetContent(INIT_RUN_DECLARATION, INIT_RUN_IMPLEMENTATION);
-		cycle.SetContent(CYCLE_DECLARATION);
+		cycle.SetContent(CYCLE_DECLARATION, CYCLE_IMPLEMENTATION);
 		getControl.SetContent(GET_CONTROL_DATA_DECLARATION, GET_CONTROL_DATA_IMPLEMENTATION);
 		setStatus.SetContent(SET_STATUS_DATA_DECLARATION, SET_STATUS_DATA_IMPLEMENTATION);
 		
@@ -85,6 +85,7 @@ public static class DeviceTemplate
 		{attribute 'pack_mode' := '0'}
 		TYPE ST_$NAME$_Control:
 		STRUCT
+		//Custom device control structure (fieldbus outputs)...
 		END_STRUCT
 		END_TYPE
 		""";
@@ -94,6 +95,7 @@ public static class DeviceTemplate
 		{attribute 'pack_mode' := '0'}
 		TYPE ST_$NAME$_Status:
 		STRUCT
+		//Custom device status structure (fieldbus inputs)...
 		END_STRUCT
 		END_TYPE
 		""";
@@ -103,6 +105,7 @@ public static class DeviceTemplate
 		{attribute 'pack_mode' := '0'}
 		TYPE ST_$NAME$_Config:
 		STRUCT
+		//Custom device config structure (parameters and settings)...
 		END_STRUCT
 		END_TYPE
 		""";
@@ -155,6 +158,9 @@ public static class DeviceTemplate
 		IF pControl.pValue = 0 OR pStatus.pValue = 0 THEN
 			ADSLOGSTR(ADSLOG_MSGTYPE_WARN, CONCAT(sPath, ': %s'), 'Plc address not set.');
 		END_IF
+		
+		//Custom device initialization...
+		
 		""";
 	
 	private const string CYCLE_DECLARATION =
@@ -163,9 +169,15 @@ public static class DeviceTemplate
 		METHOD Cycle
 		""";
 	
+	private const string CYCLE_IMPLEMENTATION =
+		"""
+		//Custom device logic...
+		
+		""";
+	
 	private const string GET_CONTROL_DATA_DECLARATION =
 		"""
-		//Reads fieldbus process data and writes to the stConfig structure.
+		//Reads fieldbus process data and writes to the stControl structure.
 		METHOD GetControlData
 		""";
 	
@@ -173,6 +185,7 @@ public static class DeviceTemplate
 		"""
 		IF pControl.pValue <= 0 OR bForceMode THEN RETURN; END_IF
 		
+		//This is just an example how to copy the fieldbus data to the stControl structure via memcpy
 		F_Memcpy(ADR(stControl), pControl.pValue, SIZEOF(stControl), FALSE);
 		""";
 	
@@ -186,6 +199,7 @@ public static class DeviceTemplate
 		"""
 		IF pStatus.pValue <= 0 THEN RETURN; END_IF
 		
+		//This is just an example how to copy the stStatus structure to the fieldbus data via memcpy
 		F_Memcpy(pStatus.pValue, ADR(stStatus), SIZEOF(stStatus), FALSE);
 		""";
 }
