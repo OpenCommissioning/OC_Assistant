@@ -27,12 +27,4 @@
       <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
     </ItemGroup>
     
-    <ItemGroup>
-      <Page Update="Controls\ProjectStateView.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-    </ItemGroup>
-
 </Project>
