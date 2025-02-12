@@ -191,6 +191,7 @@ public partial class PluginManager
     {
         GridSplitter.Width = new GridLength(0);
         EditorColumn.Width = new GridLength(0);
+        Editor.Visibility = Visibility.Collapsed;
     }
     
     private bool BtnAddIsSelected
