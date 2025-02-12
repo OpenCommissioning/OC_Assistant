@@ -6,6 +6,7 @@
     <MenuItem Header="Recreate Project" Click="CreateProjectOnClick"/>
     <MenuItem Header="Recreate Plugins" Click="CreatePluginsOnClick"/>
     <MenuItem Header="Update Task" Click="CreateTaskOnClick"/>
+    <MenuItem Header="Create device template" Click="CreateTemplateOnClick"/>
     <Separator/>
     <MenuItem Header="Settings" Click="SettingsOnClick"></MenuItem>
 </MenuItem>
