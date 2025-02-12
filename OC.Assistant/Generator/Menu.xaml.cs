@@ -65,7 +65,7 @@ public partial class Menu
         DteSingleThread.Run(dte =>
         {
             if (GetPlcProject(dte) is not {} plcProjectItem) return;
-            if (plcProjectItem.GetOrCreateChild("_generated_by_assistant_", 
+            if (plcProjectItem.GetOrCreateChild("_generated_templates_", 
                     TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder) return;
             Generators.DeviceTemplate.Create(folder, name);
         });
