@@ -1,5 +1,5 @@
 ﻿using EnvDTE;
-using OC.Assistant.Core.TwinCat;
+using OC.Assistant.Core;
 using OC.Assistant.Generator.EtherCat;
 using OC.Assistant.Generator.Profinet;
 using TCatSysManagerLib;

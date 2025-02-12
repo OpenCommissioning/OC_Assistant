@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk.Plugin;
 
 namespace OC.Assistant.Plugins;
@@ -10,24 +11,27 @@ public partial class PluginManager
     
     public PluginManager()
     {
-        Loaded += (_, _) => PluginRegister.Initialize();
         InitializeComponent();
+        Core.XmlFile.Instance.Reloaded += XmlOnReloaded;
+        ProjectState.Events.Disconnected += OnDisconnect;
+        ProjectState.Events.StartedRunning += OnStartedRunning;
+        ProjectState.Events.StoppedRunning += OnStoppedRunning;
+        ProjectState.Events.Locked += OnLocked;
     }
-
-    /// <summary>
-    /// Override <see cref="Core.ControlBase.IsLocked"/> to not disable the start/stop button for each plugin.
-    /// </summary>
-    public override bool IsLocked
+    
+    private void PluginManagerOnLoaded(object sender, RoutedEventArgs e)
     {
-        set
+        PluginRegister.Initialize();
+    }
+    
+    private void OnLocked(bool value)
+    {
+        var isEnabled = !value;
+        BtnAdd.Visibility = isEnabled ? Visibility.Visible : Visibility.Hidden;
+        Editor.IsEnabled = isEnabled;
+        foreach (var plugin in _plugins)
         {
-            var isEnabled = !value;
-            BtnAdd.Visibility = isEnabled ? Visibility.Visible : Visibility.Hidden;
-            Editor.IsEnabled = isEnabled;
-            foreach (var plugin in _plugins)
-            {
-                plugin.IsEnabled = isEnabled;
-            }
+            plugin.IsEnabled = isEnabled;
         }
     }
     
@@ -39,7 +43,6 @@ public partial class PluginManager
     private void Initialize()
     {
         OnDisconnect();
-        Core.XmlFile.Instance.Reloaded += XmlOnReloaded;
         ControlPanel.Children.Remove(BtnAdd);
         _plugins = XmlFile.LoadPlugins();
 
@@ -53,15 +56,8 @@ public partial class PluginManager
         BtnAdd.Visibility = Visibility.Visible;
     }
 
-    public override void OnConnect(string solutionFullName)
+    private void OnDisconnect()
     {
-        Initialize();
-    }
-    
-    public override void OnDisconnect()
-    {
-        Core.XmlFile.Instance.Reloaded -= XmlOnReloaded;
-        
         foreach (var plugin in _plugins)
         {
             RemovePlugin(plugin);
@@ -72,9 +68,9 @@ public partial class PluginManager
         _plugins.Clear();
     }
 
-    public override void OnTcStopped()
+    private void OnStoppedRunning()
     {
-        if (IsBusy) return;
+        if (BusyState.IsSet) return;
         Task.Run(async () =>
         {
             foreach (var plugin in _plugins)
@@ -84,10 +80,10 @@ public partial class PluginManager
             }
         });
     }
-        
-    public override void OnTcStarted()
+
+    private void OnStartedRunning()
     {
-        if (IsBusy) return;
+        if (BusyState.IsSet) return;
         Task.Run(async () =>
         {
             foreach (var plugin in _plugins.Where(x => x.PluginController?.AutoStart == true))
@@ -124,7 +120,7 @@ public partial class PluginManager
 
     private void BtnAdd_Click(object sender, RoutedEventArgs? e)
     {
-        if (IsBusy) return;
+        if (BusyState.IsSet) return;
             
         var plugin = new Plugin();
         if (!Editor.Show(plugin, _plugins)) return;
@@ -143,19 +139,19 @@ public partial class PluginManager
         
     private void Plugin_OnRemove(Plugin plugin)
     {
-        IsBusy = true;
+        BusyState.Set(this);
         RemovePlugin(plugin);
         XmlFile.UpdatePlugin(plugin, true);
         _plugins.Remove(plugin);
-        IsBusy = false;
+        BusyState.Reset(this);
         BtnAdd_Click(this, null);
         if (plugin.PluginController?.IoType == IoType.None) return;
-        Sdk.ApiLocal.Interface.UpdateSil(plugin.Name, true);
+        UpdateProject(plugin.Name, true);
     }
 
     private void Editor_OnConfirm(Plugin plugin)
     {
-        IsBusy = true;
+        BusyState.Set(this);
         ControlPanel.Children.Remove(BtnAdd);
             
         XmlFile.UpdatePlugin(plugin);
@@ -172,11 +168,11 @@ public partial class PluginManager
             
         ControlPanel.Children.Add(BtnAdd);
         ScrollView.ScrollToEnd();
-        IsBusy = false;
+        BusyState.Reset(this);
         Plugin_OnEdit(plugin);
         if (plugin.PluginController is null) return;
         if (!plugin.PluginController.IoChanged) return;
-        Sdk.ApiLocal.Interface.UpdateSil(plugin.Name, false);
+        UpdateProject(plugin.Name, false);
     }
         
     private void Editor_OnCancel()
@@ -195,6 +191,7 @@ public partial class PluginManager
     {
         GridSplitter.Width = new GridLength(0);
         EditorColumn.Width = new GridLength(0);
+        Editor.Visibility = Visibility.Collapsed;
     }
     
     private bool BtnAddIsSelected
@@ -209,5 +206,20 @@ public partial class PluginManager
         {
             plugin.IsSelected = false;
         }
+    }
+    
+    private void UpdateProject(string name, bool delete)
+    {
+        DteSingleThread.Run(dte =>
+        {
+            var tcSysManager = dte.GetTcSysManager();
+            tcSysManager?.SaveProject();
+            if (tcSysManager?.TryGetPlcProject() is not { } plcProjectItem)
+            {
+                Sdk.Logger.LogError(this, "No Plc project found");
+                return;
+            }
+            Generator.Generators.Sil.Update(plcProjectItem, name, delete);
+        });
     }
 }

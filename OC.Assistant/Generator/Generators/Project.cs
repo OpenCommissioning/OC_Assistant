@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using OC.Assistant.Core.TwinCat;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
@@ -11,7 +11,7 @@ namespace OC.Assistant.Generator.Generators;
 /// Generator for the plc project.
 /// </summary>
 [SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
-internal static class Project
+internal static partial class Project
 {
     /// <summary>
     /// Updates the given plc project.
@@ -177,10 +177,12 @@ internal static class Project
         decl.DeclarationText = generatedText;
     }
     
+    [GeneratedRegex(@"\s*\{region generated code\}.*?\{endregion\}\s*", RegexOptions.Singleline)]
+    private static partial Regex RegionPattern();
+    
     private static string Cleanup(string input)
     {
-        var result = Regex
-            .Replace(input, @"\s*\{region generated code\}.*?\{endregion\}\s*", "\n", RegexOptions.Singleline)
+        var result = RegionPattern().Replace(input, "\n")
             .Replace("VAR_INPUT\nEND_VAR\n", "")
             .Replace("VAR_OUTPUT\nEND_VAR\n", "")
             .Replace("VAR\nEND_VAR\n", "");

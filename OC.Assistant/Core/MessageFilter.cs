@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
-using OC.Assistant.Sdk;
 
-namespace OC.Assistant.Core.TwinCat;
+namespace OC.Assistant.Core;
 
 [ComImport, Guid("00000016-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)] 
 public interface IOleMessageFilter 
@@ -27,7 +26,7 @@ public class MessageFilter : IOleMessageFilter
 
         if (result != 0)
         {
-            Logger.LogError(typeof(MessageFilter), $"CoRegisterMessageFilter failed with error {result}");
+            Sdk.Logger.LogError(typeof(MessageFilter), $"CoRegisterMessageFilter failed with error {result}");
         }
     }
 
@@ -38,14 +37,14 @@ public class MessageFilter : IOleMessageFilter
 
     int IOleMessageFilter.HandleInComingCall(int dwCallType, IntPtr hTaskCaller, int dwTickCount, IntPtr lpInterfaceInfo)
     {
-        // returns the flag SERVERCALL_ISHANDLED
+        // return flag SERVERCALL_ISHANDLED
         return 0;
     }
 
     int IOleMessageFilter.RetryRejectedCall(IntPtr hTaskCallee, int dwTickCount, int dwRejectType)
     {
         // Thread call was refused, try again
-        if (dwRejectType == 2) // flag = SERVERCALL_RETRYLATER 
+        if (dwRejectType == 2) // flag SERVERCALL_RETRYLATER 
         {
             // retry thread call at once, if return value >= 0 & < 100
             return 99;

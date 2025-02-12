@@ -2,7 +2,6 @@
 using System.IO;
 using EnvDTE;
 using OC.Assistant.Core;
-using OC.Assistant.Core.TwinCat;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator.Profinet;

@@ -1,4 +1,4 @@
-﻿namespace OC.Assistant.Core.TwinCat;
+﻿namespace OC.Assistant.Core;
 
 public struct TcShortcut
 {

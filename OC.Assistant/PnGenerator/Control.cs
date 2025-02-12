@@ -2,14 +2,15 @@
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Xml.Linq;
+using EnvDTE;
 using OC.Assistant.Core;
-using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
+using Process = System.Diagnostics.Process;
 
 namespace OC.Assistant.PnGenerator;
 
-public class Control(string scannerTool) : ControlBase
+public class Control(string scannerTool)
 {
     private Settings _settings;
 
@@ -18,7 +19,7 @@ public class Control(string scannerTool) : ControlBase
     /// </summary>
     internal void StartCapture(Settings settings)
     {
-        if (IsBusy) return;
+        if (BusyState.IsSet) return;
         _settings = settings;
             
         if (_settings.PnName == "")
@@ -33,12 +34,10 @@ public class Control(string scannerTool) : ControlBase
             return;
         }
         
-        SingleThread.Run(() =>
+        DteSingleThread.Run(dte =>
         {
-            IsBusy = true;
             RunScanner();
-            ImportPnDevice();
-            IsBusy = false;
+            ImportPnDevice(dte);
         });
     }
 
@@ -100,7 +99,7 @@ public class Control(string scannerTool) : ControlBase
     /// <summary>
     /// Imports a xti-file.
     /// </summary>
-    private void ImportPnDevice()
+    private void ImportPnDevice(DTE dte)
     {
         //No file found
         var xtiFilePath = $"{AppData.Path}\\{_settings.PnName}.xti";
@@ -124,7 +123,6 @@ public class Control(string scannerTool) : ControlBase
             new XtiUpdater().Run(xtiFilePath, _settings.HwFilePath);
         }
         
-        var dte = TcDte.GetInstance(SolutionFullName);
         var tcSysManager = dte.GetTcSysManager();
         tcSysManager?.SaveProject();
             
@@ -163,24 +161,5 @@ public class Control(string scannerTool) : ControlBase
             tcPnDevice.ConsumeXml(pnDevice.ToString());
             return;
         }
-    }
-    
-    private string? SolutionFullName { get; set; }
-
-    public override void OnConnect(string solutionFullName)
-    {
-        SolutionFullName = solutionFullName;
-    }
-
-    public override void OnDisconnect()
-    {
-    }
-
-    public override void OnTcStopped()
-    {
-    }
-
-    public override void OnTcStarted()
-    {
     }
 }

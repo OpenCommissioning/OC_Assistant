@@ -30,7 +30,7 @@
             <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
             <controls:NotConnectedOverlay Grid.Row="0" />
         </Grid>
-        <Grid x:Name="Footer" Height="24" VerticalAlignment="Bottom"></Grid>
+        <Grid x:Name="Footer" Height="24" VerticalAlignment="Bottom"/>
         <theme:BusyOverlay x:Name="BusyOverlay"/>
     </Grid>
 </Window>

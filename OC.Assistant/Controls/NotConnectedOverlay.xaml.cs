@@ -1,39 +1,34 @@
 using System.Windows;
-using EnvDTE;
 using OC.Assistant.Core;
 
 namespace OC.Assistant.Controls;
 
-public partial class NotConnectedOverlay : IConnectionState
+public partial class NotConnectedOverlay
 {
     public NotConnectedOverlay()
     {
         InitializeComponent();
-        ProjectManager.Instance.Subscribe(this);
+        ProjectState.Events.Connected += OnConnect;
+        ProjectState.Events.Disconnected += OnDisconnect;
     }
 
-    void IConnectionState.OnConnect(string solutionFullName)
+    private void OnConnect(string solutionFullName)
     {
         Visibility = Visibility.Hidden;
     }
 
-    void IConnectionState.OnDisconnect()
+    private void OnDisconnect()
     {
         Visibility = Visibility.Visible;
-    }
-    
-    private void DteOnSelected(DTE dte)
-    {
-        FileMenu.ConnectSolution(dte);
     }
 
     private void OpenOnClick(object sender, RoutedEventArgs e)
     {
-        FileMenu.OpenSolution();
+        FileMenu.OpenSolution(sender, e);
     }
     
     private void CreateOnClick(object sender, RoutedEventArgs e)
     {
-        FileMenu.CreateSolution();
+        FileMenu.CreateSolution(sender, e);
     }
 }
