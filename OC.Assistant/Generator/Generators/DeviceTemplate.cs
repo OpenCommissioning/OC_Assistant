@@ -112,8 +112,29 @@ public static class DeviceTemplate
 	
 	private const string DECLARATION = 
 		"""
+		(*
+			Extends a link from the OC_Core library for Unity communication.
+			A link contains control and status variables:
+			Control		TwinCAT => Unity
+			Status		TwinCAT <= Unity
+			
+			Basic link:
+			FB_LinkDevice		Control and Status of type BYTE
+		
+			Extended links with additional data, all extending the FB_LinkDevice:
+			FB_LinkDataByte		ControlData and StatusData of type BYTE
+			FB_LinkDataWord		ControlData and StatusData of type WORD
+			FB_LinkDataDWord	ControlData and StatusData of type DWORD
+			FB_LinkDataLWord	ControlData and StatusData of type LWORD
+			FB_LinkDataReal		ControlData and StatusData of type REAL
+			
+			Example:
+			The device is simulating a drive and writes a calculated position (fPosition : REAL) to Unity.
+			Declaration		FUNCTION_BLOCK FB_$NAME$ EXTENDS OC_Core.FB_LinkDataReal
+			Implementation	THIS^.ControlData := fPosition;
+		*)
 		{attribute 'reflection'}
-		FUNCTION_BLOCK FB_$NAME$
+		FUNCTION_BLOCK FB_$NAME$ EXTENDS OC_Core.FB_LinkDevice
 		VAR_INPUT
 			pControl 			: ANY; //Pocess data from fieldbus. Size must be >= stControl.
 			pStatus 			: ANY; //Pocess data to fieldbus. Size must be >= stStatus.
