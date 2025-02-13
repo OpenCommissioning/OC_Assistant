@@ -64,6 +64,7 @@ public partial class PluginManager
         }
         
         BtnAdd.Visibility = Visibility.Hidden;
+        DeselectAll();
         HideEditor();
         _plugins.Clear();
     }
