@@ -85,7 +85,7 @@ public static class DeviceTemplate
 		{attribute 'pack_mode' := '0'}
 		TYPE ST_$NAME$_Control:
 		STRUCT
-		//Custom device control structure (fieldbus outputs)...
+			//Custom device control structure (from fieldbus)...
 		END_STRUCT
 		END_TYPE
 		""";
@@ -95,7 +95,7 @@ public static class DeviceTemplate
 		{attribute 'pack_mode' := '0'}
 		TYPE ST_$NAME$_Status:
 		STRUCT
-		//Custom device status structure (fieldbus inputs)...
+			//Custom device status structure (to fieldbus)...
 		END_STRUCT
 		END_TYPE
 		""";
@@ -105,7 +105,9 @@ public static class DeviceTemplate
 		{attribute 'pack_mode' := '0'}
 		TYPE ST_$NAME$_Config:
 		STRUCT
-		//Custom device config structure (parameters and settings)...
+			bForceMode			: BOOL; //Ignore process data from fieldbus.
+			bSwapProcessData	: BOOL; //Reverse process data byte order from/to fieldbus.
+			//Custom device config structure (parameters and settings)...
 		END_STRUCT
 		END_TYPE
 		""";
@@ -113,7 +115,7 @@ public static class DeviceTemplate
 	private const string DECLARATION = 
 		"""
 		(*
-			Extends a link from the OC_Core library for Unity communication.
+			For Unity communication, extend a link from the OC_Core library.
 			A link contains control and status variables:
 			Control		TwinCAT => Unity
 			Status		TwinCAT <= Unity
@@ -138,18 +140,19 @@ public static class DeviceTemplate
 		VAR_INPUT
 			pControl 			: ANY; //Pocess data from fieldbus. Size must be >= stControl.
 			pStatus 			: ANY; //Pocess data to fieldbus. Size must be >= stStatus.
-			stControl 			: ST_$NAME$_Control; //Control structure. Is read from the fieldbus. Can be forced when bForceMode is TRUE.
+			stControl 			: ST_$NAME$_Control; //Control structure. Is read from the fieldbus.
 			stConfig 			: ST_$NAME$_Config; //Config structure. Contains parameters of the device.
-			bForceMode			: BOOL; //Ignore process data from field bus.
 		END_VAR
 		VAR_OUTPUT
 			stStatus 			: ST_$NAME$_Status; //Status structure. Is written to the fieldbus.
 		END_VAR
 		VAR
-			//Is used in conjunction with attribute 'reflection' to indicate the function block's name at runtime e.g. when a message is logged.
+			//Is used in conjunction with attribute 'reflection' to indicate the function block's name at runtime. 
 			{attribute 'instance-path'}
 		    {attribute 'noinit'}
 		    sPath 				: STRING;
+		    
+		    //Custom device variables...
 		END_VAR
 		""";
 
@@ -204,10 +207,10 @@ public static class DeviceTemplate
 	
 	private const string GET_CONTROL_DATA_IMPLEMENTATION =
 		"""
-		IF pControl.pValue <= 0 OR bForceMode THEN RETURN; END_IF
+		IF pControl.pValue <= 0 OR stConfig.bForceMode THEN RETURN; END_IF
 		
 		//This is just an example how to copy the fieldbus data to the stControl structure via memcpy
-		F_Memcpy(ADR(stControl), pControl.pValue, SIZEOF(stControl), FALSE);
+		F_Memcpy(ADR(stControl), pControl.pValue, SIZEOF(stControl), stConfig.bSwapProcessData);
 		""";
 	
 	private const string SET_STATUS_DATA_DECLARATION =
@@ -221,6 +224,6 @@ public static class DeviceTemplate
 		IF pStatus.pValue <= 0 THEN RETURN; END_IF
 		
 		//This is just an example how to copy the stStatus structure to the fieldbus data via memcpy
-		F_Memcpy(pStatus.pValue, ADR(stStatus), SIZEOF(stStatus), FALSE);
+		F_Memcpy(pStatus.pValue, ADR(stStatus), SIZEOF(stStatus), stConfig.bSwapProcessData);
 		""";
 }
