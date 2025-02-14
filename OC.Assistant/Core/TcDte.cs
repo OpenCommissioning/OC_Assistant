@@ -162,23 +162,41 @@ public static class TcDte
 
         while (enumMoniker.Next(1, moniker, fetched) == 0)
         {
-            DTE? dte;
+            DTE? dte = null;
             
             try
             {
                 CreateBindCtx(0, out var bindCtx);
                 moniker[0].GetDisplayName(bindCtx, null, out var displayName);
+                
                 if (!displayName.StartsWith("!TcXaeShell.DTE") && !displayName.StartsWith("!VisualStudio.DTE")) continue;
                 if (runningObjectTable.GetObject(moniker[0], out var obj) != 0) continue;
+                
                 dte = (DTE) obj;
                 var fullName = dte.GetSolutionFullName();
-                if (string.IsNullOrEmpty(fullName)) continue;
-                if (!string.IsNullOrEmpty(solutionFullName) && 
-                    !string.Equals(solutionFullName, fullName, StringComparison.OrdinalIgnoreCase)) continue;
-                if (dte.GetTcProject() is null) continue;
+                
+                if (string.IsNullOrEmpty(fullName))
+                {
+                    dte.Finalize();
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(solutionFullName) &&
+                    !string.Equals(solutionFullName, fullName, StringComparison.OrdinalIgnoreCase))
+                {
+                    dte.Finalize();
+                    continue;
+                }
+
+                if (dte.GetTcProject() is null)
+                {
+                    dte.Finalize();
+                    continue;
+                }
             }
             catch (Exception e)
             {
+                dte?.Finalize();
                 Logger.LogError(typeof(TcDte), e.Message);
                 continue;
             }

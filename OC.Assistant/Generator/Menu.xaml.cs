@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Xml.Linq;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
@@ -45,6 +46,28 @@ public partial class Menu
         {
             Generators.Task.CreateVariables(dte);
             Logger.LogInfo(this, "Project update finished.");
+        });
+    }
+    
+    private void CreateTemplateOnClick(object sender, RoutedEventArgs e)
+    {
+        var input = new TextBox { Height = 24, Text = "DeviceName" };
+
+        if (Theme.MessageBox
+                .Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
+            MessageBoxResult.OK)
+        {
+            return;
+        }
+
+        var name = input.Text.TcPlcCompatibleString();
+        
+        DteSingleThread.Run(dte =>
+        {
+            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            if (plcProjectItem.GetOrCreateChild("_generated_templates_", 
+                    TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder) return;
+            Generators.DeviceTemplate.Create(folder, name);
         });
     }
     
