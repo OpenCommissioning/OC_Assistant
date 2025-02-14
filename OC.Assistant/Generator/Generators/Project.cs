@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using OC.Assistant.Core.TwinCat;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
@@ -11,7 +11,7 @@ namespace OC.Assistant.Generator.Generators;
 /// Generator for the plc project.
 /// </summary>
 [SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
-internal static class Project
+internal static partial class Project
 {
     /// <summary>
     /// Updates the given plc project.
@@ -72,13 +72,9 @@ internal static class Project
         var pou = parent?.FindChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         pou ??= parent?.GetOrCreateChild("MAIN", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         
-        //Get implementation and declaration
-        if (pou is not ITcPlcDeclaration decl) return;
-        if (pou is not ITcPlcImplementation impl) return;
-        
-        //Set declaration
+        //Declaration
         const string declaration = "\tbInitRun : BOOL := TRUE;\n\tfbSystem : FB_System;\n";
-        SetDeclaration(decl, instances
+        pou.UpdateDeclaration(instances
             .Aggregate(declaration, (current, next) => $"{current}{next.DeclarationText}"));
         
         //Create or set InitRun method
@@ -95,29 +91,24 @@ internal static class Project
         implementation = instances
             .Aggregate(implementation, (current, next) => $"{current}{next.ImplementationText}");
         
-        //Set implementation
-        SetImplementation(impl, implementation);
+        //Implementation
+        pou.UpdateImplementation(implementation);
     }
     
     private static void CreateFb(ITcSmTreeItem? parent, string? name, IReadOnlyCollection<PouInstance> instances)
     {
         var pou = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCPOUFB);
         
-        //Get implementation and declaration
-        if (pou is not ITcPlcDeclaration decl) return;
-        if (pou is not ITcPlcImplementation impl) return;
-        
-        //Set declaration
-        SetDeclaration(decl, instances
+        //Declaration
+        pou.UpdateDeclaration(instances
             .Aggregate("", (current, next) => $"{current}{next.DeclarationText}"));
         
         //Create or set InitRun method
         CreateInitRun(pou, instances);
 
-        //Set implementation
-        var cycleText = instances
-            .Aggregate("\tInitRun();\n", (current, next) => $"{current}{next.ImplementationText}");
-        SetImplementation(impl, cycleText);
+        //Implementation
+        pou.UpdateImplementation(instances
+            .Aggregate("\tInitRun();\n", (current, next) => $"{current}{next.ImplementationText}"));
     }
     
     private static void CreateInitRun(ITcSmTreeItem? parent, IReadOnlyCollection<PouInstance> instances, bool isProgram = false)
@@ -126,73 +117,70 @@ internal static class Project
         var method = parent?.GetOrCreateChild("InitRun", TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD);
         
         //Set declaration
-        if (!isProgram && method is ITcPlcDeclaration decl)
+        if (!isProgram)
         {
-            SetDeclaration(decl, "\tbInitRun : BOOL := TRUE;\n", isMethod: true);
+            method?.UpdateDeclaration("\tbInitRun : BOOL := TRUE;\n");
         }
         
         //Set implementation
-        if (method is not ITcPlcImplementation impl) return;
         var text = instances.Aggregate("\tIF NOT bInitRun THEN RETURN; END_IF\n\tbInitRun := FALSE;\n", 
             (current, next) => $"{current}{next.InitRunText}");
-        SetImplementation(impl, text);
+        method.UpdateImplementation(text);
+    }
+
+    private static void UpdateDeclaration(this ITcSmTreeItem? item, string? text)
+    {
+        if (item is not ITcPlcDeclaration declaration) return;
+        ReplaceGeneratedText(declaration, text, item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD);
     }
     
-    private static void SetImplementation(ITcPlcImplementation? impl, string? text)
+    private static void UpdateImplementation(this ITcSmTreeItem? item, string? text)
+    {
+        if (item is not ITcPlcImplementation implementation) return;
+        ReplaceGeneratedText(implementation, text);
+    }
+    
+    private static void ReplaceGeneratedText(ITcPlcImplementation? impl, string? text)
     {
         if (impl is null || string.IsNullOrEmpty(text)) return;
         
-        var existing = impl.ImplementationText;
-        var customText = Cleanup(existing);
-        var generatedText = "{region generated code}\n";
-        generatedText += text;
-        generatedText += "{endregion}\n";
-        generatedText += customText;
-        
-        if (IsEqual(generatedText, existing))
-        {
-            return;
-        }
-        
-        impl.ImplementationText = generatedText;
+        var existingText = impl.ImplementationText;
+        var generatedText = $"{{region generated code}}\n{text}{{endregion}}";
+
+        if (GetGeneratedText(existingText) == generatedText) return;
+        impl.ImplementationText = $"{generatedText}\n{RemoveGeneratedText(existingText)}";
     }
     
-    private static void SetDeclaration(ITcPlcDeclaration? decl, string? text, bool isMethod = false)
+    private static void ReplaceGeneratedText(ITcPlcDeclaration? decl, string? text, bool isMethod = false)
     {
         if (decl is null || string.IsNullOrEmpty(text)) return;
         
-        var existing = decl.DeclarationText;
-        var customText = Cleanup(existing);
-        var generatedText = "\n{region generated code}\n";
-        generatedText += isMethod ? "VAR_INST\n" : "VAR_INPUT\n";
-        generatedText += text;
-        generatedText += "END_VAR\n{endregion}";
-        generatedText = customText + generatedText;
+        var existingText = decl.DeclarationText;
+        var varType = isMethod ? "VAR_INST" : "VAR_INPUT";
+        var generatedText = $"{{region generated code}}\n{varType}\n{text}END_VAR\n{{endregion}}";
         
-        if (IsEqual(generatedText, existing))
-        {
-            return;
-        }
-        
-        decl.DeclarationText = generatedText;
+        if (GetGeneratedText(existingText) == generatedText) return;
+        decl.DeclarationText = $"{RemoveGeneratedText(existingText)}\n{generatedText}";
     }
     
-    private static string Cleanup(string input)
-    {
-        var result = Regex
-            .Replace(input, @"\s*\{region generated code\}.*?\{endregion\}\s*", "\n", RegexOptions.Singleline)
-            .Replace("VAR_INPUT\nEND_VAR\n", "")
-            .Replace("VAR_OUTPUT\nEND_VAR\n", "")
-            .Replace("VAR\nEND_VAR\n", "");
-        return result == "\n" ? "" : result;
-    }
+    [GeneratedRegex(@"\s*\{region generated code\}.*?\{endregion\}\s*", RegexOptions.Singleline)]
+    private static partial Regex PatternRemoveGenerated();
+    
+    [GeneratedRegex(@"{region generated code\}.*?\{endregion\}", RegexOptions.Singleline)]
+    private static partial Regex PatternGetGenerated();
 
-    private static bool IsEqual(string str1, string str2)
+    private static string GetGeneratedText(string input)
     {
-        return string.Equals(
-            str1.Replace("\r", ""), 
-            str2.Replace("\r", ""), 
-            StringComparison.OrdinalIgnoreCase
-        );
+        return PatternGetGenerated().Match(input).Value;
+    }
+    
+    private static string RemoveGeneratedText(string input)
+    {
+        var result = PatternRemoveGenerated().Replace(input, "\n")
+            //also remove empty variable declarations
+            .Replace("\nVAR_INPUT\nEND_VAR", "")
+            .Replace("\nVAR_OUTPUT\nEND_VAR", "")
+            .Replace("\nVAR\nEND_VAR", "");
+        return result == "\n" ? "" : result;
     }
 }

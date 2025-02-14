@@ -7,35 +7,13 @@ public class XmlFile
 {
     private const string DEFAULT_FILE_NAME = "OC.Assistant.xml";
     private static readonly Lazy<XmlFile> LazyInstance = new(() => new XmlFile());
-    private static string? _path;
     private XDocument? _doc;
-
-    /// <summary>
-    /// Gets or sets the path of the xml file.
-    /// Must be set before using the <see cref="Instance"/>.
-    /// Can also be set by setting the <see cref="Directory"/> property.
-    /// </summary>
-    public static string? Path
-    {
-        get => _path;
-        set
-        {
-            if (LazyInstance.IsValueCreated) return;
-            _path = value;
-        }
-    }
     
     /// <summary>
-    /// Sets the directory of the xml file.<br/>
-    /// The <see cref="Path"/> is set to the directory combined with the <see cref="DEFAULT_FILE_NAME"/>.
+    /// The private constructor.
     /// </summary>
-    public static string? Directory
+    private XmlFile()
     {
-        set
-        {
-            if (LazyInstance.IsValueCreated || value is null) return;
-            _path = System.IO.Path.Combine(value, DEFAULT_FILE_NAME);
-        }
     }
     
     /// <summary>
@@ -44,25 +22,35 @@ public class XmlFile
     public static XmlFile Instance => LazyInstance.Value;
 
     /// <summary>
+    /// Gets the path of the xml file. Can be null of not connected.
+    /// </summary>
+    public string? Path { get; private set; }
+
+    /// <summary>
+    /// Sets the directory of the xml file.<br/>
+    /// The <see cref="Path"/> is set to the directory combined with the <see cref="DEFAULT_FILE_NAME"/>.
+    /// </summary>
+    public void SetDirectory(string value)
+    {
+        Path = System.IO.Path.Combine(value, DEFAULT_FILE_NAME);
+        Reload();
+    }
+
+    /// <summary>
     /// Is raised when the xml file has been reloaded.
     /// </summary>
     public event Action? Reloaded;
     
     /// <summary>
-    /// The private constructor. Creates a new xml file if not exists.
+    /// Reloads the xml file.
     /// </summary>
-    private XmlFile()
+    public void Reload()
     {
-        if (Path is null)
-        {
-            throw new NullReferenceException($"{nameof(Path)} must be set before accessing the singleton instance.");
-        }
-        
-        if (LazyInstance.IsValueCreated) return;
-        
+        if (Path is null) return;
         if (File.Exists(Path))
         {
             _doc = XDocument.Load(Path);
+            Reloaded?.Invoke();
             return;
         }
         
@@ -78,15 +66,6 @@ public class XmlFile
                     new XElement(XmlTags.MAIN))));
         
         _doc.Save(Path);
-    }
-    
-    /// <summary>
-    /// Reloads the xml file.
-    /// </summary>
-    public void Reload()
-    {
-        if (Path is null) return;
-        _doc = XDocument.Load(Path);
         Reloaded?.Invoke();
     }
 

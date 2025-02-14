@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using TCatSysManagerLib;
 
-namespace OC.Assistant.Core.TwinCat;
+namespace OC.Assistant.Core;
 
 [SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 public static class TcSmTreeItemExtension

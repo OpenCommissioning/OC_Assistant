@@ -28,9 +28,4 @@ public static class AppData
     /// Gets the path of the log file.
     /// </summary>
     public static string LogFilePath => $"{Path}\\log.txt";
-
-    /// <summary>
-    /// Gets the path for the file to store temporary project information.
-    /// </summary>
-    public static string PreselectedProject => System.IO.Path.Combine(Path, "projectPath.tmp");
 }

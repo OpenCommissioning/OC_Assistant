@@ -16,7 +16,7 @@
                 Please
             </Label>
             <Menu Height="Auto" Margin="0 2 -2 0">
-                <controls:DteSelector Style="{DynamicResource LinkMenu}" Header="connect" Selected="DteOnSelected"></controls:DteSelector>
+                <controls:DteSelector Style="{DynamicResource LinkMenu}" Header="connect"></controls:DteSelector>
             </Menu>
             <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
                 ,

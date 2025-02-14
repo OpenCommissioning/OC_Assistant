@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 using OC.Assistant.Core;
-using OC.Assistant.Core.TwinCat;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 using TCatSysManagerLib;

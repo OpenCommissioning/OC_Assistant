@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Xml.Linq;
 using EnvDTE;
-using OC.Assistant.Core.TwinCat;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 

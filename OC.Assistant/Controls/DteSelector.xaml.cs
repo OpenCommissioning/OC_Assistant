@@ -1,6 +1,5 @@
 ﻿using System.Windows.Controls;
-using EnvDTE;
-using OC.Assistant.Core.TwinCat;
+using OC.Assistant.Core;
 
 namespace OC.Assistant.Controls;
 
@@ -9,8 +8,6 @@ namespace OC.Assistant.Controls;
 /// </summary>
 public partial class DteSelector
 {
-    public event Action<DTE>? Selected;
-
     public DteSelector()
     {
         InitializeComponent();
@@ -25,15 +22,16 @@ public partial class DteSelector
         {
             var subMenuItem = new MenuItem
             {
-                Header = instance.GetSolutionFullName(),
-                Tag = instance
+                Header = instance.GetSolutionFullName()
             };
+            
+            instance.Finalize(false);
             
             subMenuItem.Click += (obj, _) =>
             {
-                if (((MenuItem)obj).Tag is DTE dte)
+                if (((MenuItem)obj).Header is string path)
                 {
-                    Selected?.Invoke(dte);
+                    ProjectState.Solution.Connect(path);
                 }
             };
             
@@ -44,5 +42,8 @@ public partial class DteSelector
         {
             Items.Add(new MenuItem {Header = "no open TwinCAT solution", IsEnabled = false});
         }
+        
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
     }
 }

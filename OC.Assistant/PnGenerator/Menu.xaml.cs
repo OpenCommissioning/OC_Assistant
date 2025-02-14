@@ -18,10 +18,10 @@ public partial class Menu
     public Menu()
     {
         InitializeComponent();
-        _control.IsEnabledChanged += (_, _) => IsEnabled = _control.IsEnabled;
+        ProjectState.Events.Locked += e => IsEnabled = !e;
         Task.Run(IsScannerInstalled);
     }
-        
+
     private void ScanOnClick(object sender, RoutedEventArgs e)
     {
         var settingsView = new SettingsView();
