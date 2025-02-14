@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.9.0"></a>
+## [1.9.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.9.0) (2025-02-14)
+
+### Features
+
+* new feature to create OC TwinCAT devices (standardized function block and structs) ([29cdf06](https://www.github.com/OpenCommissioning/OC_Assistant/commit/29cdf067bf3f40d4f49e49c405c8073598879d61))
+
+### Bug Fixes
+
+* exception handling for DteSingleThread ([387dcb5](https://www.github.com/OpenCommissioning/OC_Assistant/commit/387dcb502b90da918c4f819015358e661c70eef6))
+* improved algorithm for generating the TwinCAT project ([123cc30](https://www.github.com/OpenCommissioning/OC_Assistant/commit/123cc30f8ff255123eac58a1d8fc85a0b1700aa9))
+* rename the target folder for device templates ([5210281](https://www.github.com/OpenCommissioning/OC_Assistant/commit/521028138027d211d2997a2509e7c716287d642c))
+* selected plugin highlighting when recreating plugins via menu ([d5f252f](https://www.github.com/OpenCommissioning/OC_Assistant/commit/d5f252fdfa3feb853178d909275bcd92d215225f))
+* the Assistant won't restart anymore when selecting a new project. ([5b86b82](https://www.github.com/OpenCommissioning/OC_Assistant/commit/5b86b828b1789c1905f210b46cd22c7c268398cb))
+* visibility of the plugin editor scrollbar when recreating plugins via project menu. ([7f5f636](https://www.github.com/OpenCommissioning/OC_Assistant/commit/7f5f636c3ecfe39b824ecc69590042ebdb62c6ab))
+
 <a name="1.8.3"></a>
 ## [1.8.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.8.3) (2025-02-10)
 
