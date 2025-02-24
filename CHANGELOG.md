@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.9.1"></a>
+## [1.9.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.9.1) (2025-02-24)
+
+### Bug Fixes
+
+* upgrade SDK and Theme package references ([ebc0316](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ebc0316629161ae9de1e292a83b06ae3eda26f61))
+
 <a name="1.9.0"></a>
 ## [1.9.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.9.0) (2025-02-14)
 
