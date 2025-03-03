@@ -79,6 +79,7 @@ internal partial class PluginEditor
         
     private void ShowParameter()
     {
+        IndicateChanges = false;
         if (_plugin?.IsValid != true)
         {
             if (_plugin?.InitType(TypeDropdown.SelectedType) != true) return;
@@ -87,8 +88,15 @@ internal partial class PluginEditor
         ParameterPanel.Children.Clear();
         foreach (var parameter in _plugin.PluginController?.Parameter.ToList() ?? [])
         {
-            ParameterPanel.Children.Add(new PluginParameter(parameter));
+            var param = new PluginParameter(parameter);
+            param.Changed += () => IndicateChanges = true;
+            ParameterPanel.Children.Add(param);
         }
+    }
+    
+    private bool IndicateChanges
+    {
+        set => ApplyButton.Content = value ? "Apply*" : "Apply";
     }
 
     private void ApplyButton_Click(object sender, RoutedEventArgs e)
@@ -119,6 +127,7 @@ internal partial class PluginEditor
         
         Logger.LogInfo(this, $"'{_plugin.Name}' saved");
         OnConfirm?.Invoke(_plugin);
+        IndicateChanges = false;
     }
     
     private void CloseButton_Click(object sender, RoutedEventArgs e)

@@ -89,4 +89,17 @@ internal partial class PluginParameter : IParameter
     {
         Value = false;
     }
+
+    private void ValueTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (!ValueTextBox.IsKeyboardFocused) return;
+        Changed?.Invoke();
+    }
+
+    private void ValueCheckBox_OnClick(object sender, RoutedEventArgs e)
+    {
+        Changed?.Invoke();
+    }
+
+    public event Action? Changed;
 }
