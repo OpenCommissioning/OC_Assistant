@@ -8,6 +8,14 @@ namespace OC.Assistant.Controls;
 /// </summary>
 public partial class DteSelector
 {
+    private readonly struct Solution
+    {
+        public string? SolutionFullName { get; init; }
+        public string? ProjectFolder { get; init; }
+    }
+    
+    private readonly List<Solution> _solutions = [];
+    
     public DteSelector()
     {
         InitializeComponent();
@@ -17,24 +25,41 @@ public partial class DteSelector
     private void OnSubmenuOpened(object sender, EventArgs e)
     {
         Items.Clear();
+        _solutions.Clear();
         
-        foreach (var instance in TcDte.GetInstances())
+        DteSingleThread.Run(() =>
+        {
+            foreach (var instance in TcDte.GetInstances())
+            {
+                _solutions.Add(new Solution
+                {
+                    SolutionFullName = instance.Solution?.FullName,
+                    ProjectFolder = instance.GetProjectFolder()
+                });
+                
+                instance.Finalize(false);
+            }
+        
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }, true);
+        
+        
+        foreach (var solution in _solutions)
         {
             var subMenuItem = new MenuItem
             {
-                Header = instance.GetSolutionFullName()
+                Header = solution.SolutionFullName,
+                Tag = solution
             };
-            
-            instance.Finalize(false);
             
             subMenuItem.Click += (obj, _) =>
             {
-                if (((MenuItem)obj).Header is string path)
-                {
-                    ProjectState.Solution.Connect(path);
-                }
+                if (((MenuItem) obj).Tag is not Solution tag) return;
+                if (string.IsNullOrEmpty(tag.SolutionFullName) || string.IsNullOrEmpty(tag.ProjectFolder)) return;
+                ProjectState.Solution.Connect(tag.SolutionFullName, tag.ProjectFolder);
             };
-            
+                
             Items.Add(subMenuItem);
         }
 
@@ -42,8 +67,5 @@ public partial class DteSelector
         {
             Items.Add(new MenuItem {Header = "no open TwinCAT solution", IsEnabled = false});
         }
-        
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
     }
 }
