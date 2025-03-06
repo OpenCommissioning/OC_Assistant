@@ -26,7 +26,6 @@ public static class DteSingleThread
                 dte = TcDte.GetInstance(ProjectState.Solution.FullName);
                 if (dte is null) return;
                 action(dte);
-                dte.Finalize();
             }
             catch (Exception e)
             {
