@@ -166,7 +166,7 @@ This is an example configuration file containing a Plugin configuration and _Dev
       <Group Name="Devices">
         <Group Name="Cylinders">
             
-          <!-- This is a device with cyclic assignment -->
+          <!-- This is a device with direct assignment -->
           <Device Name="Cylinder_1" Type="FB_Cylinder" >
               <Label>++ST001+FG001-CYL001</Label>
               <Control Name="bRetract" Assignment="PLC1.Q0.0" />
@@ -184,7 +184,8 @@ This is an example configuration file containing a Plugin configuration and _Dev
           <!-- This is a device with address assignment -->
           <Device Name="Drive_Position" Type="FB_Drive" >
               <Label>++ST001+FG001-DRV001</Label>
-              <Address Control="PLC1.Q2" Status="PLC1.Q2" />
+              <Address Name="pControl" Assignment="PLC1.Q2" />
+              <Address Name="pStatus" Assignment="PLC1.I2" />
           </Device>
             
           <Device Name="Drive_Simple" Type="FB_Drive" />

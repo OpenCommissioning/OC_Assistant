@@ -138,8 +138,8 @@ public static class DeviceTemplate
 		{attribute 'reflection'}
 		FUNCTION_BLOCK FB_$NAME$ EXTENDS OC_Core.FB_LinkDevice
 		VAR_INPUT
-			pControl 			: ANY; //Pocess data from fieldbus. Size must be >= stControl.
-			pStatus 			: ANY; //Pocess data to fieldbus. Size must be >= stStatus.
+			pControl 			: PVOID; //Pocess data from fieldbus. Size must be >= stControl.
+			pStatus 			: PVOID; //Pocess data to fieldbus. Size must be >= stStatus.
 			stControl 			: ST_$NAME$_Control; //Control structure. Is read from the fieldbus.
 			stConfig 			: ST_$NAME$_Config; //Config structure. Contains parameters of the device.
 		END_VAR
@@ -179,7 +179,7 @@ public static class DeviceTemplate
 		IF NOT bInitRun THEN RETURN; END_IF
 		bInitRun := FALSE;
 
-		IF pControl.pValue = 0 OR pStatus.pValue = 0 THEN
+		IF pControl = 0 OR pStatus = 0 THEN
 			ADSLOGSTR(ADSLOG_MSGTYPE_WARN, CONCAT(sPath, ': %s'), 'Plc address not set.');
 		END_IF
 		
@@ -207,10 +207,10 @@ public static class DeviceTemplate
 	
 	private const string GET_CONTROL_DATA_IMPLEMENTATION =
 		"""
-		IF pControl.pValue <= 0 OR stConfig.bForceMode THEN RETURN; END_IF
+		IF pControl <= 0 OR stConfig.bForceMode THEN RETURN; END_IF
 		
 		//This is just an example how to copy the fieldbus data to the stControl structure via memcpy
-		F_Memcpy(ADR(stControl), pControl.pValue, SIZEOF(stControl), stConfig.bSwapProcessData);
+		F_Memcpy(ADR(stControl), pControl, SIZEOF(stControl), stConfig.bSwapProcessData);
 		""";
 	
 	private const string SET_STATUS_DATA_DECLARATION =
@@ -221,9 +221,9 @@ public static class DeviceTemplate
 	
 	private const string SET_STATUS_DATA_IMPLEMENTATION =
 		"""
-		IF pStatus.pValue <= 0 THEN RETURN; END_IF
+		IF pStatus <= 0 THEN RETURN; END_IF
 		
 		//This is just an example how to copy the stStatus structure to the fieldbus data via memcpy
-		F_Memcpy(pStatus.pValue, ADR(stStatus), SIZEOF(stStatus), stConfig.bSwapProcessData);
+		F_Memcpy(pStatus, ADR(stStatus), SIZEOF(stStatus), stConfig.bSwapProcessData);
 		""";
 }
