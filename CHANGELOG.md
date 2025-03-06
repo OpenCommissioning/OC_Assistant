@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.10.0"></a>
+## [1.10.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.10.0) (2025-03-06)
+
+### Features
+
+* add support to set the initial solution path via command-line argument ([bf030cc](https://www.github.com/OpenCommissioning/OC_Assistant/commit/bf030cc2ee6a7cc818008aec0168c9ac0c8ed13b))
+
+### Bug Fixes
+
+* indicate changes on the plugins apply button ([c58f721](https://www.github.com/OpenCommissioning/OC_Assistant/commit/c58f7213d08d2ab2e464a3827c965f6b4173c496))
+* update the device FB generator to match new standard ([5eed6ff](https://www.github.com/OpenCommissioning/OC_Assistant/commit/5eed6ff9e1d64238e8db5957dfd447dfac07f11d))
+
 <a name="1.9.1"></a>
 ## [1.9.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.9.1) (2025-02-24)
 
