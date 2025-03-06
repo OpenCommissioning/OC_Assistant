@@ -111,17 +111,19 @@ internal partial class FileMenu
     {
         var task = Task.Run(() =>
         {
-            const string templateName = "OC.TcTemplate";
-            var rootFolder = Path.GetDirectoryName(slnFilePath);
-            var projectName = Path.GetFileNameWithoutExtension(slnFilePath);
-
             try
             {
+                BusyState.Set(this);
+                
+                const string templateName = "OC.TcTemplate";
+                var rootFolder = Path.GetDirectoryName(slnFilePath);
+                var projectName = Path.GetFileNameWithoutExtension(slnFilePath);
+                
                 if (rootFolder is null)
                 {
                     throw new ArgumentNullException(rootFolder);
                 }
-            
+
                 //Get zip file from resource
                 var assembly = typeof(FileMenu).Assembly;
                 var resourceName = $"{assembly.GetName().Name}.Resources.{templateName}.zip";
@@ -130,28 +132,34 @@ internal partial class FileMenu
                 {
                     throw new ArgumentNullException(resourceName);
                 }
-            
+
                 //Extract resource to folder
                 ZipFile.ExtractToDirectory(resourceStream, rootFolder);
 
                 //Rename solution file
                 File.Move($"{rootFolder}\\{templateName}.sln", slnFilePath);
-                
+
                 //Modify solution file
                 var slnFileText = File.ReadAllText(slnFilePath);
                 File.WriteAllText(slnFilePath, slnFileText.Replace(templateName, projectName));
-                
+
                 //Rename project folder
                 Directory.Move($"{rootFolder}\\{templateName}", $"{rootFolder}\\{projectName}");
-                
+
                 //Rename project file
-                File.Move($@"{rootFolder}\{projectName}\{templateName}.tsproj", $@"{rootFolder}\{projectName}\{projectName}.tsproj");
+                File.Move($@"{rootFolder}\{projectName}\{templateName}.tsproj",
+                    $@"{rootFolder}\{projectName}\{projectName}.tsproj");
+                
                 return Task.CompletedTask;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.LogError(this, e.Message);
                 return Task.FromException(e);
+            }
+            finally
+            {
+                BusyState.Reset(this);
             }
         });
         

@@ -8,22 +8,6 @@
              d:DesignHeight="450" d:DesignWidth="800" x:ClassModifier="internal">
     <Border Background="{DynamicResource White6Brush}" CornerRadius="{DynamicResource ControlCornerRadius}">
         <Grid>
-            <ScrollViewer Margin="0,34,0,54">
-                <Grid x:Name="EditorWindow">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="140"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <TextBox x:Name="PluginName" Grid.Row="0" VerticalAlignment="Top" Margin="20,40,20,0" BorderThickness="0">MyPlugin</TextBox>
-                    <plugins:PluginDropdown x:Name="TypeDropdown" Grid.Row="0" 
-                                       VerticalAlignment="Top" 
-                                       Margin="20,70,20,0" 
-                                       HorizontalAlignment="Stretch"
-                                       TypeSelected="TypeSelectorOnSelected">
-                    </plugins:PluginDropdown>
-                    <DockPanel Grid.Row="1" x:Name="ParameterPanel" Margin="20,0,20,0"></DockPanel>
-                </Grid>
-            </ScrollViewer>
             <Grid Height="34" VerticalAlignment="Top">
                 <Label Margin="6,0,0,0" VerticalAlignment="Stretch" VerticalContentAlignment="Center">Properties</Label>
                 <Button Width="42" ToolTip="Hide Properties"
@@ -32,13 +16,29 @@
                     <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="10">&#xE921;</TextBlock>
                 </Button>
             </Grid>
+            <Grid Margin="0,34,0,54" x:Name="EditorWindow">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="100"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBox x:Name="PluginName" Grid.Row="0" VerticalAlignment="Top" Margin="20,20,20,0" BorderThickness="0">MyPlugin</TextBox>
+                <plugins:PluginDropdown x:Name="TypeDropdown" Grid.Row="0" 
+                                   VerticalAlignment="Top" 
+                                   Margin="20,50,20,0" 
+                                   HorizontalAlignment="Stretch"
+                                   TypeSelected="TypeSelectorOnSelected">
+                </plugins:PluginDropdown>
+                <ScrollViewer Grid.Row="1">
+                    <DockPanel x:Name="ParameterPanel" Margin="20,0,20,0"></DockPanel>
+                </ScrollViewer>
+            </Grid>
             <Grid Height="54" VerticalAlignment="Bottom">
                 <Button Height="34" ToolTip="Save changes"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         Click="ApplyButton_Click"
                         x:Name="ApplyButton"
                         Background="{DynamicResource White5Brush}"
-                        Margin="20,0,20,20">
+                        Margin="20,10,20,10">
                     Apply
                 </Button>
             </Grid>

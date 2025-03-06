@@ -63,7 +63,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
                 Logger.LogInfo(this, "TwinCAT ADS server ok");
 
                 if (Environment.GetCommandLineArgs()
-                        .FirstOrDefault(x => x.EndsWith(".sln")) is not {} solution) return;
+                        .FirstOrDefault(arg => arg.EndsWith(".sln")) is not {} solution) return;
                 dte = TcDte.GetInstance(solution);
                 if (dte?.GetProjectFolder() is not {} projectFolder) return;
                 Connect(solution, projectFolder);
@@ -90,12 +90,12 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
             _cancellationTokenSource = new CancellationTokenSource();
             _amsNetId = GetCurrentNetId();
             ApiLocal.Interface.NetId = _amsNetId;
-            StartPolling(UpdateNetId, 1000);
-            SetSolutionPath(solutionFullName);
-            StartPolling(UpdateAdsState, 10);
             XmlFile.Instance.SetDirectory(projectFolder);
+            StartPolling(UpdateNetId, 1000);
+            StartPolling(UpdateAdsState, 10);
+            SetSolutionPath(solutionFullName);
             Connected?.Invoke(solutionFullName);
-            Logger.LogInfo(this, $"{solutionFullName} connected");
+            Logger.LogInfo(this, $"{FullName} connected");
         });
     }
     
@@ -103,7 +103,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
     {
         Dispatcher.Invoke(() =>
         {
-            Logger.LogWarning(this, "TwinCAT Project closed");
+            Logger.LogWarning(this, $"{FullName} disconnected");
             FullName = null;
             Disconnected?.Invoke();
             Locked?.Invoke(true);
