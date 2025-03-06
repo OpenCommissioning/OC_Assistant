@@ -25,9 +25,15 @@ internal class PouInstance
         
         _assignments = element
             .Elements()
-            .Where(x => x.Name.LocalName is "Control" or "In" or "Address")
+            .Where(x => x.Name.LocalName is "Control" or "In")
             .Aggregate("", (current, next) => 
                 current + $"\n\t\t{next.Attribute("Name")?.Value} := GVL_{next.Attribute("Assignment")?.Value},");
+        
+        _assignments = element
+            .Elements()
+            .Where(x => x.Name.LocalName is "Address")
+            .Aggregate(_assignments, (current, next) => 
+                current + $"\n\t\t{next.Attribute("Name")?.Value} := ADR(GVL_{next.Attribute("Assignment")?.Value}),");
 
         _assignments = element
             .Elements()

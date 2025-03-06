@@ -1,9 +1,11 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using System.Windows;
+using EnvDTE;
 using Microsoft.Win32;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
+using Thread = System.Threading.Thread;
 
 namespace OC.Assistant.Controls;
 
@@ -34,124 +36,133 @@ internal partial class FileMenu
         Application.Current.Shutdown();
     }
     
-    private async void OpenSlnOnClick(object sender, RoutedEventArgs e)
+    private void OpenSlnOnClick(object sender, RoutedEventArgs e)
     {
-        try
+        var openFileDialog = new OpenFileDialog
         {
-            BusyState.Set(this);
-
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "TwinCAT Solution (*.sln)|*.sln",
-                RestoreDirectory = true
-            };
+            Filter = "TwinCAT Solution (*.sln)|*.sln",
+            RestoreDirectory = true
+        };
         
-            if (openFileDialog.ShowDialog() == true)
-            {
-                await OpenDte(openFileDialog.FileName);
-            }
-        
-            BusyState.Reset(this);
-        }
-        catch (Exception exception)
+        if (openFileDialog.ShowDialog() == true)
         {
-            Logger.LogError(this, exception.Message);
+            OpenDte(openFileDialog.FileName);
         }
     }
     
-    private async void CreateSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
+    private void CreateSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
     {
-        try
+        var saveFileDialog = new SaveFileDialog
         {
-            BusyState.Set(this);
-
-            var saveFileDialog = new SaveFileDialog
-            {
-                Filter = "TwinCAT Solution (*.sln)|*.sln",
-                RestoreDirectory = true
-            };
+            Filter = "TwinCAT Solution (*.sln)|*.sln",
+            RestoreDirectory = true
+        };
         
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                await CreateSolution(saveFileDialog.FileName);
-            }
-
-            BusyState.Reset(this);
-        }
-        catch (Exception exception)
+        if (saveFileDialog.ShowDialog() == true)
         {
-            Logger.LogError(this, exception.Message);
+            CreateSolution(saveFileDialog.FileName);
         }
     }
 
-    private async Task OpenDte(string path)
+    private void OpenDte(string path, Task? previousTask = null)
     {
-        await Task.Run(async () =>
+        string? projectFolder = null;
+        
+        var thread = DteSingleThread.Run(() =>
         {
+            previousTask?.Wait();
+            if (previousTask?.IsFaulted == true) return; 
+
+            DTE? dte = null;
+
             try
             {
-                var dte = TcDte.Create();
+                dte = TcDte.Create();
                 Logger.LogInfo(this, $"Open project '{path}' ...");
-                dte.OpenSolution(path);
-                while (!dte.GetSolutionIsOpen())
+                dte.Solution?.Open(path);
+                
+                while (dte.Solution?.IsOpen != true)
                 {
-                    await Task.Delay(100);
+                    Thread.Sleep(100);
                 }
-                dte.EnableUserControl();
-                ProjectState.Solution.Connect(path);
-                dte.Finalize();
+                
+                dte.UserControl = true;
+                projectFolder = dte.GetProjectFolder();
             }
             catch (Exception e)
             {
                 Logger.LogError(this, e.Message);
             }
+            finally
+            {
+                dte?.Finalize();
+            }
+        });
+        
+        Task.Run(() =>
+        {
+            thread.Join();
+            if (projectFolder is null) return;
+            ProjectState.Solution.Connect(path, projectFolder);
         });
     }
     
-    private async Task CreateSolution(string slnFilePath)
+    private void CreateSolution(string slnFilePath)
     {
-        const string templateName = "OC.TcTemplate";
-        var rootFolder = Path.GetDirectoryName(slnFilePath);
-        var projectName = Path.GetFileNameWithoutExtension(slnFilePath);
-
-        try
+        var task = Task.Run(() =>
         {
-            if (rootFolder is null)
+            try
             {
-                throw new ArgumentNullException(rootFolder);
+                BusyState.Set(this);
+                
+                const string templateName = "OC.TcTemplate";
+                var rootFolder = Path.GetDirectoryName(slnFilePath);
+                var projectName = Path.GetFileNameWithoutExtension(slnFilePath);
+                
+                if (rootFolder is null)
+                {
+                    throw new ArgumentNullException(rootFolder);
+                }
+
+                //Get zip file from resource
+                var assembly = typeof(FileMenu).Assembly;
+                var resourceName = $"{assembly.GetName().Name}.Resources.{templateName}.zip";
+                var resourceStream = assembly.GetManifestResourceStream(resourceName);
+                if (resourceStream is null)
+                {
+                    throw new ArgumentNullException(resourceName);
+                }
+
+                //Extract resource to folder
+                ZipFile.ExtractToDirectory(resourceStream, rootFolder);
+
+                //Rename solution file
+                File.Move($"{rootFolder}\\{templateName}.sln", slnFilePath);
+
+                //Modify solution file
+                var slnFileText = File.ReadAllText(slnFilePath);
+                File.WriteAllText(slnFilePath, slnFileText.Replace(templateName, projectName));
+
+                //Rename project folder
+                Directory.Move($"{rootFolder}\\{templateName}", $"{rootFolder}\\{projectName}");
+
+                //Rename project file
+                File.Move($@"{rootFolder}\{projectName}\{templateName}.tsproj",
+                    $@"{rootFolder}\{projectName}\{projectName}.tsproj");
+                
+                return Task.CompletedTask;
             }
-            
-            //Get zip file from resource
-            var assembly = typeof(FileMenu).Assembly;
-            var resourceName = $"{assembly.GetName().Name}.Resources.{templateName}.zip";
-            var resourceStream = assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream is null)
+            catch (Exception e)
             {
-                throw new ArgumentNullException(resourceName);
+                Logger.LogError(this, e.Message);
+                return Task.FromException(e);
             }
-            
-            //Extract resource to folder
-            ZipFile.ExtractToDirectory(resourceStream, rootFolder);
-
-            //Rename solution file
-            File.Move($"{rootFolder}\\{templateName}.sln", slnFilePath);
-                
-            //Modify solution file
-            var slnFileText = await File.ReadAllTextAsync(slnFilePath);
-            await File.WriteAllTextAsync(slnFilePath, slnFileText.Replace(templateName, projectName));
-                
-            //Rename project folder
-            Directory.Move($"{rootFolder}\\{templateName}", $"{rootFolder}\\{projectName}");
-                
-            //Rename project file
-            File.Move($@"{rootFolder}\{projectName}\{templateName}.tsproj", $@"{rootFolder}\{projectName}\{projectName}.tsproj");
-        }
-        catch(Exception e)
-        {
-            Logger.LogError(this, e.Message);
-            return;
-        }
-
-        await OpenDte(slnFilePath);
+            finally
+            {
+                BusyState.Reset(this);
+            }
+        });
+        
+        OpenDte(slnFilePath, task);
     }
 }

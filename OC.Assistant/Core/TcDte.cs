@@ -54,7 +54,7 @@ public static class TcDte
     /// Releases all references to the given <see cref="DTE"/> interface and forces a garbage collection.
     /// </summary>
     /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    /// /// <param name="gcCollect">Forces an immediate garbage collection of all generations.</param>
+    /// <param name="gcCollect">Forces an immediate garbage collection of all generations.</param>
     public static void Finalize(this DTE? dte, bool gcCollect = true)
     {
         if (dte is null) return;
@@ -62,16 +62,6 @@ public static class TcDte
         if (!gcCollect) return;
         GC.Collect();
         GC.WaitForPendingFinalizers();
-    }
-
-    /// <summary>
-    /// Enables the <see cref="DTE.UserControl"/> property to show the environment in case it was launched by automation.
-    /// </summary>
-    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    public static void EnableUserControl(this DTE? dte)
-    {
-        if (dte is null) return;
-        Retry.Invoke(() => { dte.UserControl = true; });
     }
     
     /// <summary>
@@ -82,7 +72,7 @@ public static class TcDte
     public static string? GetProjectFolder(this DTE? dte)
     {
         var project = GetTcProject(dte);
-        return project is null ? null : Retry.Invoke(() => Directory.GetParent(project.FullName)?.FullName);
+        return project is null ? null : Directory.GetParent(project.FullName)?.FullName;
     }
 
     /// <summary>
@@ -92,7 +82,7 @@ public static class TcDte
     /// <returns>The <see cref="ITcSysManager15"/> interface if succeeded, otherwise <see langword="null"/>.</returns>
     public static ITcSysManager15? GetTcSysManager(this DTE? dte)
     {
-        return Retry.Invoke(() => GetTcProject(dte)?.Object as ITcSysManager15);
+        return GetTcProject(dte)?.Object as ITcSysManager15;
     }
 
     /// <summary>
@@ -103,37 +93,8 @@ public static class TcDte
     public static Project? GetTcProject(this DTE? dte)
     {
         if (dte is null) return null;
-        return Retry.Invoke(() => (
-            from Project project in dte.Solution.Projects
-            select project).FirstOrDefault(pro => pro.Object is ITcSysManager15));
-    }
-
-    /// <summary>
-    /// Opens a solution.
-    /// </summary>
-    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    /// <param name="fileName">The path of the solution file.</param>
-    public static void OpenSolution(this DTE? dte, string fileName)
-    {
-        Retry.Invoke(() => { dte?.Solution?.Open(fileName); });
-    }
-
-    /// <summary>
-    /// Gets the <see cref="Solution.FullName"/>.
-    /// </summary>
-    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    public static string? GetSolutionFullName(this DTE? dte)
-    {
-        return Retry.Invoke(() => dte?.Solution?.FullName);
-    }
-    
-    /// <summary>
-    /// Gets a value indicating whether a solution is open.
-    /// </summary>
-    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    public static bool GetSolutionIsOpen(this DTE? dte)
-    {
-        return Retry.Invoke(() => dte?.Solution.IsOpen == true);
+        return (from Project project in dte.Solution.Projects select project)
+            .FirstOrDefault(pro => pro.Object is ITcSysManager15);
     }
     
     /// <summary>
@@ -141,7 +102,7 @@ public static class TcDte
     /// </summary>
     /// <param name="solutionFullName">The full name of the solution file.</param>
     /// <returns>The <see cref="DTE"/> interface of the given solution path if any, otherwise null.</returns>
-    public static DTE? GetInstance(string? solutionFullName)
+    public static DTE? GetInstance(string solutionFullName)
     {
         return GetInstances(solutionFullName).FirstOrDefault();
     }
@@ -172,32 +133,32 @@ public static class TcDte
                 if (!displayName.StartsWith("!TcXaeShell.DTE") && !displayName.StartsWith("!VisualStudio.DTE")) continue;
                 if (runningObjectTable.GetObject(moniker[0], out var obj) != 0) continue;
                 
-                dte = (DTE) obj;
-                var fullName = dte.GetSolutionFullName();
+                dte = (DTE?) obj;
+                var fullName = dte?.Solution?.FullName;
                 
                 if (string.IsNullOrEmpty(fullName))
                 {
-                    dte.Finalize();
+                    dte?.Finalize();
                     continue;
                 }
 
                 if (!string.IsNullOrEmpty(solutionFullName) &&
                     !string.Equals(solutionFullName, fullName, StringComparison.OrdinalIgnoreCase))
                 {
-                    dte.Finalize();
+                    dte?.Finalize();
                     continue;
                 }
 
-                if (dte.GetTcProject() is null)
+                if (dte?.GetTcProject() is null)
                 {
-                    dte.Finalize();
+                    dte?.Finalize();
                     continue;
                 }
             }
             catch (Exception e)
             {
                 dte?.Finalize();
-                Logger.LogError(typeof(TcDte), e.Message);
+                Logger.LogError(typeof(TcDte), e.Message, true);
                 continue;
             }
             

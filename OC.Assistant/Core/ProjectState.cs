@@ -50,51 +50,52 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         Loaded += OnLoaded;
     }
     
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        try
+        DteSingleThread.Run(() =>
         {
-            await Task.Run(() =>
+            DTE? dte = null;
+            try
             {
-                BusyState.Set(this);
                 Logger.LogInfo(this, "Checking TwinCAT ADS server...");
-                _adsClient.Connect((int)AmsPort.R0_Realtime);
+                _adsClient.Connect((int) AmsPort.R0_Realtime);
                 _adsClient.Disconnect();
                 Logger.LogInfo(this, "TwinCAT ADS server ok");
-            });
-        }
-        catch (Exception exception)
-        {
-            _adsNotOk = true;
-            Logger.LogError(this, exception.Message);
-        }
-        finally
-        {
-            BusyState.Reset(this);
-        }
+
+                if (Environment.GetCommandLineArgs()
+                        .FirstOrDefault(arg => arg.EndsWith(".sln")) is not {} solution) return;
+                dte = TcDte.GetInstance(solution);
+                if (dte?.GetProjectFolder() is not {} projectFolder) return;
+                Connect(solution, projectFolder);
+            }
+            catch (Exception exception)
+            {
+                _adsNotOk = true;
+                Logger.LogError(this, exception.Message);
+            }
+            finally
+            {
+                dte?.Finalize();
+            }
+        });
     }
     
-    public void Connect(string path)
+    public void Connect(string solutionFullName, string projectFolder)
     {
         Dispatcher.Invoke(() =>
         {
-            if (_adsNotOk || TcDte.GetInstance(path) is not {} dte) return;
-            if (dte.GetProjectFolder() is not {} projectFolder) return;
+            if (_adsNotOk) return;
             if (IsProjectConnected) Disconnect();
-            
-            _dte = dte;
-            FullName = path;
-        
-            _tcSysManager = _dte.GetTcSysManager();
+            FullName = solutionFullName;
+            _cancellationTokenSource = new CancellationTokenSource();
             _amsNetId = GetCurrentNetId();
             ApiLocal.Interface.NetId = _amsNetId;
-            _cancellationTokenSource = new CancellationTokenSource();
-            SetSolutionPath(path);
-            StartPolling(UpdateNetId, 1000);
-            StartPolling(UpdateAdsState, 100);
             XmlFile.Instance.SetDirectory(projectFolder);
-            Connected?.Invoke(path);
-            Logger.LogInfo(this, $"{path} connected");
+            StartPolling(UpdateNetId, 1000);
+            StartPolling(UpdateAdsState, 10);
+            SetSolutionPath(solutionFullName);
+            Connected?.Invoke(solutionFullName);
+            Logger.LogInfo(this, $"{FullName} connected");
         });
     }
     
@@ -102,7 +103,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
     {
         Dispatcher.Invoke(() =>
         {
-            Logger.LogWarning(this, "TwinCAT Project closed");
+            Logger.LogWarning(this, $"{FullName} disconnected");
             FullName = null;
             Disconnected?.Invoke();
             Locked?.Invoke(true);
@@ -110,6 +111,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
             _cancellationTokenSource.Cancel();
             _adsClient.Disconnect();
             _dte?.Finalize();
+            _tcSysManager = null;
             IndicateDisconnected();
         });
     }
@@ -148,6 +150,20 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
 
     private AmsNetId GetCurrentNetId()
     {
+        try
+        {
+            if (_tcSysManager is null && FullName is not null)
+            {
+                _dte = TcDte.GetInstance(FullName);
+                _tcSysManager = _dte.GetTcSysManager();
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(this, e.Message);
+            _tcSysManager = null;
+        }
+        
         try
         {
             var netId = _tcSysManager?.GetTargetNetId();
