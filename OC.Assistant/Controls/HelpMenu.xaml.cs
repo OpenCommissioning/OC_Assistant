@@ -35,12 +35,17 @@ internal partial class HelpMenu
         Sdk.Logger.Verbose = ((CheckBox) sender).IsChecked == true;
     }
     
-    private void AboutOnClick(object sender, RoutedEventArgs e)
+    private async void AboutOnClick(object sender, RoutedEventArgs e)
     {
         var content = new StackPanel();
         var stack = content.Children;
         
         stack.Add(new Label{Content = $"\n{ProductName}\nVersion {Version}\n{CompanyName}\n"});
+
+        if (await MainWindow.CompareVersion("v1.5.0") is {} latestVersion)
+        {
+            stack.Add(new DownloadLink(latestVersion));
+        }
         
         stack.Add(new DependencyInfo(typeof(Sdk.Logger))
         {
