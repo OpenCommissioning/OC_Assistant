@@ -16,16 +16,16 @@
                 Please
             </Label>
             <Menu Height="Auto" Margin="0 2 -2 0">
-                <controls:DteSelector Style="{DynamicResource LinkMenu}" Header="connect"></controls:DteSelector>
+                <controls:DteSelector Style="{DynamicResource LinkMenu}" Header="connect" Cursor="Hand"></controls:DteSelector>
             </Menu>
             <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
                 ,
             </Label>
-            <Button Style="{DynamicResource LinkButton}" Click="OpenOnClick">open</Button>
+            <Button Style="{DynamicResource LinkButton}" Click="OpenOnClick" Cursor="Hand">open</Button>
             <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
                 or
             </Label>
-            <Button Style="{DynamicResource LinkButton}" Click="CreateOnClick">create</Button>
+            <Button Style="{DynamicResource LinkButton}" Click="CreateOnClick" Cursor="Hand">create</Button>
             <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
                 a TwinCAT solution.
             </Label>
