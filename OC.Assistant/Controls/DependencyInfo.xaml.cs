@@ -39,7 +39,7 @@ public partial class DependencyInfo
     
     public string? UrlName
     {
-        set => UrlFriendlyName.Text = value;
+        set => UrlButton.Content = value;
     }
     
 
