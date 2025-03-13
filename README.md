@@ -116,10 +116,11 @@ Plugin use cases:
   - Modbus Server and Client communication
 
 ### Installation
-1. Move the plugin folder into the directory of the `OC.Assistant.exe`.
-2. Start the `OC.Assistant.exe` application.
-3. The Assistant will automatically search through all subdirectories for `*.plugin` files and load any compatible plugin assemblies.
-4. Once loaded, the plugin will be available for use within the Assistant.
+1. Create a folder named `Plugins` in the directory of the `OC.Assistant.exe`.
+2. Move the plugin folder into the `Plugins` folder.
+3. Start the `OC.Assistant.exe` application.
+4. The Assistant will search through all subdirectories for `*.plugin` files and load any compatible plugin assemblies.
+5. Once loaded, the plugin will be available for use within the Assistant.
 
 ### Usage
 1. Create a new instance of a plugin using the `+` button

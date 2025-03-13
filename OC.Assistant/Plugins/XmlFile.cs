@@ -60,7 +60,8 @@ internal static class XmlFile
             var pluginType = PluginRegister.GetTypeByName(type);
             if (pluginType is null)
             {
-                Logger.LogWarning(typeof(XmlFile), $"Plugin for type '{type}' not found");
+                Logger.LogWarning(typeof(XmlFile), 
+                    $"Plugin for type '{type}' not found in directory {PluginRegister.SearchPath}");
                 continue;
             }
             if (name is null || parameter is null) continue;

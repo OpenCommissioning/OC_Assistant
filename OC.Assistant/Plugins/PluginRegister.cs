@@ -17,23 +17,22 @@ internal static class PluginRegister
     public static List<Type> Types { get; } = [];
 
     /// <summary>
+    /// The full path of the plugins search directory. 
+    /// </summary>
+    public static string SearchPath { get; } = Path.GetFullPath(@".\Plugins"); 
+
+    /// <summary>
     /// Tries to load available plugins depending on the current environment (debug or executable). 
     /// </summary>
     public static void Initialize()
     {
-        try
+        if (Directory.Exists(SearchPath))
         {
-            foreach (var pluginFile in Directory
-                         .GetFiles(Environment.CurrentDirectory, "*.plugin", SearchOption.AllDirectories))
-            {
-                Load(pluginFile);
-            }
+            Directory
+                .GetFiles(SearchPath, "*.plugin", SearchOption.AllDirectories)
+                .ToList().ForEach(Load);
         }
-        catch (Exception e)
-        {
-            Logger.LogError(typeof(PluginRegister), e.Message);
-        }
-        
+            
 #if DEBUG
         /*
          Search outside the solution environment when debugging
@@ -42,11 +41,9 @@ internal static class PluginRegister
          */
         try
         {
-            foreach (var pluginFile in Directory
-                         .GetFiles(@"..\..\..\..\..\", "*.plugin", SearchOption.AllDirectories))
-            {
-                Load(pluginFile);
-            }
+            Directory
+                .GetFiles(@"..\..\..\..\..\", "*.plugin", SearchOption.AllDirectories)
+                .ToList().ForEach(Load);
         }
         catch (Exception e)
         {
