@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.11.1"></a>
+## [1.11.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.1) (2025-03-13)
+
+### Bug Fixes
+
+* change the root directory to search plugins to 'Plugins' folder ([ab81941](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ab81941355218689fdff198f6af666d7e1ab7137))
+
 <a name="1.11.0"></a>
 ## [1.11.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.0) (2025-03-13)
 
