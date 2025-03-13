@@ -10,11 +10,8 @@
     <StackPanel Orientation="Horizontal" >
         <Label x:Name="NameLabel" x:FieldModifier="protected" Margin="0 0 5 0" VerticalAlignment="Center" MinWidth="220">DependencyName</Label>
         <Label x:Name="VersionLabel" x:FieldModifier="protected" Margin="0 0 5 0" VerticalAlignment="Center" MinWidth="80">0.0.0.0</Label>
-        <Button x:Name="UrlButton" x:FieldModifier="protected" Style="{DynamicResource LinkButton}" Click="UrlButton_OnClick" Visibility="Collapsed">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock x:Name="UrlFriendlyName" x:FieldModifier="protected">Link</TextBlock>
-                <TextBlock Margin="5 5 0 0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="9">&#xE8AD;</TextBlock>
-            </StackPanel>
+        <Button x:Name="UrlButton" x:FieldModifier="protected" Style="{DynamicResource LinkButton}" Click="UrlButton_OnClick" Visibility="Collapsed" Cursor="Hand">
+            Link
         </Button>
     </StackPanel>
 </Grid>
