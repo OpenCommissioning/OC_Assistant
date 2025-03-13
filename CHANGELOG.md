@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.11.0"></a>
+## [1.11.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.0) (2025-03-13)
+
+### Features
+
+* version check to get informed about new releases ([ed2a229](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ed2a229c923bdf538ae1a85e0ce284adfcd4f70e))
+
 <a name="1.10.0"></a>
 ## [1.10.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.10.0) (2025-03-06)
 
