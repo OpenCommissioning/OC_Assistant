@@ -41,6 +41,25 @@ public static class TcSysManagerExtension
         Logger.LogError(typeof(TcSysManagerExtension), $"Item {name} not found in category {rootItemName}");
         return null;
     }
+    
+    /// <summary>
+    /// Gets an enumeration of type <see cref="ITcSmTreeItem"/>.
+    /// </summary>
+    /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
+    /// <param name="rootItemName">The name of the root <see cref="ITcSmTreeItem"/>.</param>
+    public static IEnumerable<ITcSmTreeItem> TryGetItems(this ITcSysManager15 sysManager, string rootItemName)
+    {
+        if (!sysManager.TryLookupTreeItem(rootItemName, out var rootItem))
+        {
+            Logger.LogError(typeof(TcSysManagerExtension), $"RootItem {rootItemName} not found");
+            yield break;
+        }
+        
+        foreach (var item in rootItem.Cast<ITcSmTreeItem>())
+        {
+            yield return item;
+        }
+    }
 
     /// <summary>
     /// Gets the plc project as <see cref="ITcSmTreeItem"/>.
