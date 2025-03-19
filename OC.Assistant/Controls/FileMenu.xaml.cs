@@ -80,13 +80,8 @@ internal partial class FileMenu
                 dte = TcDte.Create();
                 Logger.LogInfo(this, $"Open project '{path}' ...");
                 dte.Solution?.Open(path);
-                
-                while (dte.Solution?.IsOpen != true)
-                {
-                    Thread.Sleep(100);
-                }
-                
                 dte.UserControl = true;
+                if (!dte.UserControl) return;
                 projectFolder = dte.GetProjectFolder();
             }
             catch (Exception e)
@@ -102,7 +97,11 @@ internal partial class FileMenu
         Task.Run(() =>
         {
             thread.Join();
-            if (projectFolder is null) return;
+            if (projectFolder is null)
+            {
+                Logger.LogError(this, "Failed to connect solution");
+                return;
+            }
             ProjectState.Solution.Connect(path, projectFolder);
         });
     }
