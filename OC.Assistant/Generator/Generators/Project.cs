@@ -85,7 +85,7 @@ internal static partial class Project
         
         //HiL calls
         implementation = XmlFile.HilPrograms?.
-            Aggregate(implementation, (current, next) => $"{current}PRG_{next}();\n");
+            Aggregate(implementation, (current, next) => $"{current}\tPRG_{next}();\n");
 
         //Instance calls
         implementation = instances
