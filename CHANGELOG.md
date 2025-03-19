@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.11.2"></a>
+## [1.11.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.2) (2025-03-19)
+
+### Bug Fixes
+
+* connection failure after opening a solution in rare occasions ([9da5fe0](https://www.github.com/OpenCommissioning/OC_Assistant/commit/9da5fe0edb6626e358428af97634c1f07634bac9))
+* present available plc projects and tasks in settings ([a3191e6](https://www.github.com/OpenCommissioning/OC_Assistant/commit/a3191e6f8b29bc12438765f760d0bc3dd7475999))
+* remove default.ethml file from template project ([646a556](https://www.github.com/OpenCommissioning/OC_Assistant/commit/646a55616660987150106541721609622fa1377a))
+
 <a name="1.11.1"></a>
 ## [1.11.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.1) (2025-03-13)
 
