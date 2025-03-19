@@ -158,9 +158,8 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
                 _tcSysManager = _dte.GetTcSysManager();
             }
         }
-        catch (Exception e)
+        catch
         {
-            Logger.LogError(this, e.Message);
             _tcSysManager = null;
         }
         
