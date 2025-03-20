@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.11.3"></a>
+## [1.11.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.3) (2025-03-20)
+
+### Bug Fixes
+
+* indentation for HiL FB calls ([2d5e3aa](https://www.github.com/OpenCommissioning/OC_Assistant/commit/2d5e3aa64d36de8b9de6a37ca2816f36e3f4df75))
+* upgrade Theme package reference ([4e3abf1](https://www.github.com/OpenCommissioning/OC_Assistant/commit/4e3abf136008725a607dbcf40af1c5a7535c28b1))
+
 <a name="1.11.2"></a>
 ## [1.11.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.2) (2025-03-19)
 
