@@ -7,9 +7,9 @@ namespace OC.Assistant.Core;
 /// </summary>
 public static class DteSingleThread
 {
-    /// <inheritdoc cref="Run(System.Action,bool)"/><br/>
+    /// <inheritdoc cref="Run(System.Action,int)"/><br/>
     /// This overload automatically gets the <see cref="EnvDTE.DTE"/> interface of the currently connected solution.
-    public static System.Threading.Thread Run(Action<DTE> action, bool blockCallingThread = false)
+    public static System.Threading.Thread Run(Action<DTE> action, int millisecondsTimeout = 0)
     {
         return Run(() =>
         {
@@ -35,7 +35,7 @@ public static class DteSingleThread
             {
                 dte?.Finalize();
             }
-        }, blockCallingThread);
+        }, millisecondsTimeout);
     }
 
     /// <summary>
@@ -44,15 +44,17 @@ public static class DteSingleThread
     /// Is used to invoke COM functions with <see cref="EnvDTE.DTE"/> interface.  
     /// </summary>
     /// <param name="action">The action to be invoked in single-threaded apartment.</param>
-    /// <param name="blockCallingThread">Blocks the calling thread until this thread terminates.</param>
+    /// <param name="millisecondsTimeout">Blocks the calling thread until this thread terminates or the timeout is reached.
+    /// Value 0 disables blocking and activates the busy state.
+    /// </param>
     /// <returns>The instance of this <see cref="System.Threading.Thread"/>.</returns>
-    public static System.Threading.Thread Run(Action action, bool blockCallingThread = false)
+    public static System.Threading.Thread Run(Action action, int millisecondsTimeout = 0)
     {
         var thread = new System.Threading.Thread(() =>
         {
             try
             {
-                if (!blockCallingThread) BusyState.Set(action);
+                if (millisecondsTimeout == 0) BusyState.Set(action);
                 MessageFilter.Register();
                 action();
             }
@@ -63,13 +65,13 @@ public static class DteSingleThread
             finally
             {
                 MessageFilter.Revoke();
-                if (!blockCallingThread) BusyState.Reset(action);
+                if (millisecondsTimeout == 0) BusyState.Reset(action);
             }
         });
         
         thread.SetApartmentState(ApartmentState.STA);
         thread.Start();
-        if (blockCallingThread) thread.Join();
+        if (millisecondsTimeout > 0) thread.Join(millisecondsTimeout);
         return thread;
     }
 }
