@@ -119,16 +119,12 @@ internal class EtherCatGenerator
     {
         var hilFolder = plcProjectItem.GetOrCreateChild(_folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
         var busFolder = hilFolder?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        var gvl = busFolder?.GetOrCreateChild($"GVL_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL);
         var prg = busFolder?.GetOrCreateChild($"PRG_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         
-        var declarationText = "{attribute 'qualified_only'}\n{attribute 'subsequent'}\nVAR_GLOBAL";
-        declarationText += _instance
-            .Aggregate("", (current, link) => current + $"\n{link.DeclarationText}");
-        declarationText += "\nEND_VAR";
-        
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (gvl is ITcPlcDeclaration decl) decl.DeclarationText = declarationText;
+        var variables = _instance
+            .Aggregate("", (current, next) => current + $"\n{next.DeclarationText}");
+
+        busFolder.CreateGvl(name, variables);
         
         // ReSharper disable once SuspiciousTypeConversion.Global
         if (prg is ITcPlcImplementation impl)
