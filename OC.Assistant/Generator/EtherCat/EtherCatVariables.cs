@@ -23,6 +23,10 @@ internal class EtherCatVariables : List<EtherCatVariable>
     private void ParseBox(string boxName, XElement box)
     {
         var id = box.Attribute("Id")?.Value;
+        var settings = box.Element("EcatSimuBox")?.Element("BoxSettings");
+        var outputSize = settings?.Attribute("OutputSize"); 
+        var inputSize = settings?.Attribute("InputSize");
+        
         var pdoNodes = box.Descendants("Pdo")
             .Where(pdo => !string.IsNullOrEmpty(pdo.Attribute("SyncMan")?.Value));
 
@@ -32,9 +36,17 @@ internal class EtherCatVariables : List<EtherCatVariable>
             var uniquePdoName = GetUniquePdoName(pdoName);
             var entryNodes = pdoNode.Descendants("Entry");
             var syncMan = pdoNode.Attribute("SyncMan")?.Value;
-
+            
+            /*
+              Every Pdo element with a SyncMan attribute represents an in- or output
+              - SyncMan is '2' or '3' when the box has inputs and outputs
+              - SyncMan is '0' when the box has only inputs or only outputs
+                -> we need to evaluate if InputSize or OutputSize attribute is available 
+             */
             var inOut = syncMan switch
             {
+                "0" when outputSize is not null => "AT %I*",
+                "0" when inputSize is not null => "AT %Q*",
                 "2" => "AT %I*",
                 "3" => "AT %Q*",
                 _ => null
