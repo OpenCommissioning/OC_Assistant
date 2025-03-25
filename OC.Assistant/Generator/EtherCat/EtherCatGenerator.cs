@@ -122,7 +122,7 @@ internal class EtherCatGenerator
         var prg = busFolder?.GetOrCreateChild($"PRG_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         
         var variables = _instance
-            .Aggregate("", (current, next) => current + $"\n{next.DeclarationText}");
+            .Aggregate("", (current, next) => current + $"{next.DeclarationText}\n");
 
         busFolder.CreateGvl(name, variables);
         
