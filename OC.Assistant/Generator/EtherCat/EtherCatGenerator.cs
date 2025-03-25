@@ -111,7 +111,7 @@ internal class EtherCatGenerator
                 continue;
             }
             
-            _instance.Add(new EtherCatInstance(id, PlcCompatibleString(eCatName), name, type, template));
+            _instance.Add(new EtherCatInstance(id, name, template));
         }
     }
 
@@ -133,13 +133,8 @@ internal class EtherCatGenerator
                 .Where(x => x.CyclicCall)
                 .Aggregate("", (current, device) => current + $"GVL_{name}.{device.InstanceName}();\n");
         }
-
         
         XmlFile.AddHilProgram(name);
-
-        var mappingText = _instance
-            .Aggregate("", (current, link) => current + $"{link.MappingText}");
-        File.WriteAllText($"{_projectFolder}\\MappingTemplate.txt", mappingText);
     }
     
     private IEnumerable<EtherCatTemplate> TcEtherCatTemplates

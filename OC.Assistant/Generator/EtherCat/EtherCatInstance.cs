@@ -10,22 +10,15 @@ internal class EtherCatInstance
     /// Constructor for template.
     /// </summary>
     /// <param name="id">The box id of the etherCat device.</param>
-    /// <param name="eCatName">The name of the etherCat simulation.</param>
     /// <param name="name">The instance name.</param>
-    /// <param name="type">The instance type.</param>
     /// <param name="template">The etherCat template.</param>
-    public EtherCatInstance(string? id, string eCatName, string name, string type, EtherCatTemplate template)
+    public EtherCatInstance(string? id, string name, EtherCatTemplate template)
     {
         InstanceName = name;
         
         DeclarationText = template.DeclarationTemplate
             .Replace(Tags.NAME, name)
             .Replace(Tags.BOX_NO, id);
-        
-        MappingText = template.MappingTemplate
-            .Replace(Tags.NAME, name)
-            .Replace(Tags.TYPE, type)
-            .Replace(Tags.GVL_INSTANCE, $"GVL_{eCatName}.{name}");
         
         CyclicCall = template.CyclicCall;
     }
@@ -51,11 +44,6 @@ internal class EtherCatInstance
     /// The plc declaration text including attributes.
     /// </summary>
     public string DeclarationText { get; }
-
-    /// <summary>
-    /// The plc mapping text.
-    /// </summary>
-    public string MappingText { get; } = "";
     
     /// <summary>
     /// True when the plc instance is a function block and needs a cyclic call.
