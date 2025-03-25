@@ -47,7 +47,7 @@ public class MessageFilter : IOleMessageFilter
         if (dwRejectType == 2) // flag SERVERCALL_RETRYLATER 
         {
             // retry thread call at once, if return value >= 0 & < 100
-            return 99;
+            return 100;
         }
 
         return -1;

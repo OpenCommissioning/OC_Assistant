@@ -30,7 +30,7 @@ public class SettingsTaskDropdown : ComboBox
                     .TryGetItems(TcShortcut.TASK)
                     .Where(item => item.ItemSubType == (int)TcSmTreeItemSubType.TaskWithImage)
                     .Select(item => item.Name));
-            }, true);
+            }, 1000);
             
             Items.Clear();
             foreach (var task in tasks)

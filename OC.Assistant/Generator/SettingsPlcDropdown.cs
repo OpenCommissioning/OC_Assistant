@@ -28,7 +28,7 @@ public class SettingsPlcDropdown : ComboBox
                 projects.AddRange(tcSysManager
                     .TryGetItems(TcShortcut.PLC)
                     .Select(item => item.Name));
-            }, true);
+            }, 1000);
             
             Items.Clear();
             foreach (var project in projects)

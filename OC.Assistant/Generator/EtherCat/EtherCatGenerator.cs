@@ -111,7 +111,7 @@ internal class EtherCatGenerator
                 continue;
             }
             
-            _instance.Add(new EtherCatInstance(id, PlcCompatibleString(eCatName), name, type, template));
+            _instance.Add(new EtherCatInstance(id, name, template));
         }
     }
 
@@ -119,16 +119,12 @@ internal class EtherCatGenerator
     {
         var hilFolder = plcProjectItem.GetOrCreateChild(_folderName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
         var busFolder = hilFolder?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        var gvl = busFolder?.GetOrCreateChild($"GVL_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL);
         var prg = busFolder?.GetOrCreateChild($"PRG_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         
-        var declarationText = "{attribute 'qualified_only'}\n{attribute 'subsequent'}\nVAR_GLOBAL";
-        declarationText += _instance
-            .Aggregate("", (current, link) => current + $"\n{link.DeclarationText}");
-        declarationText += "\nEND_VAR";
-        
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (gvl is ITcPlcDeclaration decl) decl.DeclarationText = declarationText;
+        var variables = _instance
+            .Aggregate("", (current, next) => current + $"{next.DeclarationText}\n");
+
+        busFolder.CreateGvl(name, variables);
         
         // ReSharper disable once SuspiciousTypeConversion.Global
         if (prg is ITcPlcImplementation impl)
@@ -137,13 +133,8 @@ internal class EtherCatGenerator
                 .Where(x => x.CyclicCall)
                 .Aggregate("", (current, device) => current + $"GVL_{name}.{device.InstanceName}();\n");
         }
-
         
         XmlFile.AddHilProgram(name);
-
-        var mappingText = _instance
-            .Aggregate("", (current, link) => current + $"{link.MappingText}");
-        File.WriteAllText($"{_projectFolder}\\MappingTemplate.txt", mappingText);
     }
     
     private IEnumerable<EtherCatTemplate> TcEtherCatTemplates

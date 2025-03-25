@@ -42,7 +42,7 @@ public partial class DteSelector
         
             GC.Collect();
             GC.WaitForPendingFinalizers();
-        }, true);
+        }, 1000);
         
         
         foreach (var solution in _solutions)

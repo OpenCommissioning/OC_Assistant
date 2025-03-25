@@ -92,7 +92,10 @@ public static class TcSmTreeItemExtension
         }
         
         gvlDecl.DeclarationText = 
-            $"{{attribute 'qualified_only'}}\n{{attribute 'subsequent'}}\nVAR_GLOBAL\n{variables}END_VAR";
+            $"{{attribute 'linkalways'}}\n" +
+            $"{{attribute 'qualified_only'}}\n" +
+            $"{{attribute 'subsequent'}}\n" +
+            $"VAR_GLOBAL\n{variables}END_VAR";
         
         return gvlItem;
     }

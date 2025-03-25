@@ -150,7 +150,7 @@ public static class DeviceTemplate
 			//Is used in conjunction with attribute 'reflection' to indicate the function block's name at runtime. 
 			{attribute 'instance-path'}
 		    {attribute 'noinit'}
-		    sPath 				: STRING;
+		    _sPath 				: STRING;
 		    
 		    //Custom device variables...
 		END_VAR
