@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.11.4"></a>
+## [1.11.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.4) (2025-03-25)
+
+### Bug Fixes
+
+* EtherCAT simulation box filtering for generic variables ([e7ff9b1](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e7ff9b1e4f1d3320c49542c08855dddb0ff6d263))
+
 <a name="1.11.3"></a>
 ## [1.11.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.3) (2025-03-20)
 

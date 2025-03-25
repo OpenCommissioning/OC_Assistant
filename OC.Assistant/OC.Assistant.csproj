@@ -9,7 +9,7 @@
         <LangVersion>default</LangVersion>
         <TargetFramework>net8.0-windows</TargetFramework>
         <ApplicationIcon>Resources\oc_logo.ico</ApplicationIcon>
-        <Version>1.11.3</Version>
+        <Version>1.11.4</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
