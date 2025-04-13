@@ -34,7 +34,7 @@ public partial class ProjectStateView
     {
         Dispatcher.Invoke(() =>
         {
-            StateBorder.Background = Application.Current.Resources["Green1Brush"] as SolidColorBrush;
+            StateBorder.Background = Application.Current.Resources["Success1Brush"] as SolidColorBrush;
             StateLabel.Content = "Run";
             NedIdLabel.Content = Sdk.ApiLocal.Interface.NetId;
         });

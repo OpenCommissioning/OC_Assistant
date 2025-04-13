@@ -12,7 +12,7 @@
     </Button>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
         <Button x:Name="StartStopButton" Click="StartStopButton_Click" Width="40" Margin="5" Padding="0" ToolTip="Start/Stop" VerticalAlignment="Stretch">
-            <TextBlock x:Name="StartStopButtonText" FontFamily="{DynamicResource SymbolThemeFontFamily}" Foreground="{DynamicResource GreenBrush}" >&#xE768;</TextBlock>
+            <TextBlock x:Name="StartStopButtonText" FontFamily="{DynamicResource SymbolThemeFontFamily}" Foreground="{DynamicResource SuccessBrush}" >&#xE768;</TextBlock>
         </Button>
         <Button x:Name="RemoveButton" Click="RemoveButton_Click" Width="40" Margin="5" Padding="0" ToolTip="Remove" VerticalAlignment="Stretch">
             <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" Margin="0,0,0,0" >&#xE74D;</TextBlock>
