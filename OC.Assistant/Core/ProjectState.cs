@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Xml.Linq;
 using EnvDTE;
 using OC.Assistant.Controls;
 using OC.Assistant.Sdk;
@@ -211,6 +212,20 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         return Task.CompletedTask;
     }
 
+    private static int GetPlcPort()
+    {
+        var port = 0;
+        DteSingleThread.Run(dte =>
+        {
+            if (dte.GetTcSysManager()?.TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName) is not {} 
+                plc) return;
+            var value = XElement
+                .Parse(plc.ProduceXml()).Descendants("AdsPort").FirstOrDefault()?.Value;
+            port = int.Parse(value ?? "851");
+        }, 100);
+        return port;
+    }
+
     private Task UpdateAdsState()
     {
         if (!IsProjectConnected) return Task.CompletedTask;
@@ -223,6 +238,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         {
             case AdsState.Run:
                 IndicateRunMode();
+                ApiLocal.Interface.Port = GetPlcPort();
                 ApiLocal.Interface.TriggerTcRestart();
                 Dispatcher.Invoke(() =>
                 {
