@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.12.0"></a>
+## [1.12.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.12.0) (2025-04-15)
+
+### Features
+
+* read the PLC port dynamically instead of using a fixed value 851 ([e9d63cf](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e9d63cfd558d013b704f174aecb72dd8752623b9))
+* upgrade SDK package reference ([9389b63](https://www.github.com/OpenCommissioning/OC_Assistant/commit/9389b6382a04f07b4d04966f87819107fb2150c1))
+
+### Bug Fixes
+
+* update theme resource keys ([0f3b80e](https://www.github.com/OpenCommissioning/OC_Assistant/commit/0f3b80e801ad4886feb03cfd2bab8f6bd6542617))
+* upgrade theme package reference ([ac12a0d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ac12a0d293416f719bc6a4092487f1195142d86e))
+* **Core:** optimize TryGetItem method ([139461d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/139461d52ae010034af201999b679d6ae0e7e9a9))
+
 <a name="1.11.4"></a>
 ## [1.11.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.11.4) (2025-03-25)
 
