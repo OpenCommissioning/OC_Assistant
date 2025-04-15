@@ -8,25 +8,25 @@
              Background="{DynamicResource BackgroundBaseBrush}"
              xmlns:controls="clr-namespace:OC.Assistant.Controls">
     <StackPanel VerticalAlignment="Center">
-        <Label HorizontalAlignment="Center" FontSize="28" Foreground="{DynamicResource TextControlForegroundDisabled}">
+        <Label HorizontalAlignment="Center" FontSize="28" Foreground="{DynamicResource White3Brush}">
             No project connected
         </Label>
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
                 Please
             </Label>
             <Menu Height="Auto" Margin="0 2 -2 0">
                 <controls:DteSelector Style="{DynamicResource LinkMenu}" Header="connect" Cursor="Hand"></controls:DteSelector>
             </Menu>
-            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
                 ,
             </Label>
             <Button Style="{DynamicResource LinkButton}" Click="OpenOnClick" Cursor="Hand">open</Button>
-            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
                 or
             </Label>
             <Button Style="{DynamicResource LinkButton}" Click="CreateOnClick" Cursor="Hand">create</Button>
-            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextControlForegroundDisabled}">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
                 a TwinCAT solution.
             </Label>
         </StackPanel>

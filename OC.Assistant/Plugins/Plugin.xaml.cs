@@ -69,7 +69,7 @@ internal partial class Plugin
         {
             StartStopButton.IsEnabled = true;
             StartStopButtonText.Text = "\xE768";
-            StartStopButtonText.Foreground = Application.Current.Resources["GreenBrush"] as SolidColorBrush;
+            StartStopButtonText.Foreground = Application.Current.Resources["SuccessBrush"] as SolidColorBrush;
         });
     }
     
@@ -79,7 +79,7 @@ internal partial class Plugin
         {
             StartStopButton.IsEnabled = false;
             StartStopButtonText.Text = "\xE71A";
-            StartStopButtonText.Foreground = Application.Current.Resources["TextControlForegroundDisabled"] as SolidColorBrush;
+            StartStopButtonText.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
         });
     }
 
@@ -99,7 +99,7 @@ internal partial class Plugin
         {
             StartStopButton.IsEnabled = false;
             StartStopButtonText.Text = "\xE768";
-            StartStopButtonText.Foreground = Application.Current.Resources["TextControlForegroundDisabled"] as SolidColorBrush;
+            StartStopButtonText.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
         });
     }
 

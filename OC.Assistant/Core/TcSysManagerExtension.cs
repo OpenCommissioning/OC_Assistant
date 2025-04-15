@@ -26,19 +26,9 @@ public static class TcSysManagerExtension
     /// <param name="name">The name of the <see cref="ITcSmTreeItem"/> to find.</param>
     public static ITcSmTreeItem? TryGetItem(this ITcSysManager15 sysManager, string rootItemName, string? name)
     {
-        if (!sysManager.TryLookupTreeItem(rootItemName, out var rootItem))
-        {
-            Logger.LogError(typeof(TcSysManagerExtension), $"RootItem {rootItemName} not found");
-            return null;
-        }
-        
-        foreach (var item in rootItem.Cast<ITcSmTreeItem>()
-                     .Where(item => name is null || item.Name == name))
-        {
-            return item;
-        }
-        
-        Logger.LogError(typeof(TcSysManagerExtension), $"Item {name} not found in category {rootItemName}");
+        var path = $"{rootItemName}^{name}";
+        if (sysManager.TryLookupTreeItem(path, out var item)) return item;
+        Logger.LogError(typeof(TcSysManagerExtension), $"{path} not found");
         return null;
     }
     
