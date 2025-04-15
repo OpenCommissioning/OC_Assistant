@@ -1,4 +1,9 @@
 ﻿using System.Xml.Linq;
+using System.IO;
+using System.Net.Http;
+using System.Text.Json;
+using OC.Assistant.Core;
+using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator.Aml;
 
@@ -13,10 +18,11 @@ public class AmlConverter
     /// </summary>
     /// <param name="amlFilePath">The aml file path.</param>
     /// <returns>The converted <see cref="XElement"/></returns>
-    public XElement? Read(string amlFilePath)
+    public XElement? Read(string? amlFilePath)
     {
         _linkA.Clear();
         _linkB.Clear();
+        if (amlFilePath is null) return null;
         _aml = XDocument.Load(amlFilePath).Root;
         var rootElement = new XElement("Profinet");
         if (_aml is null) return null;
@@ -37,20 +43,21 @@ public class AmlConverter
             rootElement.Add(deviceElement);
         }
 
-        var typeIdentifiers = new HashSet<string>();
-        foreach (var device in rootElement.Descendants("Device"))
-        {
-            var typeIdentifier = device.Attribute("TypeIdentifier")?.Value;
-            if (typeIdentifier is null) continue;
-            if (typeIdentifiers.Add(typeIdentifier))
-            {
-                rootElement.Add(new XElement("TypeIdentifier", 
-                    new XAttribute("Name", typeIdentifier), 
-                    new XElement("VendorId", 0), 
-                    new XElement("DeviceId", 0)));
-            }
-        }
+        //var typeIdentifiers = new HashSet<string>();
+        //foreach (var device in rootElement.Descendants("Device"))
+        //{
+        //    var typeIdentifier = device.Attribute("TypeIdentifier")?.Value;
+        //    if (typeIdentifier is null) continue;
+        //    if (typeIdentifiers.Add(typeIdentifier))
+        //    {
+        //        rootElement.Add(new XElement("TypeIdentifier", 
+        //            new XAttribute("Name", typeIdentifier), 
+        //            new XElement("VendorId", 0), 
+        //            new XElement("DeviceId", 0)));
+        //    }
+        //}
         
+        CreateDeviceFile(rootElement);
         return rootElement;
     }
     
@@ -149,6 +156,39 @@ public class AmlConverter
             deviceElement.Add(new XElement("Module1"));
         }
         deviceElement.Element("Module1")?.Add(portElement);
+    }
+
+    private static void CreateDeviceFile(XElement rootElement)
+    {
+        var jsonFile = new Dictionary<string, string>();
+        var deviceIds = GetDeviceIdsFromGit();
+        
+        foreach (var device in rootElement.Descendants("Device"))
+        {
+            if (device.Attribute("TypeIdentifier")?.Value is not {} typeIdentifier) continue;
+            typeIdentifier = typeIdentifier.Split('/')[0];
+            if (!deviceIds.TryGetValue(typeIdentifier, out var deviceId)) continue;
+            jsonFile.Add(typeIdentifier, deviceId);
+        }
+
+        if (JsonSerializer.Serialize(jsonFile) is not {} jsonString) return;
+        File.WriteAllText($"{AppData.Path}\\DeviceIds.json", jsonString);
+    }
+
+    private static Dictionary<string, string> GetDeviceIdsFromGit()
+    {
+        const string url = "https://raw.githubusercontent.com/opencommissioning/OC_ProfinetDeviceIds/main/DeviceIds.json";
+        using var client = new HttpClient();
+        try
+        {
+            var raw = client.GetStringAsync(url).Result;
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(raw) ?? new Dictionary<string, string>();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(typeof(AmlConverter), e.Message);
+            return new Dictionary<string, string>();
+        }
     }
 
     private static bool GetAddressAttributes(XElement address, XElement moduleElement)

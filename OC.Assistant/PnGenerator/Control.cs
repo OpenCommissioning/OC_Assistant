@@ -4,6 +4,7 @@ using System.Net.NetworkInformation;
 using System.Xml.Linq;
 using EnvDTE;
 using OC.Assistant.Core;
+using OC.Assistant.PnGenerator.Aml;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using Process = System.Diagnostics.Process;
@@ -13,6 +14,7 @@ namespace OC.Assistant.PnGenerator;
 public class Control(string scannerTool)
 {
     private Settings _settings;
+    private XElement? _amlConverted;
 
     /// <summary>
     /// Starts capturing.
@@ -36,6 +38,7 @@ public class Control(string scannerTool)
         
         DteSingleThread.Run(dte =>
         {
+            _amlConverted = new AmlConverter().Read(_settings.HwFilePath);
             RunScanner();
             ImportPnDevice(dte);
         });
@@ -55,7 +58,7 @@ public class Control(string scannerTool)
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\""
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\" --device-file \"{AppData.Path}\\DeviceIds.json\""
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true
@@ -117,11 +120,8 @@ public class Control(string scannerTool)
             return;
         }
         
-        //Update xti file if necessary
-        if (_settings.HwFilePath is not null)
-        {
-            new XtiUpdater().Run(xtiFilePath, _settings.HwFilePath);
-        }
+        //Update xti file
+        new XtiUpdater().Run(xtiFilePath, _amlConverted);
         
         var tcSysManager = dte.GetTcSysManager();
         tcSysManager?.SaveProject();
