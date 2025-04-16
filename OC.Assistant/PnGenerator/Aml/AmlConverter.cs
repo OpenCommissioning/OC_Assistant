@@ -14,7 +14,7 @@ public class AmlConverter
     private XElement? _aml;
     
     /// <summary>
-    /// Reads an aml file and converts to a readable <see cref="XElement"/>.
+    /// Reads an TIA aml export file and converts to a simplified <see cref="XElement"/>.
     /// </summary>
     /// <param name="amlFilePath">The aml file path.</param>
     /// <returns>The converted <see cref="XElement"/></returns>
@@ -42,20 +42,6 @@ public class AmlConverter
                 
             rootElement.Add(deviceElement);
         }
-
-        //var typeIdentifiers = new HashSet<string>();
-        //foreach (var device in rootElement.Descendants("Device"))
-        //{
-        //    var typeIdentifier = device.Attribute("TypeIdentifier")?.Value;
-        //    if (typeIdentifier is null) continue;
-        //    if (typeIdentifiers.Add(typeIdentifier))
-        //    {
-        //        rootElement.Add(new XElement("TypeIdentifier", 
-        //            new XAttribute("Name", typeIdentifier), 
-        //            new XElement("VendorId", 0), 
-        //            new XElement("DeviceId", 0)));
-        //    }
-        //}
         
         CreateDeviceFile(rootElement);
         return rootElement;
@@ -162,13 +148,23 @@ public class AmlConverter
     {
         var jsonFile = new Dictionary<string, string>();
         var deviceIds = GetDeviceIdsFromGit();
+        var missing = new HashSet<string>();
         
         foreach (var device in rootElement.Descendants("Device"))
         {
+            if (device.Attribute("Name")?.Value is not {} name) continue;
             if (device.Attribute("TypeIdentifier")?.Value is not {} typeIdentifier) continue;
             typeIdentifier = typeIdentifier.Split('/')[0];
-            if (!deviceIds.TryGetValue(typeIdentifier, out var deviceId)) continue;
-            jsonFile.Add(typeIdentifier, deviceId);
+            
+            if (!deviceIds.TryGetValue(typeIdentifier, out var deviceId))
+            {
+                if (missing.Add(typeIdentifier))
+                {
+                    Logger.LogWarning(typeof(AmlConverter),$"Unknown device of type {typeIdentifier}");
+                }
+                continue;
+            }
+            jsonFile.Add(name, deviceId);
         }
 
         if (JsonSerializer.Serialize(jsonFile) is not {} jsonString) return;

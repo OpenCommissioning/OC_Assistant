@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using OC.Assistant.PnGenerator.Aml;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
