@@ -48,7 +48,7 @@ public partial class Menu
         menu.Items.Add(scan);
         
         var update = new MenuItem {Header = $"Update {SCANNER_TOOL}"};
-        update.Click += UpdateOnClick;
+        update.Click += InstallOnClick;
         menu.Items.Add(update);
         
         var uninstall = new MenuItem {Header = $"Uninstall {SCANNER_TOOL}"};
@@ -58,28 +58,23 @@ public partial class Menu
     
     private async Task IsScannerInstalled()
     {
-        var lines = (await Dotnet($"tool list {SCANNER_TOOL} -g", false)).Split("\r\n");
-        _isScannerInstalled = lines.Length > 1 && lines[2] != "";
+        var lines = (await Powershell($"dotnet tool list {SCANNER_TOOL} -g", false)).Split("\r\n");
+        _isScannerInstalled = lines.Length > 2;
     }
     
     private async void InstallOnClick(object sender, RoutedEventArgs e)
     {
         try
         {
-            await Dotnet($"tool install {SCANNER_TOOL} -g");
-            await IsScannerInstalled();
-        }
-        catch (Exception exception)
-        {
-            Logger.LogError(this, exception.Message);
-        }
-    }
-
-    private async void UpdateOnClick(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            await Dotnet($"tool update {SCANNER_TOOL} -g");
+            await Powershell($"""
+                         $local = Join-Path "$env:APPDATA" "OC.Assistant"
+                         $asset = (Invoke-RestMethod -Uri "https://api.github.com/repos/OpenCommissioning/OC_TcPnScanner/releases/latest").assets
+                         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile (Join-Path "$local" "$asset.name")
+                         dotnet tool uninstall {SCANNER_TOOL} --global
+                         dotnet tool install --global {SCANNER_TOOL} --add-source "$local"
+                         """);
+            
+            //await Dotnet($"tool install {SCANNER_TOOL} -g");
             await IsScannerInstalled();
         }
         catch (Exception exception)
@@ -92,7 +87,7 @@ public partial class Menu
     {
         try
         {
-            await Dotnet($"tool uninstall {SCANNER_TOOL} -g");
+            await Powershell($"dotnet tool uninstall {SCANNER_TOOL} -g");
             await IsScannerInstalled();
         }
         catch (Exception exception)
@@ -101,22 +96,26 @@ public partial class Menu
         }
     }
 
-    private async Task<string> Dotnet(string arguments, bool logOutput = true)
+    private async Task<string> Powershell(string arguments, bool logOutput = true)
     {
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo
         {
             CreateNoWindow = true,
             RedirectStandardOutput = true,
-            FileName = "dotnet",
-            Arguments = arguments
+            FileName = "powershell",
+            Arguments = arguments,
+            Environment =
+            {
+                ["DOTNET_CLI_UI_LANGUAGE"] = "en"
+            }
         };
 
         BusyState.Set(this);
         process.Start();
         await process.WaitForExitAsync();
         var streamReader = new StreamReader(process.StandardOutput.BaseStream, Encoding.UTF8);
-        var output = await streamReader.ReadToEndAsync();
+        var output = (await streamReader.ReadToEndAsync()).TrimEnd('\n').TrimEnd('\r');
         if (logOutput) Logger.LogInfo(this, output);
         BusyState.Reset(this);
         return output;
