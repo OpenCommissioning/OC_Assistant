@@ -38,7 +38,7 @@ public class Control(string scannerTool)
         
         DteSingleThread.Run(dte =>
         {
-            _amlConverted = new AmlConverter().Read(_settings.HwFilePath);
+            _amlConverted = new AmlConverter().Read(_settings.HwFilePath, _settings.GsdFolderPath);
             RunScanner();
             ImportPnDevice(dte);
         });
@@ -53,12 +53,13 @@ public class Control(string scannerTool)
         Logger.LogInfo(this, $"Running {scannerTool} for {duration} seconds...");
             
         var filePath = $"{AppData.Path}\\{_settings.PnName}.xti";
+        var deviceIds = $"{AppData.Path}\\DeviceIds-by-name.json"; 
         
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\" --device-file \"{AppData.Path}\\DeviceIds.json\""
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\" --device-file \"{deviceIds}\""
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true

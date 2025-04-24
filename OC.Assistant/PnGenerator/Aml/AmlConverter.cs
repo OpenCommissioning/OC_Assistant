@@ -14,11 +14,12 @@ public class AmlConverter
     private XElement? _aml;
     
     /// <summary>
-    /// Reads an TIA aml export file and converts to a simplified <see cref="XElement"/>.
+    /// Reads a TIA aml export file and converts to a simplified <see cref="XElement"/>.
     /// </summary>
     /// <param name="amlFilePath">The aml file path.</param>
+    /// <param name="gsdFolderPath">The gsd folder path.</param>
     /// <returns>The converted <see cref="XElement"/></returns>
-    public XElement? Read(string? amlFilePath)
+    public XElement? Read(string? amlFilePath, string? gsdFolderPath = null)
     {
         _linkA.Clear();
         _linkB.Clear();
@@ -43,7 +44,7 @@ public class AmlConverter
             rootElement.Add(deviceElement);
         }
         
-        CreateDeviceFile(rootElement);
+        CreateDeviceFile(rootElement, gsdFolderPath);
         return rootElement;
     }
     
@@ -144,10 +145,12 @@ public class AmlConverter
         deviceElement.Element("Module1")?.Add(portElement);
     }
 
-    private static void CreateDeviceFile(XElement rootElement)
+    private static void CreateDeviceFile(XElement rootElement, string? gsdFolderPath)
     {
         var jsonFile = new Dictionary<string, string>();
         var deviceIds = GetDeviceIdsFromGit();
+        GetDeviceIdsFromGsdFiles(deviceIds, gsdFolderPath);
+        
         var missing = new HashSet<string>();
         
         foreach (var device in rootElement.Descendants("Device"))
@@ -166,14 +169,22 @@ public class AmlConverter
             }
             jsonFile.Add(name, deviceId);
         }
+        
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
 
-        if (JsonSerializer.Serialize(jsonFile) is not {} jsonString) return;
-        File.WriteAllText($"{AppData.Path}\\DeviceIds.json", jsonString);
+        if (JsonSerializer.Serialize(jsonFile, options) is not {} jsonString) return;
+        File.WriteAllText($"{AppData.Path}\\DeviceIds-by-name.json", jsonString);
+        
+        if (JsonSerializer.Serialize(deviceIds, options) is not {} deviceIdsJson) return;
+        File.WriteAllText($"{AppData.Path}\\DeviceIds-{DateTime.Now:yyyy-MM-dd-HHmm}.json", deviceIdsJson);
     }
 
     private static Dictionary<string, string> GetDeviceIdsFromGit()
     {
-        const string url = "https://raw.githubusercontent.com/opencommissioning/OC_ProfinetDeviceIds/main/DeviceIds.json";
+        const string url = "https://raw.githubusercontent.com/opencommissioning/OC_ProfinetDeviceIds/master/DeviceIds.json";
         using var client = new HttpClient();
         try
         {
@@ -184,6 +195,39 @@ public class AmlConverter
         {
             Logger.LogError(typeof(AmlConverter), e.Message);
             return new Dictionary<string, string>();
+        }
+    }
+    
+    private static void GetDeviceIdsFromGsdFiles(Dictionary<string, string> deviceIds, string? gsdFolderPath)
+    {
+        if (gsdFolderPath is null) return;
+        var files = Directory.GetFiles(gsdFolderPath, "*.xml", SearchOption.AllDirectories);
+        foreach (var file in files)
+        {
+            try
+            {
+                const string ns = "{http://www.profibus.com/GSDML/2003/11/DeviceProfile}";
+                var doc = XDocument.Load(file);
+                if (doc.Descendants($"{ns}DeviceIdentity").FirstOrDefault() is not {} identity) continue;
+                var vendor = identity.Attribute("VendorID");
+                var device = identity.Attribute("DeviceID");
+                if (vendor is null || device is null) continue;
+                var id = vendor.Value + device.Value.Replace("0x", "");
+                deviceIds.TryAdd($"GSD:{Path.GetFileName(file).ToUpper()}", id);
+                
+                foreach (var deviceAccessPointItem in doc.Descendants($"{ns}DeviceAccessPointItem"))
+                {
+                    if (deviceAccessPointItem.Element($"{ns}ModuleInfo")?.Element($"{ns}OrderNumber")
+                            ?.Attribute("Value")?.Value is { } orderNumber)
+                    {
+                        deviceIds.TryAdd($"OrderNumber:{orderNumber}", id);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning(typeof(AmlConverter), e.Message);
+            }
         }
     }
 
