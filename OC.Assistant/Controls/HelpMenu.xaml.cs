@@ -78,6 +78,12 @@ internal partial class HelpMenu
             UrlName = "nuget.org"
         });
         
+        stack.Add(new DependencyInfo(typeof(Microsoft.WindowsAPICodePack.Dialogs.DialogControl))
+        {
+            Url = "https://www.nuget.org/packages/Microsoft-WindowsAPICodePack-Core",
+            UrlName = "nuget.org"
+        });
+        
         stack.Add(new DependencyInfo(typeof(TwinCAT.Ads.AdsClient))
         {
             Url = "https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads",
