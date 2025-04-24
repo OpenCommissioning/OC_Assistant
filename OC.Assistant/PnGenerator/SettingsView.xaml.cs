@@ -1,8 +1,8 @@
 ﻿using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Windows.Forms;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace OC.Assistant.PnGenerator;
 
@@ -49,14 +49,15 @@ public partial class SettingsView
     
     private void SelectGsdFolderOnClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new CommonOpenFileDialog
+        var dialog = new FolderBrowserDialog
         {
-            IsFolderPicker = true,
-            Title = "GSDML folder"
+            Description = "GSDML folder",
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = true
         };
 
-        if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
-        _gsdFolderPath = dialog.FileName;
+        if (dialog.ShowDialog() != DialogResult.OK) return;
+        _gsdFolderPath = dialog.SelectedPath;
         GsdFolderTextBlock.Text = _gsdFolderPath;
     }
 }
