@@ -209,7 +209,12 @@ public class AmlConverter
                 var device = identity.Attribute("DeviceID");
                 if (vendor is null || device is null) continue;
                 var id = vendor.Value + device.Value.Replace("0x", "");
-                deviceIds.TryAdd($"GSD:{Path.GetFileName(file).ToUpper()}", id);
+                var key = $"GSD:{Path.GetFileName(file).ToUpper()}";
+
+                if (deviceIds.TryAdd(key, id))
+                {
+                    additional.Add(key, id);
+                }
                 
                 foreach (var deviceAccessPointItem in doc.Descendants($"{ns}DeviceAccessPointItem"))
                 {
@@ -218,7 +223,8 @@ public class AmlConverter
                         continue;
                     }
                     
-                    if (moduleInfo.Element($"{ns}VendorName")?.Attribute("Value")?.Value.ToUpper() != "SIEMENS")
+                    if (moduleInfo.Element($"{ns}VendorName")?.Attribute("Value")?.Value
+                            .Contains("siemens", StringComparison.CurrentCultureIgnoreCase) != true)
                     {
                         continue;
                     }
