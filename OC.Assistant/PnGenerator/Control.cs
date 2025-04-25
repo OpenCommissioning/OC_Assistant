@@ -36,6 +36,12 @@ public class Control(string scannerTool)
             return;
         }
         
+        if (_settings.HwFilePath is null)
+        {
+            Logger.LogError(this, "TIA aml file not specified");
+            return;
+        }
+        
         DteSingleThread.Run(dte =>
         {
             _amlConverted = new AmlConverter().Read(_settings.HwFilePath, _settings.GsdFolderPath);

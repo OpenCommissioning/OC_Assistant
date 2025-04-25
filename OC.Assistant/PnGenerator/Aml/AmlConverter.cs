@@ -169,18 +169,12 @@ public class AmlConverter
             }
             jsonFile.Add(name, deviceId);
         }
-        
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
 
-        if (JsonSerializer.Serialize(jsonFile, options) is not {} jsonString) return;
+        if (JsonSerializer.Serialize(jsonFile, JsonSerializerOptions) is not {} jsonString) return;
         File.WriteAllText($"{AppData.Path}\\DeviceIds-by-name.json", jsonString);
-        
-        if (JsonSerializer.Serialize(deviceIds, options) is not {} deviceIdsJson) return;
-        File.WriteAllText($"{AppData.Path}\\DeviceIds-{DateTime.Now:yyyy-MM-dd-HHmm}.json", deviceIdsJson);
     }
+    
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new(){WriteIndented = true};
 
     private static Dictionary<string, string> GetDeviceIdsFromGit()
     {
@@ -202,6 +196,8 @@ public class AmlConverter
     {
         if (gsdFolderPath is null) return;
         var files = Directory.GetFiles(gsdFolderPath, "*.xml", SearchOption.AllDirectories);
+        var additional = new Dictionary<string, string>();
+        
         foreach (var file in files)
         {
             try
@@ -217,10 +213,24 @@ public class AmlConverter
                 
                 foreach (var deviceAccessPointItem in doc.Descendants($"{ns}DeviceAccessPointItem"))
                 {
-                    if (deviceAccessPointItem.Element($"{ns}ModuleInfo")?.Element($"{ns}OrderNumber")
-                            ?.Attribute("Value")?.Value is { } orderNumber)
+                    if (deviceAccessPointItem.Element($"{ns}ModuleInfo") is not {} moduleInfo)
                     {
-                        deviceIds.TryAdd($"OrderNumber:{orderNumber}", id);
+                        continue;
+                    }
+                    
+                    if (moduleInfo.Element($"{ns}VendorName")?.Attribute("Value")?.Value.ToUpper() != "SIEMENS")
+                    {
+                        continue;
+                    }
+
+                    if (moduleInfo.Element($"{ns}OrderNumber")?.Attribute("Value")?.Value is not {} orderNumber)
+                    {
+                        continue;
+                    }
+                    
+                    if (deviceIds.TryAdd($"OrderNumber:{orderNumber}", id))
+                    {
+                        additional.Add($"OrderNumber:{orderNumber}", id);
                     }
                 }
             }
@@ -229,6 +239,10 @@ public class AmlConverter
                 Logger.LogWarning(typeof(AmlConverter), e.Message);
             }
         }
+        
+        if (additional.Count == 0) return;
+        if (JsonSerializer.Serialize(additional, JsonSerializerOptions) is not {} deviceIdsJson) return;
+        File.WriteAllText($"{AppData.Path}\\DeviceIds-added.json", deviceIdsJson);
     }
 
     private static bool GetAddressAttributes(XElement address, XElement moduleElement)
