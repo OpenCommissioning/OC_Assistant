@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using OC.Assistant.PnGenerator.Aml;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
@@ -9,16 +8,15 @@ internal class XtiUpdater
     private XElement? _amlConverted;
     private List<string> _deviceNames = [];
         
-    public void Run(string xtiFilePath, string amlFilePath)
+    public void Run(string xtiFilePath, XElement? amlConverted)
     {
         try
         {
             _deviceNames.Clear();
-            _amlConverted = new AmlConverter().Read(amlFilePath);
+            _amlConverted = amlConverted;
             
             if (_amlConverted is null)
             {
-                Logger.LogError(this, "Error reading aml file");
                 return;
             }
             
@@ -28,8 +26,6 @@ internal class XtiUpdater
                 Logger.LogError(this, "Error reading xti file");
                 return;
             }
-            
-            Logger.LogInfo(this, $"Updating {xtiFilePath} with {amlFilePath}");
             
             var plcPortNr = xti.Element("Device")?.Element("Profinet")?.Attribute("PLCPortNr");
             if (plcPortNr is not null)

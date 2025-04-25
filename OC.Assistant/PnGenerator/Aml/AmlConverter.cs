@@ -1,4 +1,9 @@
 ﻿using System.Xml.Linq;
+using System.IO;
+using System.Net.Http;
+using System.Text.Json;
+using OC.Assistant.Core;
+using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator.Aml;
 
@@ -9,14 +14,16 @@ public class AmlConverter
     private XElement? _aml;
     
     /// <summary>
-    /// Reads an aml file and converts to a readable <see cref="XElement"/>.
+    /// Reads a TIA aml export file and converts to a simplified <see cref="XElement"/>.
     /// </summary>
     /// <param name="amlFilePath">The aml file path.</param>
+    /// <param name="gsdFolderPath">The gsd folder path.</param>
     /// <returns>The converted <see cref="XElement"/></returns>
-    public XElement? Read(string amlFilePath)
+    public XElement? Read(string? amlFilePath, string? gsdFolderPath = null)
     {
         _linkA.Clear();
         _linkB.Clear();
+        if (amlFilePath is null) return null;
         _aml = XDocument.Load(amlFilePath).Root;
         var rootElement = new XElement("Profinet");
         if (_aml is null) return null;
@@ -36,21 +43,8 @@ public class AmlConverter
                 
             rootElement.Add(deviceElement);
         }
-
-        var typeIdentifiers = new HashSet<string>();
-        foreach (var device in rootElement.Descendants("Device"))
-        {
-            var typeIdentifier = device.Attribute("TypeIdentifier")?.Value;
-            if (typeIdentifier is null) continue;
-            if (typeIdentifiers.Add(typeIdentifier))
-            {
-                rootElement.Add(new XElement("TypeIdentifier", 
-                    new XAttribute("Name", typeIdentifier), 
-                    new XElement("VendorId", 0), 
-                    new XElement("DeviceId", 0)));
-            }
-        }
         
+        CreateDeviceFile(rootElement, gsdFolderPath);
         return rootElement;
     }
     
@@ -149,6 +143,106 @@ public class AmlConverter
             deviceElement.Add(new XElement("Module1"));
         }
         deviceElement.Element("Module1")?.Add(portElement);
+    }
+
+    private static void CreateDeviceFile(XElement rootElement, string? gsdFolderPath)
+    {
+        var jsonFile = new Dictionary<string, string>();
+        var deviceIds = GetDeviceIdsFromGit();
+        GetDeviceIdsFromGsdFiles(deviceIds, gsdFolderPath);
+        
+        var missing = new HashSet<string>();
+        
+        foreach (var device in rootElement.Descendants("Device"))
+        {
+            if (device.Attribute("Name")?.Value is not {} name) continue;
+            if (device.Attribute("TypeIdentifier")?.Value is not {} typeIdentifier) continue;
+            typeIdentifier = typeIdentifier.Split('/')[0];
+            
+            if (!deviceIds.TryGetValue(typeIdentifier, out var deviceId))
+            {
+                if (missing.Add(typeIdentifier))
+                {
+                    Logger.LogWarning(typeof(AmlConverter),$"Unknown device of type {typeIdentifier}");
+                }
+                continue;
+            }
+            jsonFile.Add(name, deviceId);
+        }
+
+        if (JsonSerializer.Serialize(jsonFile, JsonSerializerOptions) is not {} jsonString) return;
+        File.WriteAllText($"{AppData.Path}\\DeviceIds-by-name.json", jsonString);
+    }
+    
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new(){WriteIndented = true};
+
+    private static Dictionary<string, string> GetDeviceIdsFromGit()
+    {
+        const string url = "https://raw.githubusercontent.com/opencommissioning/OC_ProfinetDeviceIds/master/DeviceIds.json";
+        using var client = new HttpClient();
+        try
+        {
+            var raw = client.GetStringAsync(url).Result;
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(raw) ?? new Dictionary<string, string>();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(typeof(AmlConverter), e.Message);
+            return new Dictionary<string, string>();
+        }
+    }
+    
+    private static void GetDeviceIdsFromGsdFiles(Dictionary<string, string> deviceIds, string? gsdFolderPath)
+    {
+        if (gsdFolderPath is null) return;
+        var files = Directory.GetFiles(gsdFolderPath, "*.xml", SearchOption.AllDirectories);
+        var additional = new Dictionary<string, string>();
+        
+        foreach (var file in files)
+        {
+            try
+            {
+                const string ns = "{http://www.profibus.com/GSDML/2003/11/DeviceProfile}";
+                var doc = XDocument.Load(file);
+                if (doc.Descendants($"{ns}DeviceIdentity").FirstOrDefault() is not {} identity) continue;
+                var vendor = identity.Attribute("VendorID");
+                var device = identity.Attribute("DeviceID");
+                if (vendor is null || device is null) continue;
+                var id = vendor.Value + device.Value.Replace("0x", "");
+                deviceIds.TryAdd($"GSD:{Path.GetFileName(file).ToUpper()}", id);
+                
+                foreach (var deviceAccessPointItem in doc.Descendants($"{ns}DeviceAccessPointItem"))
+                {
+                    if (deviceAccessPointItem.Element($"{ns}ModuleInfo") is not {} moduleInfo)
+                    {
+                        continue;
+                    }
+                    
+                    if (moduleInfo.Element($"{ns}VendorName")?.Attribute("Value")?.Value.ToUpper() != "SIEMENS")
+                    {
+                        continue;
+                    }
+
+                    if (moduleInfo.Element($"{ns}OrderNumber")?.Attribute("Value")?.Value is not {} orderNumber)
+                    {
+                        continue;
+                    }
+                    
+                    if (deviceIds.TryAdd($"OrderNumber:{orderNumber}", id))
+                    {
+                        additional.Add($"OrderNumber:{orderNumber}", id);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning(typeof(AmlConverter), e.Message);
+            }
+        }
+        
+        if (additional.Count == 0) return;
+        if (JsonSerializer.Serialize(additional, JsonSerializerOptions) is not {} deviceIdsJson) return;
+        File.WriteAllText($"{AppData.Path}\\DeviceIds-added.json", deviceIdsJson);
     }
 
     private static bool GetAddressAttributes(XElement address, XElement moduleElement)

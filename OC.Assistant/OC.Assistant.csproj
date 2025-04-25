@@ -21,8 +21,9 @@
     </ItemGroup>
     
     <ItemGroup>
+      <PackageReference Include="Microsoft-WindowsAPICodePack-Core" Version="1.1.5" />
       <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
-      <PackageReference Include="OC.Assistant.Sdk" Version="1.7.0" />
+      <PackageReference Include="OC.Assistant.Sdk" Version="1.7.1" />
       <PackageReference Include="OC.Assistant.Theme" Version="1.4.10" />
       <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
     </ItemGroup>

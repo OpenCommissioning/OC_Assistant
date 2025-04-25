@@ -14,7 +14,7 @@
     </local:AdapterDropdown>
     <Label Margin="0 10 0 0">Scan duration in seconds</Label>
     <TextBox x:Name="Duration" VerticalAlignment="Top" Margin="0 4 0 0" Width="80" HorizontalAlignment="Left">60</TextBox>
-    <Label Margin="0 10 0 0">TIA aml file (optional)</Label>
+    <Label Margin="0 10 0 0">TIA aml file</Label>
     <Grid Margin="0 4 0 0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="40"></ColumnDefinition>
@@ -22,7 +22,18 @@
         </Grid.ColumnDefinitions>
         <Button Grid.Column="0" Background="{DynamicResource White6Brush}" HorizontalAlignment="Stretch" Click="SelectAmlFileOnClick">...</Button>
         <Label Grid.Column="1" VerticalContentAlignment="Center" IsEnabled="False">
-            <TextBlock x:Name="HwFileTextBlock" Margin="8 0 0 0">no file selected</TextBlock>
+            <TextBlock x:Name="HwFileTextBlock" Margin="8 0 0 0">not specified</TextBlock>
+        </Label>
+    </Grid>
+    <Label Margin="0 10 0 0">GSDML folder (optional)</Label>
+    <Grid Margin="0 4 0 0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Background="{DynamicResource White6Brush}" HorizontalAlignment="Stretch" Click="SelectGsdFolderOnClick">...</Button>
+        <Label Grid.Column="1" VerticalContentAlignment="Center" IsEnabled="False">
+            <TextBlock x:Name="GsdFolderTextBlock" Margin="8 0 0 0">not specified</TextBlock>
         </Label>
     </Grid>
 </StackPanel>
