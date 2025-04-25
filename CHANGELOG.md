@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.13.0"></a>
+## [1.13.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.0) (2025-04-25)
+
+### Features
+
+* **PnGenerator:** add a setting to specify a folder with GSDML files ([9056f99](https://www.github.com/OpenCommissioning/OC_Assistant/commit/9056f99c25412235bc582d69d445389077846382))
+* **PnGenerator:** implement a feature to get Vendor- and Device ID information ([6b73f94](https://www.github.com/OpenCommissioning/OC_Assistant/commit/6b73f9474ecfe80f349586d866959bbb01f0fde3))
+
+### Bug Fixes
+
+* open folder dialog behaviour ([e4f0280](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e4f028063769aaca4e65e3d2800572942f226dff))
+* show missing dependencies on third party list ([4b8d0e7](https://www.github.com/OpenCommissioning/OC_Assistant/commit/4b8d0e77b0222b69d87acd2fb437821531a9d39d))
+* upgrade SDK package reference ([f11004a](https://www.github.com/OpenCommissioning/OC_Assistant/commit/f11004a94737a91e3fc17e3f18c8b1c7a1e05093))
+* **PnGenerator:** log missing devices when converting an TIA aml file ([baf96a7](https://www.github.com/OpenCommissioning/OC_Assistant/commit/baf96a7a29976a6e7e80cb69146b3348307560e5))
+* **PnGenerator:** use custom tcpnscanner ([f3dd2f2](https://www.github.com/OpenCommissioning/OC_Assistant/commit/f3dd2f2a61c6606f12a33366ea7dfaf94b0ec1fb))
+* **PnScanner:** TIA aml file is now required ([1ad1fdd](https://www.github.com/OpenCommissioning/OC_Assistant/commit/1ad1fdd7b54113e821966f09eb0103b253edd634))
+
 <a name="1.12.0"></a>
 ## [1.12.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.12.0) (2025-04-15)
 
