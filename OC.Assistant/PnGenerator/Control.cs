@@ -138,8 +138,6 @@ public class Control(string scannerTool)
         File.Delete(xtiFilePath);
             
         UpdateTcPnDevice(tcPnDevice);
-        dte.Finalize();
-        
         Logger.LogInfo(this, "Finished");
     }
         
@@ -160,10 +158,22 @@ public class Control(string scannerTool)
             if ($"{adapter.Name} ({adapter.Description})" != deviceDesc) continue;
             var pnDevice = XDocument.Parse(tcPnDevice.ProduceXml());
             var pnp = pnDevice.Root?.Element("DeviceDef")?.Element("AddressInfo")?.Element("Pnp");
-            if (pnp is null) return;
-            pnp.Element("DeviceDesc")!.Value = deviceDesc;
-            pnp.Element("DeviceName")!.Value = $"\\DEVICE\\{adapter.Id}";
-            pnp.Element("DeviceData")!.Value = adapter.GetPhysicalAddress().ToString();
+
+            if (pnp?.Element("DeviceDesc") is { } desc)
+            {
+                desc.Value = deviceDesc;
+            }
+            
+            if (pnp?.Element("DeviceName") is { } name)
+            {
+                name.Value = $@"\DEVICE\{adapter.Id}";
+            }
+            
+            if (pnp?.Element("DeviceData") is { } data)
+            {
+                data.Value = adapter.GetPhysicalAddress().ToString();
+            }
+            
             tcPnDevice.ConsumeXml(pnDevice.ToString());
             return;
         }
