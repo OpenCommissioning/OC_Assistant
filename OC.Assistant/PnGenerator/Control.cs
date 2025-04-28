@@ -55,8 +55,7 @@ public class Control(string scannerTool)
     /// </summary>
     private void RunScanner()
     {
-        var duration = _settings.Duration;
-        Logger.LogInfo(this, $"Running {scannerTool} for {duration} seconds...");
+        Logger.LogInfo(this, $"Running {scannerTool}...");
             
         var filePath = $"{AppData.Path}\\{_settings.PnName}.xti";
         var deviceIds = $"{AppData.Path}\\DeviceIds-by-name.json"; 
@@ -65,7 +64,7 @@ public class Control(string scannerTool)
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\" --device-file \"{deviceIds}\""
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -o \"{filePath}\" --device-file \"{deviceIds}\""
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true
