@@ -8,5 +8,4 @@ public struct Settings
     public NetworkInterface? Adapter { get; set; }
     public string? HwFilePath { get; set; }
     public string? GsdFolderPath { get; set; }
-    public int Duration { get; set; }
 }

@@ -4,7 +4,6 @@ using System.Net.NetworkInformation;
 using System.Xml.Linq;
 using EnvDTE;
 using OC.Assistant.Core;
-using OC.Assistant.PnGenerator.Aml;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using Process = System.Diagnostics.Process;
@@ -14,7 +13,6 @@ namespace OC.Assistant.PnGenerator;
 public class Control(string scannerTool)
 {
     private Settings _settings;
-    private XElement? _amlConverted;
 
     /// <summary>
     /// Starts capturing.
@@ -44,7 +42,6 @@ public class Control(string scannerTool)
         
         DteSingleThread.Run(dte =>
         {
-            _amlConverted = new AmlConverter().Read(_settings.HwFilePath, _settings.GsdFolderPath);
             RunScanner();
             ImportPnDevice(dte);
         });
@@ -55,17 +52,15 @@ public class Control(string scannerTool)
     /// </summary>
     private void RunScanner()
     {
-        var duration = _settings.Duration;
-        Logger.LogInfo(this, $"Running {scannerTool} for {duration} seconds...");
+        Logger.LogInfo(this, $"Running {scannerTool}...");
             
         var filePath = $"{AppData.Path}\\{_settings.PnName}.xti";
-        var deviceIds = $"{AppData.Path}\\DeviceIds-by-name.json"; 
         
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -t {duration} -o \"{filePath}\" --device-file \"{deviceIds}\""
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -o \"{filePath}\" --aml-file \"{_settings.HwFilePath}\""
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true
@@ -127,9 +122,6 @@ public class Control(string scannerTool)
             return;
         }
         
-        //Update xti file
-        new XtiUpdater().Run(xtiFilePath, _amlConverted);
-        
         var tcSysManager = dte.GetTcSysManager();
         tcSysManager?.SaveProject();
             
@@ -139,8 +131,6 @@ public class Control(string scannerTool)
         File.Delete(xtiFilePath);
             
         UpdateTcPnDevice(tcPnDevice);
-        dte.Finalize();
-        
         Logger.LogInfo(this, "Finished");
     }
         
@@ -161,10 +151,22 @@ public class Control(string scannerTool)
             if ($"{adapter.Name} ({adapter.Description})" != deviceDesc) continue;
             var pnDevice = XDocument.Parse(tcPnDevice.ProduceXml());
             var pnp = pnDevice.Root?.Element("DeviceDef")?.Element("AddressInfo")?.Element("Pnp");
-            if (pnp is null) return;
-            pnp.Element("DeviceDesc")!.Value = deviceDesc;
-            pnp.Element("DeviceName")!.Value = $"\\DEVICE\\{adapter.Id}";
-            pnp.Element("DeviceData")!.Value = adapter.GetPhysicalAddress().ToString();
+
+            if (pnp?.Element("DeviceDesc") is { } desc)
+            {
+                desc.Value = deviceDesc;
+            }
+            
+            if (pnp?.Element("DeviceName") is { } name)
+            {
+                name.Value = $@"\DEVICE\{adapter.Id}";
+            }
+            
+            if (pnp?.Element("DeviceData") is { } data)
+            {
+                data.Value = adapter.GetPhysicalAddress().ToString();
+            }
+            
             tcPnDevice.ConsumeXml(pnDevice.ToString());
             return;
         }

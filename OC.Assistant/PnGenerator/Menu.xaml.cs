@@ -10,7 +10,7 @@ namespace OC.Assistant.PnGenerator;
 
 public partial class Menu
 {
-    private const string SCANNER_TOOL = "dsian.TcPnScanner.CLI";
+    private const string SCANNER_TOOL = "OC.TcPnScanner.CLI";
     private bool _isScannerInstalled;
 
     private readonly Control _control = new (SCANNER_TOOL);
@@ -48,7 +48,7 @@ public partial class Menu
         menu.Items.Add(scan);
         
         var update = new MenuItem {Header = $"Update {SCANNER_TOOL}"};
-        update.Click += InstallOnClick;
+        update.Click += UpdateOnClick;
         menu.Items.Add(update);
         
         var uninstall = new MenuItem {Header = $"Uninstall {SCANNER_TOOL}"};
@@ -66,15 +66,20 @@ public partial class Menu
     {
         try
         {
-            await Powershell($"""
-                         $local = Join-Path "$env:APPDATA" "OC.Assistant"
-                         $asset = (Invoke-RestMethod -Uri "https://api.github.com/repos/OpenCommissioning/OC_TcPnScanner/releases/latest").assets
-                         Invoke-WebRequest -Uri $asset.browser_download_url -OutFile (Join-Path "$local" "$asset.name")
-                         dotnet tool uninstall {SCANNER_TOOL} --global
-                         dotnet tool install --global {SCANNER_TOOL} --add-source "$local"
-                         """);
-            
-            //await Dotnet($"tool install {SCANNER_TOOL} -g");
+            await Powershell($"dotnet tool install {SCANNER_TOOL} -g");
+            await IsScannerInstalled();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogError(this, exception.Message);
+        }
+    }
+    
+    private async void UpdateOnClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await Powershell($"dotnet tool update {SCANNER_TOOL} -g");
             await IsScannerInstalled();
         }
         catch (Exception exception)
