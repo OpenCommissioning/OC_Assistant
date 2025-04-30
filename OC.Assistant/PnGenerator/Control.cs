@@ -131,6 +131,13 @@ public class Control(string scannerTool)
         File.Delete(xtiFilePath);
             
         UpdateTcPnDevice(tcPnDevice);
+        
+        if (tcSysManager?.TryGetPlcProject() is {} plcProjectItem)
+        {
+            Logger.LogInfo(this, "Create HiL structure...");
+            Generator.Generators.Hil.Update(dte, plcProjectItem);
+        }
+
         Logger.LogInfo(this, "Finished");
     }
         
