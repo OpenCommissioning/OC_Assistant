@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.13.1"></a>
+## [1.13.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.1) (2025-04-30)
+
+### Bug Fixes
+
+* collect new DeviceIDs when specifying a GSDML file path ([5dc2408](https://www.github.com/OpenCommissioning/OC_Assistant/commit/5dc240869d3861be69c5d26b4c693e3706fef99c))
+* remove duplicated finalizer ([9baa647](https://www.github.com/OpenCommissioning/OC_Assistant/commit/9baa647bdad301b08c7b074ab4572e63adb458ca))
+* **PnGenerator:** update usage of new scanner tool 'OC.TcPnScanner' ([4a9f179](https://www.github.com/OpenCommissioning/OC_Assistant/commit/4a9f179c92f542254f1b5aef01f96753a2826bf9))
+* **PnScanner:** remove duration property ([b2b486c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/b2b486c088654678d31c1029e8e1f66d08f59211))
+
 <a name="1.13.0"></a>
 ## [1.13.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.0) (2025-04-25)
 
