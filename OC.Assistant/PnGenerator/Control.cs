@@ -60,7 +60,7 @@ public class Control(string scannerTool)
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -o \"{filePath}\" --aml-file \"{_settings.HwFilePath}\""
+            Arguments = $"/c {scannerTool} -d \"{_settings.Adapter?.Id}\" -o \"{filePath}\" --aml-file \"{_settings.HwFilePath}\" --gsd-path \"{_settings.GsdFolderPath}\""
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true
