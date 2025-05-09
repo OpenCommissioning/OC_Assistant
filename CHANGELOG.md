@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.13.2"></a>
+## [1.13.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.2) (2025-05-09)
+
+### Bug Fixes
+
+* create HiL structures automatically after profinet scan ([58cf2c3](https://www.github.com/OpenCommissioning/OC_Assistant/commit/58cf2c3c70fd6dd16b211a39676096ee7f22b2e2))
+* **PnGenerator:** add missing gsd-path argument ([5bc3e58](https://www.github.com/OpenCommissioning/OC_Assistant/commit/5bc3e58132d74640cba6d813bdf4358aa547b5be))
+
 <a name="1.13.1"></a>
 ## [1.13.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.1) (2025-04-30)
 
