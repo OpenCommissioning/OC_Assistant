@@ -66,10 +66,11 @@ public static class TcSmTreeItemExtension
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? GetOrCreateChild(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
     {
-        var item = parent.TryLookupChild(childName, type);
+        var compatibleName = childName?.MakePlcCompatible();
+        var item = parent.TryLookupChild(compatibleName, type);
         if (item is not null) return item;
         Thread.Sleep(1); //"Breathing room" for the COM interface
-        return parent.CreateChild(childName, nSubType: (int)type);
+        return parent.CreateChild(compatibleName, nSubType: (int)type);
     }
     
     /// <summary>

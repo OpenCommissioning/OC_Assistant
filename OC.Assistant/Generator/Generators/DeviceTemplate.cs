@@ -24,6 +24,12 @@ public static class DeviceTemplate
 			return;
 		}
 		
+		if (!name.IsPlcCompatible())
+		{
+			Logger.LogWarning(typeof(DeviceTemplate), $"{name} is not a valid name. Allowed characters are a-z A-Z 0-9 and underscore");
+			return;
+		}
+		
 		if (parent.TryLookupChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
 		{
 			Logger.LogWarning(typeof(DeviceTemplate), $"{name} already exists");

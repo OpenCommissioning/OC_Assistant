@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 
@@ -101,7 +102,7 @@ internal partial class PluginEditor
 
     private void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
-        if (PluginName.Text != PluginName.Text.TcPlcCompatibleString())
+        if (!PluginName.Text.IsPlcCompatible())
         {
             Theme.MessageBox.Show(PluginName.Text, "Name is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;

@@ -5,7 +5,6 @@ using EnvDTE;
 using Microsoft.Win32;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
-using Thread = System.Threading.Thread;
 
 namespace OC.Assistant.Controls;
 

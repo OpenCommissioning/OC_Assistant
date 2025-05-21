@@ -42,7 +42,7 @@ internal class ProfinetVariable
 
         Name = nameList.Where(x => x != "API" && x != "Inputs" && x != "Outputs")
             .Aggregate("", (current, next) => $"{current}_{next.TcRemoveBrackets()}")
-            .TcPlcCompatibleString();
+            .MakePlcCompatible();
     }
 
     /// <summary>
