@@ -67,7 +67,7 @@ internal class ProfinetGenerator(DTE dte, string folderName)
         
         prgDecl.DeclarationText = 
             $"""
-            PROGRAM PRG_{pnName}
+            PROGRAM {prg.Name}
             VAR
                 bInitRun    : BOOL := TRUE;
                 bReset      : BOOL;

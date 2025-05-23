@@ -41,7 +41,7 @@ internal class ProfinetVariable
         if (NameIsAddress) return;
 
         Name = nameList.Where(x => x != "API" && x != "Inputs" && x != "Outputs")
-            .Aggregate("", (current, next) => $"{current}_{next.TcRemoveBrackets()}")
+            .Aggregate("", (current, next) => $"{current}_{next}")
             .MakePlcCompatible();
     }
 
