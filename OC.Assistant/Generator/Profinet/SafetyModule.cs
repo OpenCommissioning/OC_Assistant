@@ -11,10 +11,13 @@ internal class SafetyModule
     public string Name { get; }
     public string BoxName { get; }
     public string PnName { get; }
-    public string InputAddress { get; } = "";
-    public string OutputAddress { get; } = "";
+    public string HstDataName { get; } = "";
+    public string DevDataName { get; } = "";
     public int HstSize { get; }
     public int DevSize { get; }
+    
+    public ProfinetVariable? HstVariable { get; set; }
+    public ProfinetVariable? DevVariable { get; set; }
 
     public bool IsValid => HstSize >= 0 && DevSize >= 0;
         
@@ -57,8 +60,8 @@ internal class SafetyModule
             DevSize += output.Type.TcBitSize() / 8;
         }
 
-        InputAddress = inputs[0].Name;
-        OutputAddress = outputs[0].Name;
+        HstDataName = inputs[0].Name;
+        DevDataName = outputs[0].Name;
     }
 
     /// <summary>

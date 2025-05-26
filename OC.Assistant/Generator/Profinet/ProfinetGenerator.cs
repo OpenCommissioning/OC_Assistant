@@ -2,6 +2,7 @@
 using System.IO;
 using EnvDTE;
 using OC.Assistant.Core;
+using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator.Profinet;
@@ -42,13 +43,14 @@ internal class ProfinetGenerator(DTE dte, string folderName)
     
     private void GenerateFiles(ITcSmTreeItem plcProjectItem, string pnName, IEnumerable<ProfinetVariable> pnVars, IEnumerable<SafetyModule> safetyModules)
     {
-        //Declaration variables
-        const string declarationTemplate = "{attribute 'TcLinkTo' := '$LINK$'}\n$VARNAME$ AT %$DIRECTION$* : $VARTYPE$;\n";
-        var gvlVariables = pnVars.Aggregate("", (current, var) => current + declarationTemplate
-            .Replace(Tags.VAR_TYPE, var.Type)
-            .Replace(Tags.DIRECTION, var.Direction)
-            .Replace(Tags.LINK, var.Link)
-            .Replace(Tags.VAR_NAME, var.Name));
+        const string linkedVar = "{attribute 'TcLinkTo' := '$LINK$'}\n$VARNAME$ AT %$DIRECTION$* : $VARTYPE$;\n";
+        const string safetyVar = "$VARNAME$ : $VARTYPE$; //FAILSAFE\n";
+        var gvlVariables = "";
+
+        foreach (var pnVar in pnVars)
+        {
+            gvlVariables += pnVar.CreateDeclaration(false, !pnVar.SafetyFlag);
+        }
 
         //Create safety program
         var safetyProgram = new SafetyProgram(safetyModules, pnName);
@@ -71,6 +73,7 @@ internal class ProfinetGenerator(DTE dte, string folderName)
             VAR
                 bInitRun    : BOOL := TRUE;
                 bReset      : BOOL;
+                {safetyProgram.Declaration}
             END_VAR
             """;
 
@@ -89,7 +92,7 @@ internal class ProfinetGenerator(DTE dte, string folderName)
             {safetyProgram.Parameter}
             """;
 
-        pnFolder.CreateGvl(pnName, gvlVariables + safetyProgram.Declaration);
+        pnFolder.CreateGvl(pnName, gvlVariables);
 
         //Add program name to xml for project generator
         XmlFile.AddHilProgram(pnName);

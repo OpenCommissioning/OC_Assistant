@@ -3,7 +3,6 @@
 internal static class Tags
 {
     public const string NAME = "$NAME$";
-    public const string TYPE = "$TYPE$";
     public const string VAR_NAME = "$VARNAME$";
     public const string VAR_TYPE = "$VARTYPE$";
     public const string DIRECTION = "$DIRECTION$";
@@ -13,6 +12,5 @@ internal static class Tags
     public const string SUB_SLOT = "$SUBSLOT$";
     public const string DEVICE = "$DEVICE$";
     public const string BOX_NO = "$BOXNO$";
-    public const string GVL_INSTANCE = "$GVLINSTANCE$";
     public const string LINK = "$LINK$";
 }
