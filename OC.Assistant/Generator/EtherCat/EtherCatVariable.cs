@@ -1,5 +1,4 @@
-﻿using OC.Assistant.Core;
-using OC.Assistant.Sdk;
+﻿using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Generator.EtherCat;
 
@@ -14,7 +13,7 @@ internal class EtherCatVariable(string name, string type, string linkTo)
     /// <summary>
     /// The name of the variable.
     /// </summary>
-    public string Name { get; } = name.MakePlcCompatible();
+    public string Name { get; } = name.TcPlcCompatibleString();
     
     /// <summary>
     /// The type of the variable.

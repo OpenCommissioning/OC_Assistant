@@ -62,28 +62,27 @@ internal partial class ProfinetVariable
 
         Name = nameList.Where(x => x != "API" && x != "Inputs" && x != "Outputs")
             .Aggregate("", (current, next) => $"{current}_{next}")
-            .MakePlcCompatible();
+            .TcPlcCompatibleString();
     }
 
 
     /// <summary>
-    /// Generates a declaration string for a Profinet variable.
+    /// Generates a declaration string for the GVL.
     /// </summary>
-    /// <param name="tab">Indicates whether to use a tab character for formatting the declaration.</param>
-    /// <param name="link">Indicates whether to include a link attribute in the declaration.</param>
-    /// <returns>A formatted string representing the declaration of the Profinet variable.</returns>
-    public string CreateDeclaration(bool tab, bool link)
+    public string CreateGvlDeclaration()
     {
-        var tabString = tab ? "\t" : "";
-        var linkString = link ? $"{tabString}{{attribute 'TcLinkTo' := '$LINK$'}}\n" : "";
-        var template = $"{linkString}{tabString}$VARNAME$ AT %$DIRECTION$* : $VARTYPE$;\n";
+        var template = SafetyFlag ? 
+            $"{Tags.VAR_NAME} : {Tags.VAR_TYPE}; //FAILSAFE\n" : 
+            $"{{attribute 'TcLinkTo' := '{Tags.LINK}'}}\n{Tags.VAR_NAME} AT %{Tags.DIRECTION}* : {Tags.VAR_TYPE};\n";
         
-        if (this is not {PlcAddress.IsValid: true, ByteArraySize: >= 0})
+        if (!PlcAddress.IsValid || ByteArraySize < 0)
+        {
             return template
                 .Replace(Tags.VAR_TYPE, Type)
                 .Replace(Tags.DIRECTION, Direction)
                 .Replace(Tags.LINK, Link)
-                .Replace(Tags.VAR_NAME, $"{Name}");
+                .Replace(Tags.VAR_NAME, Name);
+        }
         
         var declaration = "";
         for (var i = 0; i < ByteArraySize; i++)
@@ -98,6 +97,18 @@ internal partial class ProfinetVariable
         return declaration;
     }
     
+    /// <summary>
+    /// Generates a declaration string for the safety program.
+    /// </summary>
+    public string CreatePrgDeclaration()
+    { 
+        return $"\t{{attribute 'TcLinkTo' := '{Tags.LINK}'}}\n\t{Tags.VAR_NAME} AT %{Tags.DIRECTION}* : {Tags.VAR_TYPE};\n"
+            .Replace(Tags.VAR_TYPE, Type)
+            .Replace(Tags.DIRECTION, Direction)
+            .Replace(Tags.LINK, Link)
+            .Replace(Tags.VAR_NAME, Name);
+    }
+    
     private static int GetByteArraySize(string type)
     {
         var regex = ByteArrayRegex();
@@ -105,10 +116,7 @@ internal partial class ProfinetVariable
         if (!match.Success) return -1;
         return int.Parse(match.Groups[2].Value) - int.Parse(match.Groups[1].Value) + 1;
     }
-
-    /// <summary>
-    /// Build Name recursively upwards until Element 'Device'
-    /// </summary>
+    
     private static List<string> GetFullNamePath(XElement? element)
     {
         

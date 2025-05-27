@@ -63,10 +63,7 @@ internal class SafetyModule
         HstDataName = inputs[0].Name;
         DevDataName = outputs[0].Name;
     }
-
-    /// <summary>
-    /// Determines, if the current Box is the first one
-    /// </summary>
+    
     private static bool IsFirstBox(XObject? element)
     {
         var parent = element?.Parent;
@@ -77,38 +74,26 @@ internal class SafetyModule
         var previous = parent.PreviousNode as XElement;
         return previous?.Name != "Box";
     }
-
-    /// <summary>
-    /// Search recursively upwards
-    /// </summary>
+    
     private static string GetBoxName(XObject? element)
     {
         if (element?.Parent?.Name == "Box") return element.Parent?.Element("Name")?.Value ?? "";
         return GetBoxName(element?.Parent);
     }
-
-    /// <summary>
-    /// Search recursively upwards until Element 'Box'
-    /// </summary>
+    
     private static int GetPortNr(XElement? element)
     {
         if (element?.Name == "Box") return int.Parse(element.Attribute("Id")?.Value ?? "0") + 0x1000;
         return GetPortNr(element?.Parent);
     }
-
-    /// <summary>
-    /// Search recursively upwards until Element !'Module'
-    /// </summary>
+    
     private static int GetSlotNr(XNode? element)
     {
         var elem = element?.PreviousNode as XElement;
         if (elem?.Name != "Module") return 0;
         return GetSlotNr(elem) + 1;
     }
-
-    /// <summary>
-    /// Search recursively upwards until Element !'SubModule'
-    /// </summary>
+    
     private static int GetSubSlotNr(XNode? element)
     {
         var elem = element?.PreviousNode as XElement;

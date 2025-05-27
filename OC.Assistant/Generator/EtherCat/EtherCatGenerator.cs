@@ -163,6 +163,6 @@ internal class EtherCatGenerator
         var result = name.TcRemoveBrackets();
 
         //Then replace any special character
-        return result.MakePlcCompatible();
+        return result.TcPlcCompatibleString();
     }
 }

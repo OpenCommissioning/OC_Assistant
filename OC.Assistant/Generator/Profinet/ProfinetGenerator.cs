@@ -2,7 +2,6 @@
 using System.IO;
 using EnvDTE;
 using OC.Assistant.Core;
-using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator.Profinet;
@@ -43,13 +42,11 @@ internal class ProfinetGenerator(DTE dte, string folderName)
     
     private void GenerateFiles(ITcSmTreeItem plcProjectItem, string pnName, IEnumerable<ProfinetVariable> pnVars, IEnumerable<SafetyModule> safetyModules)
     {
-        const string linkedVar = "{attribute 'TcLinkTo' := '$LINK$'}\n$VARNAME$ AT %$DIRECTION$* : $VARTYPE$;\n";
-        const string safetyVar = "$VARNAME$ : $VARTYPE$; //FAILSAFE\n";
         var gvlVariables = "";
 
         foreach (var pnVar in pnVars)
         {
-            gvlVariables += pnVar.CreateDeclaration(false, !pnVar.SafetyFlag);
+            gvlVariables += pnVar.CreateGvlDeclaration();
         }
 
         //Create safety program
