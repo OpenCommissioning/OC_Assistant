@@ -5,7 +5,7 @@ using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Generator.Profinet;
 
-internal class ProfinetVariable
+internal partial class ProfinetVariable
 {
     /// <summary>
     /// Name of the variable
@@ -23,9 +23,24 @@ internal class ProfinetVariable
     public string Link { get; }
         
     /// <summary>
-    /// "I" or "Q"
+    /// The TwinCAT direction 'I' or 'Q'.
     /// </summary>
     public string Direction { get; }
+
+    /// <summary>
+    /// The PLC address, if any.
+    /// </summary>
+    public PlcAddress PlcAddress { get; }
+    
+    /// <summary>
+    /// The byte array size, if any. -1 means no byte array.
+    /// </summary>
+    public int ByteArraySize { get; }
+
+    /// <summary>
+    /// Indicates that this variable is used by a safety module.
+    /// </summary>
+    public bool SafetyFlag { get; set; }
         
     public ProfinetVariable(XElement? element, string pnName, bool isInput)
     {
@@ -37,22 +52,71 @@ internal class ProfinetVariable
         Type = element?.Element("Type")?.Value ?? TcType.Byte.Name();
         
         Name = nameList[^1];
-        
-        if (NameIsAddress) return;
+        ByteArraySize = GetByteArraySize(Type);
+        PlcAddress = new PlcAddress(Name);
+
+        if (PlcAddress.IsValid)
+        {
+            return;
+        }
 
         Name = nameList.Where(x => x != "API" && x != "Inputs" && x != "Outputs")
-            .Aggregate("", (current, next) => $"{current}_{next.TcRemoveBrackets()}")
+            .Aggregate("", (current, next) => $"{current}_{next}")
             .TcPlcCompatibleString();
     }
 
-    /// <summary>
-    /// Check if name meets the address pattern, e.g. I100 or Q100
-    /// </summary>
-    private bool NameIsAddress => Regex.Match(Name, @"^[I,Q]\d+$").Success;
 
     /// <summary>
-    /// Build Name recursively upwards until Element 'Device'
+    /// Generates a declaration string for the GVL.
     /// </summary>
+    public string CreateGvlDeclaration()
+    {
+        var template = SafetyFlag ? 
+            $"{Tags.VAR_NAME} : {Tags.VAR_TYPE}; //FAILSAFE\n" : 
+            $"{{attribute 'TcLinkTo' := '{Tags.LINK}'}}\n{Tags.VAR_NAME} AT %{Tags.DIRECTION}* : {Tags.VAR_TYPE};\n";
+        
+        if (!PlcAddress.IsValid || ByteArraySize < 0)
+        {
+            return template
+                .Replace(Tags.VAR_TYPE, Type)
+                .Replace(Tags.DIRECTION, Direction)
+                .Replace(Tags.LINK, Link)
+                .Replace(Tags.VAR_NAME, Name);
+        }
+        
+        var declaration = "";
+        for (var i = 0; i < ByteArraySize; i++)
+        {
+            declaration += template
+                .Replace(Tags.VAR_TYPE, TcType.Byte.Name())
+                .Replace(Tags.DIRECTION, Direction)
+                .Replace(Tags.LINK, $"{Link}[{i}]")
+                .Replace(Tags.VAR_NAME, $"{PlcAddress.Direction}{PlcAddress.Address + i}");
+        }
+
+        return declaration;
+    }
+    
+    /// <summary>
+    /// Generates a declaration string for the safety program.
+    /// </summary>
+    public string CreatePrgDeclaration()
+    { 
+        return $"\t{{attribute 'TcLinkTo' := '{Tags.LINK}'}}\n\t{Tags.VAR_NAME} AT %{Tags.DIRECTION}* : {Tags.VAR_TYPE};\n"
+            .Replace(Tags.VAR_TYPE, Type)
+            .Replace(Tags.DIRECTION, Direction)
+            .Replace(Tags.LINK, Link)
+            .Replace(Tags.VAR_NAME, Name);
+    }
+    
+    private static int GetByteArraySize(string type)
+    {
+        var regex = ByteArrayRegex();
+        var match = regex.Match(type);
+        if (!match.Success) return -1;
+        return int.Parse(match.Groups[2].Value) - int.Parse(match.Groups[1].Value) + 1;
+    }
+    
     private static List<string> GetFullNamePath(XElement? element)
     {
         
@@ -77,4 +141,7 @@ internal class ProfinetVariable
             element = element.Parent;
         }
     }
+
+    [GeneratedRegex(@"ARRAY\s*\[(\d+)\.\.(\d+)\]\s+OF\s+(BYTE)", RegexOptions.IgnoreCase)]
+    private static partial Regex ByteArrayRegex();
 }

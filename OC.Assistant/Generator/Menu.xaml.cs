@@ -60,7 +60,7 @@ public partial class Menu
             return;
         }
 
-        var name = input.Text.TcPlcCompatibleString();
+        var name = input.Text;
         
         DteSingleThread.Run(dte =>
         {

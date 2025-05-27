@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using OC.Assistant.Core;
-using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator.Generators;
@@ -43,8 +42,8 @@ internal static partial class Project
     private static void CreateGroup(ITcSmTreeItem? parent, XElement? group, string? parentName = null)
     {
         if (group is null) return;
-        var name = group.Attribute("Name")?.Value.TcPlcCompatibleString();
-        var fbName = parentName is null ? name : $"{parentName}_{name}".TcPlcCompatibleString();
+        var name = group.Attribute("Name")?.Value;
+        var fbName = parentName is null ? name : $"{parentName}{name}";
         var folder = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
         var instances = new List<PouInstance>();
         
@@ -57,7 +56,7 @@ internal static partial class Project
                     continue;
                 case "Group":
                     var childName = child.Attribute("Name")?.Value;
-                    instances.Add(new PouInstance(childName, $"{fbName}_{childName}"));
+                    instances.Add(new PouInstance(childName, $"{fbName}{childName}"));
                     CreateGroup(folder, child, fbName);
                     continue;
             }
@@ -85,7 +84,7 @@ internal static partial class Project
         
         //HiL calls
         implementation = XmlFile.HilPrograms?.
-            Aggregate(implementation, (current, next) => $"{current}\tPRG_{next}();\n");
+            Aggregate(implementation, (current, next) => $"{current}\t{next}();\n");
 
         //Instance calls
         implementation = instances

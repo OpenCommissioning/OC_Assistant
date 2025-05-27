@@ -1,5 +1,5 @@
 ﻿using System.Xml.Linq;
-using OC.Assistant.Sdk;
+using OC.Assistant.Core;
 
 namespace OC.Assistant.Generator;
 
@@ -12,14 +12,14 @@ internal class PouInstance
 
     public PouInstance(string? name, string? type)
     {
-        _name = name?.TcPlcCompatibleString();
-        _type = type;
+        _name = name?.MakePlcCompatible();
+        _type = type?.MakePlcCompatible();
     }
     
     public PouInstance(XElement element)
     {
-        _name = element.Attribute("Name")?.Value.TcPlcCompatibleString();
-        _type = element.Attribute("Type")?.Value;
+        _name = element.Attribute("Name")?.Value.MakePlcCompatible();
+        _type = element.Attribute("Type")?.Value.MakePlcCompatible();
         
         _label = element.Element("Label")?.Value;
         

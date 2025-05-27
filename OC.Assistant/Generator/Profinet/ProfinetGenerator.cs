@@ -42,13 +42,12 @@ internal class ProfinetGenerator(DTE dte, string folderName)
     
     private void GenerateFiles(ITcSmTreeItem plcProjectItem, string pnName, IEnumerable<ProfinetVariable> pnVars, IEnumerable<SafetyModule> safetyModules)
     {
-        //Declaration variables
-        const string declarationTemplate = "{attribute 'TcLinkTo' := '$LINK$'}\n$VARNAME$ AT %$DIRECTION$* : $VARTYPE$;\n";
-        var gvlVariables = pnVars.Aggregate("", (current, var) => current + declarationTemplate
-            .Replace(Tags.VAR_TYPE, var.Type)
-            .Replace(Tags.DIRECTION, var.Direction)
-            .Replace(Tags.LINK, var.Link)
-            .Replace(Tags.VAR_NAME, var.Name));
+        var gvlVariables = "";
+
+        foreach (var pnVar in pnVars)
+        {
+            gvlVariables += pnVar.CreateGvlDeclaration();
+        }
 
         //Create safety program
         var safetyProgram = new SafetyProgram(safetyModules, pnName);
@@ -67,10 +66,11 @@ internal class ProfinetGenerator(DTE dte, string folderName)
         
         prgDecl.DeclarationText = 
             $"""
-            PROGRAM PRG_{pnName}
+            PROGRAM {prg.Name}
             VAR
                 bInitRun    : BOOL := TRUE;
                 bReset      : BOOL;
+                {safetyProgram.Declaration}
             END_VAR
             """;
 
@@ -89,7 +89,7 @@ internal class ProfinetGenerator(DTE dte, string folderName)
             {safetyProgram.Parameter}
             """;
 
-        pnFolder.CreateGvl(pnName, gvlVariables + safetyProgram.Declaration);
+        pnFolder.CreateGvl(pnName, gvlVariables);
 
         //Add program name to xml for project generator
         XmlFile.AddHilProgram(pnName);

@@ -40,7 +40,7 @@ internal static class XmlFile
     {
         get
         {
-            return XmlBase.Project?.Element(XmlTags.HIL)?.Elements().Select(x => x.Name.ToString());
+            return XmlBase.Project?.Element(XmlTags.HIL)?.Elements().Select(x => x.Value);
         }
     }
 
@@ -60,7 +60,7 @@ internal static class XmlFile
     /// </summary>
     public static void AddHilProgram(string name)
     {
-        XmlBase.Project?.Element(XmlTags.HIL)?.Add(new XElement(name));
+        XmlBase.Project?.Element(XmlTags.HIL)?.Add(new XElement("Program", $"PRG_{name}".MakePlcCompatible()));
         XmlBase.Save();
     }
 }

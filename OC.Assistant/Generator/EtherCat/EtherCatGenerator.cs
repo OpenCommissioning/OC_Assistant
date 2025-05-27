@@ -54,7 +54,7 @@ internal class EtherCatGenerator
             if (item.Disabled == DISABLED_STATE.SMDS_DISABLED) continue;
             
             //Export etherCat simulation to xti file
-            var name = item.Name.TcRemoveBrackets().TcPlcCompatibleString();
+            var name = item.Name.TcRemoveBrackets();
             var xtiFile = $"{AppData.Path}\\{name}.xti";
             if (File.Exists(xtiFile)) File.Delete(xtiFile);
             item.Parent.ExportChild(item.Name, xtiFile);
@@ -70,7 +70,7 @@ internal class EtherCatGenerator
     
     private void ParseXti(XContainer xtiDocument)
     {
-        var eCatName = xtiDocument.Element("TcSmItem")?.Element("Device")?.Attribute("RemoteName")?.Value;
+        var eCatName = xtiDocument.Element("TcSmItem")?.Element("Device")?.Attribute("RemoteName")?.Value.MakePlcCompatible();
         if (eCatName is null) return;
         
         _instance.Clear();
