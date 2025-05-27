@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.13.3"></a>
+## [1.13.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.3) (2025-05-27)
+
+### Bug Fixes
+
+* **Generator:** allow any character for PLC variable names within backticks (`) ([a09d74d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/a09d74d2cdcb891bd167de55a96a9cd1eb8c39f9))
+* **Generator:** HiL modifications for backtick names ([9be21f5](https://www.github.com/OpenCommissioning/OC_Assistant/commit/9be21f5d08485ed5faa912f5dd155b1448cc9eb6))
+* **PnGenerator:** optimize the structure for the failsafe program and variables ([108dd9a](https://www.github.com/OpenCommissioning/OC_Assistant/commit/108dd9af0f703c31381dffcf5e9421530b75d66b))
+
 <a name="1.13.2"></a>
 ## [1.13.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.2) (2025-05-09)
 
