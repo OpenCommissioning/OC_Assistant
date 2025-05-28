@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.13.4"></a>
+## [1.13.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.4) (2025-05-28)
+
+### Bug Fixes
+
+* upgrade theme package reference ([c9489d9](https://www.github.com/OpenCommissioning/OC_Assistant/commit/c9489d9247863dd2906c43e353d950b252a0436c))
+
 <a name="1.13.3"></a>
 ## [1.13.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.3) (2025-05-27)
 
