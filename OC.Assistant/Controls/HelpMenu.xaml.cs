@@ -70,6 +70,27 @@ internal partial class HelpMenu
             UrlName = "nuget.org"
         });
         
+        AddThirdParty(stack);
+        AddPlugins(stack);
+        
+        Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+    
+    private static void AddPlugins(UIElementCollection stack)
+    {
+        var plugins = Plugins.PluginRegister.Types.DistinctBy(x => x.Assembly.FullName).ToArray();
+        if (plugins.Length == 0) return;
+        
+        stack.Add(new Label{Content = "\n\nPlugins:\n"});
+        
+        foreach (var plugin in plugins)
+        {
+            stack.Add(new DependencyInfo(plugin));
+        }
+    }
+
+    private static void AddThirdParty(UIElementCollection stack)
+    {
         stack.Add(new Label{Content = "\n\nThird party software:\n"});
         
         stack.Add(new DependencyInfo(typeof(EnvDTE.DTE))
@@ -101,7 +122,5 @@ internal partial class HelpMenu
             Url = "https://www.nuget.org/packages/dsian.TcPnScanner.CLI",
             UrlName = "nuget.org"
         });
-        
-        Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }
