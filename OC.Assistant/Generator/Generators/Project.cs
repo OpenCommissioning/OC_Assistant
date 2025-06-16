@@ -18,7 +18,6 @@ internal static partial class Project
     public static void Update(ITcSmTreeItem plcProjectItem)
     {
         var main = XmlFile.Main;
-        if (main is null) return;
         var instances = new List<PouInstance>();
         
         foreach (var child in main.Elements())
@@ -83,7 +82,7 @@ internal static partial class Project
         var implementation = "\tInitRun();\n\tfbSystem();\n";
         
         //HiL calls
-        implementation = XmlFile.HilPrograms?.
+        implementation = XmlFile.HiL.Elements().Select(x => x.Value).
             Aggregate(implementation, (current, next) => $"{current}\t{next}();\n");
 
         //Instance calls

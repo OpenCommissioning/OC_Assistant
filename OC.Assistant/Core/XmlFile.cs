@@ -81,17 +81,17 @@ public class XmlFile
     /// <summary>
     /// Returns the <see cref="XmlTags.SETTINGS"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement? Settings => _doc?.Root?.Element(XmlTags.SETTINGS);
+    public XElement Settings => GetOrCreateChild(_doc?.Root, XmlTags.SETTINGS);
     
     /// <summary>
     /// Returns the <see cref="XmlTags.PLUGINS"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement? Plugins => _doc?.Root?.Element(XmlTags.PLUGINS);
+    public XElement Plugins => GetOrCreateChild(_doc?.Root, XmlTags.PLUGINS);
     
     /// <summary>
     /// Returns the <see cref="XmlTags.PROJECT"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement? Project => _doc?.Root?.Element(XmlTags.PROJECT);
+    public XElement Project => GetOrCreateChild(_doc?.Root, XmlTags.PROJECT);
 
     /// <summary>
     /// Tries to get a child from a given parent <see cref="XElement"/>.<br/>
@@ -114,7 +114,7 @@ public class XmlFile
     /// </summary>
     public string PlcProjectName
     {
-        get => Settings?.Element(XmlTags.PLC_PROJECT_NAME)?.Value ?? "";
+        get => Settings.Element(XmlTags.PLC_PROJECT_NAME)?.Value ?? "";
         set
         {
             var element = GetOrCreateChild(Settings, XmlTags.PLC_PROJECT_NAME);
@@ -128,7 +128,7 @@ public class XmlFile
     /// </summary>
     public string PlcTaskName
     {
-        get => Settings?.Element(XmlTags.PLC_TASK_NAME)?.Value ?? "";
+        get => Settings.Element(XmlTags.PLC_TASK_NAME)?.Value ?? "";
         set
         {
             var element = GetOrCreateChild(Settings, XmlTags.PLC_TASK_NAME);

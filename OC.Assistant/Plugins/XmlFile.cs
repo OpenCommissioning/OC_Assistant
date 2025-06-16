@@ -17,9 +17,8 @@ internal static class XmlFile
     /// </summary>
     public static void UpdatePlugin(Plugin plugin, bool remove = false)
     {
-        var pluginElements = XmlBase.Plugins?.Elements();
-        if (pluginElements is null) return;
-            
+        var pluginElements = XmlBase.Plugins.Elements();
+
         foreach (var item in pluginElements)
         {
             if (item.Attribute(XmlTags.PLUGIN_NAME)?.Value == plugin.Name) item.Remove();
@@ -39,7 +38,7 @@ internal static class XmlFile
             plugin.PluginController?.InputStructure.XElement,
             plugin.PluginController?.OutputStructure.XElement);
 
-        XmlBase.Plugins?.Add(xElement);
+        XmlBase.Plugins.Add(xElement);
         XmlBase.Save();
     }
         
@@ -48,9 +47,8 @@ internal static class XmlFile
     /// </summary>
     public static List<Plugin> LoadPlugins()
     {
-        var pluginElements = XmlBase.Plugins?.Elements().ToList();
+        var pluginElements = XmlBase.Plugins.Elements().ToList();
         var plugins = new List<Plugin>();
-        if (pluginElements is null) return plugins;
 
         foreach (var element in pluginElements)
         {

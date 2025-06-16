@@ -8,12 +8,22 @@ namespace OC.Assistant.Generator;
 /// </summary>
 internal static class XmlFile
 {
-    public static Core.XmlFile XmlBase => Core.XmlFile.Instance;
-        
+    private static Core.XmlFile XmlBase => Core.XmlFile.Instance;
+
     /// <summary>
-    /// Gets the Main program.
+    /// Gets the main program element.
     /// </summary>
-    public static XElement? Main => XmlBase.Project?.Element(XmlTags.MAIN);
+    public static XElement Main => Core.XmlFile.GetOrCreateChild(XmlBase.Project, XmlTags.MAIN);
+    
+    /// <summary>
+    /// Gets the HiL element.
+    /// </summary>
+    public static XElement HiL => Core.XmlFile.GetOrCreateChild(XmlBase.Project, XmlTags.HIL);
+    
+    /// <summary>
+    /// Gets the plugin elements.
+    /// </summary>
+    public static IEnumerable<XElement> PluginElements => XmlBase.Plugins.Elements(XmlTags.PLUGIN);
     
     /// <summary>
     /// Implements a new client configuration.
@@ -22,9 +32,7 @@ internal static class XmlFile
     {
         try
         {
-            var main = XmlBase.Project?.Element(XmlTags.MAIN);
-            if (main is null) return;
-            main.ReplaceNodes(config.Elements());
+            Main.ReplaceNodes(config.Elements());
             XmlBase.Save();
         }
         catch (Exception e)
@@ -32,26 +40,13 @@ internal static class XmlFile
             Sdk.Logger.LogWarning(nameof(XmlFile), e.Message);
         }
     }
-        
-    /// <summary>
-    /// Gets the HiL programs.
-    /// </summary>
-    public static IEnumerable<string>? HilPrograms
-    {
-        get
-        {
-            return XmlBase.Project?.Element(XmlTags.HIL)?.Elements().Select(x => x.Value);
-        }
-    }
-
-    public static IEnumerable<XElement>? PluginElements => XmlBase.Plugins?.Elements(XmlTags.PLUGIN);
 
     /// <summary>
     /// Removes all HiL programs.
     /// </summary>
     public static void ClearHilPrograms()
     {
-        XmlBase.Project?.Element(XmlTags.HIL)?.RemoveAll();
+        HiL.RemoveAll();
         XmlBase.Save();
     }
 
@@ -60,7 +55,7 @@ internal static class XmlFile
     /// </summary>
     public static void AddHilProgram(string name)
     {
-        XmlBase.Project?.Element(XmlTags.HIL)?.Add(new XElement("Program", $"PRG_{name}".MakePlcCompatible()));
+        HiL.Add(new XElement("Program", $"PRG_{name}".MakePlcCompatible()));
         XmlBase.Save();
     }
 }
