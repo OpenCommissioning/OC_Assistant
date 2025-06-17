@@ -22,7 +22,7 @@ public partial class Menu
         DteSingleThread.Run(dte =>
         {
             if (GetPlcProject(dte) is not {} plcProjectItem) return;
-            Core.XmlFile.Instance.Reload();
+            XmlFile.Instance.Reload();
             Generators.Hil.Update(dte, plcProjectItem);
             Generators.Project.Update(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
@@ -34,7 +34,7 @@ public partial class Menu
         DteSingleThread.Run(dte =>
         {
             if (GetPlcProject(dte) is not {} plcProjectItem) return;
-            Core.XmlFile.Instance.Reload();
+            XmlFile.Instance.Reload();
             Generators.Sil.UpdateAll(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
         });
@@ -85,7 +85,7 @@ public partial class Menu
     
     private void ApiOnConfigReceived(XElement config)
     {
-        XmlFile.ClientUpdate(config);
+        XmlFile.Instance.ClientUpdate(config);
         DteSingleThread.Run(dte =>
         {
             if (GetPlcProject(dte) is not {} plcProjectItem) return;

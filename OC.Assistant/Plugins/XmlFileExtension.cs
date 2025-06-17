@@ -8,16 +8,14 @@ namespace OC.Assistant.Plugins;
 /// <summary>
 /// <see cref="Core.XmlFile"/> extension to write and read plugin configurations.
 /// </summary>
-internal static class XmlFile
+internal static class XmlFileExtension
 {
-    private static Core.XmlFile XmlBase => Core.XmlFile.Instance;
-    
     /// <summary>
     /// Updates or removes the given plugin.
     /// </summary>
-    public static void UpdatePlugin(Plugin plugin, bool remove = false)
+    public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin, bool remove = false)
     {
-        var pluginElements = XmlBase.Plugins.Elements();
+        var pluginElements = xmlFile.Plugins.Elements();
 
         foreach (var item in pluginElements)
         {
@@ -26,7 +24,7 @@ internal static class XmlFile
 
         if (remove)
         {
-            XmlBase.Save();
+            xmlFile.Save();
             return;
         }
 
@@ -38,16 +36,16 @@ internal static class XmlFile
             plugin.PluginController?.InputStructure.XElement,
             plugin.PluginController?.OutputStructure.XElement);
 
-        XmlBase.Plugins.Add(xElement);
-        XmlBase.Save();
+        xmlFile.Plugins.Add(xElement);
+        xmlFile.Save();
     }
         
     /// <summary>
     /// Loads all plugins.
     /// </summary>
-    public static List<Plugin> LoadPlugins()
+    public static List<Plugin> LoadPlugins(this XmlFile xmlFile)
     {
-        var pluginElements = XmlBase.Plugins.Elements().ToList();
+        var pluginElements = xmlFile.Plugins.Elements().ToList();
         var plugins = new List<Plugin>();
 
         foreach (var element in pluginElements)

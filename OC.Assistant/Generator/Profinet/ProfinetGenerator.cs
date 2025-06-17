@@ -92,6 +92,6 @@ internal class ProfinetGenerator(DTE dte, string folderName)
         pnFolder.CreateGvl(pnName, gvlVariables);
 
         //Add program name to xml for project generator
-        XmlFile.AddHilProgram(pnName);
+        XmlFile.Instance.AddHilProgram(pnName);
     }
 }

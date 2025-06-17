@@ -18,7 +18,7 @@ internal static class Hil
     /// </summary>
     public static void Update(DTE dte, ITcSmTreeItem plcProjectItem)
     {
-        XmlFile.ClearHilPrograms();
+        XmlFile.Instance.ClearHilPrograms();
         
         if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null)
         {
