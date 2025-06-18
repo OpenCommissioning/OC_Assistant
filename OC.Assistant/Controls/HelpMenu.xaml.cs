@@ -78,14 +78,18 @@ internal partial class HelpMenu
     
     private static void AddPlugins(UIElementCollection stack)
     {
-        var plugins = Plugins.PluginRegister.Types.DistinctBy(x => x.Assembly.FullName).ToArray();
+        var plugins = Plugins.PluginRegister.Plugins.DistinctBy(x => x.Type.Assembly.FullName).ToArray();
         if (plugins.Length == 0) return;
         
         stack.Add(new Label{Content = "\n\nPlugins:\n"});
         
         foreach (var plugin in plugins)
         {
-            stack.Add(new DependencyInfo(plugin));
+            stack.Add(new DependencyInfo(plugin.Type)
+            {
+                Url = plugin.RepositoryUrl,
+                UrlName = plugin.RepositoryType
+            });
         }
     }
 

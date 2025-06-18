@@ -54,15 +54,15 @@ internal static class XmlFileExtension
             var name = element.Attribute(XmlTags.PLUGIN_NAME)?.Value;
             var type = element.Attribute(XmlTags.PLUGIN_TYPE)?.Value;
             var parameter = element.Element(XmlTags.PLUGIN_PARAMETER);
-            var pluginType = PluginRegister.GetTypeByName(type);
-            if (pluginType is null)
+            var pluginInfo = PluginRegister.GetByTypeName(type);
+            if (pluginInfo is null)
             {
                 Logger.LogWarning(typeof(XmlFile), 
                     $"Plugin for type '{type}' not found in directory {PluginRegister.SearchPath}");
                 continue;
             }
             if (name is null || parameter is null) continue;
-            plugins.Add(new Plugin(name, pluginType, parameter));
+            plugins.Add(new Plugin(name, pluginInfo.Type, parameter));
         }
             
         return plugins;
