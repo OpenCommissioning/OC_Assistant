@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Reflection;
 using System.Xml.Linq;
 
 namespace OC.Assistant.Core;
@@ -12,6 +11,7 @@ public class XmlFile
 {
     private static readonly Lazy<XmlFile> LazyInstance = new(() => new XmlFile());
     private XDocument? _doc;
+    private string? _path;
     
     /// <summary>
     /// The private constructor.
@@ -24,22 +24,19 @@ public class XmlFile
     /// Singleton instance of the <see cref="XmlFile"/>.
     /// </summary>
     public static XmlFile Instance => LazyInstance.Value;
-
+    
     /// <summary>
-    /// Gets the path of the XML file. Can be null of not connected.
+    /// Gets or sets the file path for the XML file.
+    /// Changing this property triggers the reloading of the XML structure from the specified path.
     /// </summary>
-    public string? Path { get; private set; }
-
-    /// <summary>
-    /// Sets the directory of the XML file.<br/>
-    /// The <see cref="Path"/> is set to the directory combined with the file name.
-    /// <param name="path">The path of the project folder.</param>
-    /// </summary>
-    public void SetDirectory(string path)
+    public string? Path
     {
-        var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-        Path = System.IO.Path.Combine(path, $"{assemblyName}.xml");
-        Reload();
+        get => _path;
+        set
+        {
+            _path = value;
+            Reload();
+        }
     }
 
     /// <summary>

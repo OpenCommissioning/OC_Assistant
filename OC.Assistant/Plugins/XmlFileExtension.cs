@@ -11,22 +11,24 @@ namespace OC.Assistant.Plugins;
 internal static class XmlFileExtension
 {
     /// <summary>
-    /// Updates or removes the given plugin.
+    /// Removes the given plugin.
     /// </summary>
-    public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin, bool remove = false)
+    public static void RemovePlugin(this XmlFile xmlFile, Plugin plugin)
     {
-        var pluginElements = xmlFile.Plugins.Elements();
-
-        foreach (var item in pluginElements)
+        foreach (var item in xmlFile.Plugins.Elements())
         {
             if (item.Attribute(XmlTags.PLUGIN_NAME)?.Value == plugin.Name) item.Remove();
         }
-
-        if (remove)
-        {
-            xmlFile.Save();
-            return;
-        }
+        
+        xmlFile.Save();
+    }
+    
+    /// <summary>
+    /// Updates or adds the given plugin.
+    /// </summary>
+    public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin)
+    {
+        xmlFile.RemovePlugin(plugin);
 
         var xElement = new XElement(XmlTags.PLUGIN,
             new XAttribute(XmlTags.PLUGIN_NAME, plugin.Name ?? ""),
@@ -45,10 +47,9 @@ internal static class XmlFileExtension
     /// </summary>
     public static List<Plugin> LoadPlugins(this XmlFile xmlFile)
     {
-        var pluginElements = xmlFile.Plugins.Elements().ToList();
         var plugins = new List<Plugin>();
 
-        foreach (var element in pluginElements)
+        foreach (var element in xmlFile.Plugins.Elements())
         {
             var name = element.Attribute(XmlTags.PLUGIN_NAME)?.Value;
             var type = element.Attribute(XmlTags.PLUGIN_TYPE)?.Value;

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Reflection;
+using System.Windows;
 using System.Xml.Linq;
 using EnvDTE;
 using OC.Assistant.Controls;
@@ -87,11 +88,15 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         {
             if (_adsNotOk) return;
             if (IsProjectConnected) Disconnect();
+            
             FullName = solutionFullName;
             _cancellationTokenSource = new CancellationTokenSource();
             _amsNetId = GetCurrentNetId();
             ApiLocal.Interface.NetId = _amsNetId;
-            XmlFile.Instance.SetDirectory(projectFolder);
+            
+            var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+            XmlFile.Instance.Path = System.IO.Path.Combine(projectFolder, $"{assemblyName}.xml");
+            
             StartPolling(UpdateNetId, 1000);
             StartPolling(UpdateAdsState, 10);
             SetSolutionPath(solutionFullName);
