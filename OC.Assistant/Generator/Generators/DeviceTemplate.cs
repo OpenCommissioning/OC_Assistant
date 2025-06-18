@@ -186,7 +186,7 @@ public static class DeviceTemplate
 		bInitRun := FALSE;
 
 		IF pControl = 0 OR pStatus = 0 THEN
-			ADSLOGSTR(ADSLOG_MSGTYPE_WARN, CONCAT(sPath, ': %s'), 'Plc address not set.');
+			ADSLOGSTR(ADSLOG_MSGTYPE_WARN, CONCAT(_sPath, ': %s'), 'Plc address not set.');
 		END_IF
 		
 		//Custom device initialization...
