@@ -60,48 +60,71 @@ internal partial class HelpMenu
         
         stack.Add(new DependencyInfo(typeof(Sdk.Logger))
         {
-            Url = "https://www.nuget.org/packages/OC.Assistant.Sdk",
-            UrlName = "nuget.org"
+            Url = "https://github.com/OpenCommissioning/OC_Assistant_Sdk",
+            UrlName = "github"
         });
         
         stack.Add(new DependencyInfo(typeof(Theme.WindowStyle))
         {
-            Url = "https://www.nuget.org/packages/OC.Assistant.Theme",
-            UrlName = "nuget.org"
+            Url = "https://github.com/OpenCommissioning/OC_Assistant_Theme",
+            UrlName = "github"
         });
         
+        AddThirdParty(stack);
+        AddPlugins(stack);
+        
+        Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+    
+    private static void AddPlugins(UIElementCollection stack)
+    {
+        var plugins = Plugins.PluginRegister.Plugins.DistinctBy(x => x.Type.Assembly.FullName).ToArray();
+        if (plugins.Length == 0) return;
+        
+        stack.Add(new Label{Content = "\n\nPlugins:\n"});
+        
+        foreach (var plugin in plugins)
+        {
+            stack.Add(new DependencyInfo(plugin.Type)
+            {
+                Url = plugin.RepositoryUrl,
+                UrlName = plugin.RepositoryType
+            });
+        }
+    }
+
+    private static void AddThirdParty(UIElementCollection stack)
+    {
         stack.Add(new Label{Content = "\n\nThird party software:\n"});
         
         stack.Add(new DependencyInfo(typeof(EnvDTE.DTE))
         {
             Url = "https://www.nuget.org/packages/envdte",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo(typeof(Microsoft.WindowsAPICodePack.Dialogs.DialogControl))
         {
             Url = "https://www.nuget.org/packages/Microsoft-WindowsAPICodePack-Core",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo(typeof(TwinCAT.Ads.AdsClient))
         {
             Url = "https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo(typeof(TCatSysManagerLib.TcSysManager))
         {
             Url = "https://www.nuget.org/packages/TCatSysManagerLib",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo("dsian.TcPnScanner.CLI", "")
         {
             Url = "https://www.nuget.org/packages/dsian.TcPnScanner.CLI",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
-        
-        Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }

@@ -30,7 +30,7 @@ internal static class Sil
             if (sil?.ChildCount == 0) plcProjectItem.DeleteChild(sil.Name);
             return;
         }
-        Generate(XmlFile.PluginElements?.First(x => x.Attribute(XmlTags.PLUGIN_NAME)?.Value == name), plcProjectItem);
+        Generate(XmlFile.Instance.PluginElements.First(x => x.Attribute(XmlTags.PLUGIN_NAME)?.Value == name), plcProjectItem);
     }
     
     /// <summary>
@@ -40,8 +40,7 @@ internal static class Sil
     public static void UpdateAll(ITcSmTreeItem plcProjectItem)
     {
         if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null) plcProjectItem.DeleteChild(FOLDER_NAME);
-        if (XmlFile.PluginElements is null) return;
-        foreach (var plugin in XmlFile.PluginElements)
+        foreach (var plugin in XmlFile.Instance.PluginElements)
         {
             Generate(plugin, plcProjectItem);
         }

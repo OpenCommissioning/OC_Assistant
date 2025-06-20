@@ -12,7 +12,7 @@ public partial class PluginManager
     public PluginManager()
     {
         InitializeComponent();
-        Core.XmlFile.Instance.Reloaded += XmlOnReloaded;
+        XmlFile.Instance.Reloaded += XmlOnReloaded;
         ProjectState.Events.Disconnected += OnDisconnect;
         ProjectState.Events.StartedRunning += OnStartedRunning;
         ProjectState.Events.StoppedRunning += OnStoppedRunning;
@@ -44,7 +44,7 @@ public partial class PluginManager
     {
         OnDisconnect();
         ControlPanel.Children.Remove(BtnAdd);
-        _plugins = XmlFile.LoadPlugins();
+        _plugins = XmlFile.Instance.LoadPlugins();
 
         foreach (var plugin in _plugins)
         {
@@ -142,7 +142,7 @@ public partial class PluginManager
     {
         BusyState.Set(this);
         RemovePlugin(plugin);
-        XmlFile.UpdatePlugin(plugin, true);
+        XmlFile.Instance.RemovePlugin(plugin);
         _plugins.Remove(plugin);
         BusyState.Reset(this);
         BtnAdd_Click(this, null);
@@ -155,7 +155,7 @@ public partial class PluginManager
         BusyState.Set(this);
         ControlPanel.Children.Remove(BtnAdd);
             
-        XmlFile.UpdatePlugin(plugin);
+        XmlFile.Instance.UpdatePlugin(plugin);
 
         if (_plugins.FirstOrDefault(x => x.Name == plugin.Name) is null)
         {

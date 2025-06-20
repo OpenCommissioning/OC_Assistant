@@ -3,11 +3,15 @@ using System.Xml.Linq;
 
 namespace OC.Assistant.Core;
 
+/// <summary>
+/// Represents a class that manages the project XML file, providing functionality to save and restore
+/// settings, plugins and project structure.
+/// </summary>
 public class XmlFile
 {
-    private const string DEFAULT_FILE_NAME = "OC.Assistant.xml";
     private static readonly Lazy<XmlFile> LazyInstance = new(() => new XmlFile());
     private XDocument? _doc;
+    private string? _path;
     
     /// <summary>
     /// The private constructor.
@@ -20,29 +24,28 @@ public class XmlFile
     /// Singleton instance of the <see cref="XmlFile"/>.
     /// </summary>
     public static XmlFile Instance => LazyInstance.Value;
-
+    
     /// <summary>
-    /// Gets the path of the xml file. Can be null of not connected.
+    /// Gets or sets the file path for the XML file.
+    /// Changing this property triggers the reloading of the XML structure from the specified path.
     /// </summary>
-    public string? Path { get; private set; }
-
-    /// <summary>
-    /// Sets the directory of the xml file.<br/>
-    /// The <see cref="Path"/> is set to the directory combined with the <see cref="DEFAULT_FILE_NAME"/>.
-    /// </summary>
-    public void SetDirectory(string value)
+    public string? Path
     {
-        Path = System.IO.Path.Combine(value, DEFAULT_FILE_NAME);
-        Reload();
+        get => _path;
+        set
+        {
+            _path = value;
+            Reload();
+        }
     }
 
     /// <summary>
-    /// Is raised when the xml file has been reloaded.
+    /// Is raised when the XML file has been reloaded.
     /// </summary>
     public event Action? Reloaded;
     
     /// <summary>
-    /// Reloads the xml file.
+    /// Reloads or creates the XML file.
     /// </summary>
     public void Reload()
     {
@@ -81,17 +84,32 @@ public class XmlFile
     /// <summary>
     /// Returns the <see cref="XmlTags.SETTINGS"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement? Settings => _doc?.Root?.Element(XmlTags.SETTINGS);
+    public XElement Settings => GetOrCreateChild(_doc?.Root, XmlTags.SETTINGS);
     
     /// <summary>
     /// Returns the <see cref="XmlTags.PLUGINS"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement? Plugins => _doc?.Root?.Element(XmlTags.PLUGINS);
+    public XElement Plugins => GetOrCreateChild(_doc?.Root, XmlTags.PLUGINS);
     
     /// <summary>
     /// Returns the <see cref="XmlTags.PROJECT"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement? Project => _doc?.Root?.Element(XmlTags.PROJECT);
+    public XElement Project => GetOrCreateChild(_doc?.Root, XmlTags.PROJECT);
+    
+    /// <summary>
+    /// Gets the main program element.
+    /// </summary>
+    public XElement ProjectMain => GetOrCreateChild(Project, XmlTags.MAIN);
+    
+    /// <summary>
+    /// Gets the HiL element.
+    /// </summary>
+    public XElement ProjectHil => GetOrCreateChild(Project, XmlTags.HIL);
+    
+    /// <summary>
+    /// Gets the plugin elements.
+    /// </summary>
+    public IEnumerable<XElement> PluginElements => Plugins.Elements(XmlTags.PLUGIN);
 
     /// <summary>
     /// Tries to get a child from a given parent <see cref="XElement"/>.<br/>
@@ -114,7 +132,7 @@ public class XmlFile
     /// </summary>
     public string PlcProjectName
     {
-        get => Settings?.Element(XmlTags.PLC_PROJECT_NAME)?.Value ?? "";
+        get => GetOrCreateChild(Settings, XmlTags.PLC_PROJECT_NAME).Value;
         set
         {
             var element = GetOrCreateChild(Settings, XmlTags.PLC_PROJECT_NAME);
@@ -128,12 +146,46 @@ public class XmlFile
     /// </summary>
     public string PlcTaskName
     {
-        get => Settings?.Element(XmlTags.PLC_TASK_NAME)?.Value ?? "";
+        get => GetOrCreateChild(Settings, XmlTags.PLC_TASK_NAME).Value;
         set
         {
             var element = GetOrCreateChild(Settings, XmlTags.PLC_TASK_NAME);
             element.Value = value;
             Save();
         }
+    }
+    
+    /// <summary>
+    /// Implements a new client configuration.
+    /// </summary>
+    public void ClientUpdate(XElement config)
+    {
+        try
+        {
+            ProjectMain.ReplaceNodes(config.Elements());
+            Save();
+        }
+        catch (Exception e)
+        {
+            Sdk.Logger.LogWarning(nameof(XmlFile), e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Removes all HiL programs.
+    /// </summary>
+    public void ClearHilPrograms()
+    {
+        ProjectHil.RemoveAll();
+        Save();
+    }
+
+    /// <summary>
+    /// Adds a HiL program with the given name.
+    /// </summary>
+    public void AddHilProgram(string name)
+    {
+        ProjectHil.Add(new XElement("Program", $"PRG_{name}".MakePlcCompatible()));
+        Save();
     }
 }

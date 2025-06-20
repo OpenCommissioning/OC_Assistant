@@ -9,12 +9,12 @@ namespace OC.Assistant.Generator;
 /// </summary>
 public class SettingsPlcDropdown : ComboBox
 {
-    public string Selected { get; private set; } = Core.XmlFile.Instance.PlcProjectName;
+    public string Selected { get; private set; } = XmlFile.Instance.PlcProjectName;
     
     public SettingsPlcDropdown()
     {
         Style = Application.Current.Resources["DefaultComboBoxStyle"] as Style;
-        Items.Add(new ComboBoxItem {Content = Core.XmlFile.Instance.PlcProjectName});
+        Items.Add(new ComboBoxItem {Content = XmlFile.Instance.PlcProjectName});
         SelectedIndex = 0;
         DropDownOpened += OnOpened;
         return;

@@ -12,9 +12,9 @@ namespace OC.Assistant.Plugins;
 internal static class PluginRegister
 {
     /// <summary>
-    /// The list of available plugin types.
+    /// The list of available plugins.
     /// </summary>
-    public static List<Type> Types { get; } = [];
+    public static List<PluginInfo> Plugins { get; } = [];
 
     /// <summary>
     /// The full path of the plugins search directory. 
@@ -64,13 +64,15 @@ internal static class PluginRegister
             var dir = Path.GetDirectoryName(filePath);
             var doc = XDocument.Load(filePath).Root;
             var dll = doc?.Element("AssemblyFile")?.Value;
-            var additional = doc?.Elements("AdditionalDirectory");
+            var repositoryUrl = doc?.Element("RepositoryUrl")?.Value;
+            var repositoryType = doc?.Element("RepositoryType")?.Value;
+            var additionalDirectories = doc?.Elements("AdditionalDirectory");
             
             if (!File.Exists($"{dir}\\{dll}")) return;
 
-            if (additional is not null)
+            if (additionalDirectories is not null)
             {
-                foreach (var additionalDirectory in additional)
+                foreach (var additionalDirectory in additionalDirectories)
                 {
                     AssemblyHelper.AddDirectory(additionalDirectory.Value, SearchOption.AllDirectories);
                 }
@@ -81,8 +83,8 @@ internal static class PluginRegister
                 
             foreach (var type in assembly.ExportedTypes.Where(x => x.BaseType == typeof(PluginBase)))
             {
-                if (Types.Any(x => x.FullName == type.FullName)) continue;
-                Types.Add(type);
+                if (Plugins.Any(x => x.Type.FullName == type.FullName)) continue;
+                Plugins.Add(new PluginInfo(type, repositoryUrl, repositoryType));
             }
         }
         catch (Exception e)
@@ -92,12 +94,12 @@ internal static class PluginRegister
     }
         
     /// <summary>
-    /// Gets the plugin by the given name.
+    /// Gets the plugin by the given type name.
     /// </summary>
-    /// <param name="name">The name of the plugin type.</param>
-    /// <returns>The type of the plugin if available, otherwise default.</returns>
-    public static Type? GetTypeByName(string? name)
+    /// <param name="typeName">The type name of the plugin.</param>
+    /// <returns>The <see cref="PluginInfo"/> of the plugin if any, otherwise <c>null</c>.</returns>
+    public static PluginInfo? GetByTypeName(string? typeName)
     {
-        return Types.FirstOrDefault(x => x.Name == name);
+        return Plugins.FirstOrDefault(x => x.Type.Name == typeName);
     }
 }

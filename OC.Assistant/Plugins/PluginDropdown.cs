@@ -16,7 +16,7 @@ public class PluginDropdown : ComboBox
         Loaded += (_, _) =>
         {
             Items.Clear();
-            foreach (var type in PluginRegister.Types)
+            foreach (var type in PluginRegister.Plugins.Select(x => x.Type))
             {
                 var comboBoxItem = new ComboBoxItem
                 {

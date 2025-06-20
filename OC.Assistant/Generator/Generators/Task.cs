@@ -28,7 +28,7 @@ internal static class Task
         var filter = instance.GetSymbolsWithAttribute("simulation_interface");
         
         //Get task
-        var task = tcSysManager?.TryGetItem(TcShortcut.TASK, XmlFile.XmlBase.PlcTaskName);
+        var task = tcSysManager?.TryGetItem(TcShortcut.TASK, XmlFile.Instance.PlcTaskName);
         if (task is null)
         {
             Logger.LogWarning(typeof(Task), "Task not found");
