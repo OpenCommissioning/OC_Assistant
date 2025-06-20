@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.14.0"></a>
+## [1.14.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.14.0) (2025-06-20)
+
+### Features
+
+* add a feature to show additional info about a loaded plugin ([cb16318](https://www.github.com/OpenCommissioning/OC_Assistant/commit/cb16318155bd3af8655a1630670045184d9f4331))
+
+### Bug Fixes
+
+* add missing entries in case of a faulty xml file ([e4cb87b](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e4cb87b3913d3febca9356deb291737c285f4693))
+* show plugin assemblies on the 'About' page ([7dea304](https://www.github.com/OpenCommissioning/OC_Assistant/commit/7dea3045e8246d567ce30d687d70d5037694280b))
+* typo when using the DeviceTemplate '_sPath' variable ([e7a57ef](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e7a57ef677da22f71293c8e024a262bfd538b2d7))
+* upgrade Theme package reference ([15eb989](https://www.github.com/OpenCommissioning/OC_Assistant/commit/15eb989deb786a8132b85a2427d6b2f06c90fbf2))
+* **HelpMenu:** show link to github for sdk and theme instead of nuget ([ae676f3](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ae676f353a888f3718a1b88463f03067f70a99a3))
+
 <a name="1.13.4"></a>
 ## [1.13.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.13.4) (2025-05-28)
 
