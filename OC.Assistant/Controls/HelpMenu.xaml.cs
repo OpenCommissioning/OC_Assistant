@@ -60,14 +60,14 @@ internal partial class HelpMenu
         
         stack.Add(new DependencyInfo(typeof(Sdk.Logger))
         {
-            Url = "https://www.nuget.org/packages/OC.Assistant.Sdk",
-            UrlName = "nuget.org"
+            Url = "https://github.com/OpenCommissioning/OC_Assistant_Sdk",
+            UrlName = "github"
         });
         
         stack.Add(new DependencyInfo(typeof(Theme.WindowStyle))
         {
-            Url = "https://www.nuget.org/packages/OC.Assistant.Theme",
-            UrlName = "nuget.org"
+            Url = "https://github.com/OpenCommissioning/OC_Assistant_Theme",
+            UrlName = "github"
         });
         
         AddThirdParty(stack);
@@ -100,31 +100,31 @@ internal partial class HelpMenu
         stack.Add(new DependencyInfo(typeof(EnvDTE.DTE))
         {
             Url = "https://www.nuget.org/packages/envdte",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo(typeof(Microsoft.WindowsAPICodePack.Dialogs.DialogControl))
         {
             Url = "https://www.nuget.org/packages/Microsoft-WindowsAPICodePack-Core",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo(typeof(TwinCAT.Ads.AdsClient))
         {
             Url = "https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo(typeof(TCatSysManagerLib.TcSysManager))
         {
             Url = "https://www.nuget.org/packages/TCatSysManagerLib",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
         
         stack.Add(new DependencyInfo("dsian.TcPnScanner.CLI", "")
         {
             Url = "https://www.nuget.org/packages/dsian.TcPnScanner.CLI",
-            UrlName = "nuget.org"
+            UrlName = "nuget"
         });
     }
 }
