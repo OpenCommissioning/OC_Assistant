@@ -1,6 +1,5 @@
 ﻿using OC.Assistant.Core;
 using OC.Assistant.Sdk;
-using OC.Assistant.Sdk.Plugin;
 
 namespace OC.Assistant.Plugins;
 
