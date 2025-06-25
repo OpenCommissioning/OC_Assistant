@@ -142,7 +142,7 @@ public partial class PluginManager
     {
         BusyState.Set(this);
         RemovePlugin(plugin);
-        XmlFile.Instance.RemovePlugin(plugin);
+        XmlFile.Instance.RemovePlugin(plugin.Name);
         _plugins.Remove(plugin);
         BusyState.Reset(this);
         BtnAdd_Click(this, null);

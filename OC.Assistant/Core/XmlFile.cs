@@ -14,6 +14,46 @@ public class XmlFile
     private string? _path;
     
     /// <summary>
+    /// The name of the root node.
+    /// </summary>
+    private const string ROOT = "Config";
+
+    /// <summary>
+    /// The node name of the plugin category.
+    /// </summary>
+    private const string PLUGINS = "Plugins";
+    
+    /// <summary>
+    /// The node name of the plc project category.
+    /// </summary>
+    private const string PROJECT = "Project";
+
+    /// <summary>
+    /// The node name of the general settings.
+    /// </summary>
+    private const string SETTINGS = "Settings";
+    
+    /// <summary>
+    /// The node name of the projectName setting.
+    /// </summary>
+    private const string PLC_PROJECT_NAME = "PlcProjectName";
+    
+    /// <summary>
+    /// The node name of the taskName setting.
+    /// </summary>
+    private const string PLC_TASK_NAME = "PlcTaskName";
+    
+    /// <summary>
+    /// The node name of Hil.
+    /// </summary>
+    private const string HIL = "Hil";
+    
+    /// <summary>
+    /// The node name of the plc project root.
+    /// </summary>
+    private const string MAIN = "Main";
+    
+    /// <summary>
     /// The private constructor.
     /// </summary>
     private XmlFile()
@@ -58,15 +98,14 @@ public class XmlFile
         }
         
         _doc = new XDocument(
-            new XElement(XmlTags.ROOT,
-                new XElement(XmlTags.SETTINGS,
-                    new XElement(XmlTags.PLC_PROJECT_NAME, "OC"),
-                    new XElement(XmlTags.PLC_TASK_NAME, "PlcTask"),
-                    new XElement(XmlTags.TASK_AUTO_UPDATE)),
-                new XElement(XmlTags.PLUGINS),
-                new XElement(XmlTags.PROJECT,
-                    new XElement(XmlTags.HIL),
-                    new XElement(XmlTags.MAIN))));
+            new XElement(ROOT,
+                new XElement(SETTINGS,
+                    new XElement(PLC_PROJECT_NAME, "OC"),
+                    new XElement(PLC_TASK_NAME, "PlcTask")),
+                new XElement(PLUGINS),
+                new XElement(PROJECT,
+                    new XElement(HIL),
+                    new XElement(MAIN))));
         
         _doc.Save(Path);
         Reloaded?.Invoke();
@@ -82,49 +121,54 @@ public class XmlFile
     }
     
     /// <summary>
-    /// Returns the <see cref="XmlTags.SETTINGS"/> <see cref="XElement"/>.
+    /// Gets the <see cref="SETTINGS"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement Settings => GetOrCreateChild(_doc?.Root, XmlTags.SETTINGS);
+    public XElement Settings => (_doc?.Root).GetOrCreateChild(SETTINGS);
     
     /// <summary>
-    /// Returns the <see cref="XmlTags.PLUGINS"/> <see cref="XElement"/>.
+    /// Gets the <see cref="PLUGINS"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement Plugins => GetOrCreateChild(_doc?.Root, XmlTags.PLUGINS);
+    public XElement Plugins => (_doc?.Root).GetOrCreateChild(PLUGINS);
     
     /// <summary>
-    /// Returns the <see cref="XmlTags.PROJECT"/> <see cref="XElement"/>.
+    /// Gets the <see cref="PROJECT"/> <see cref="XElement"/>.
     /// </summary>
-    public XElement Project => GetOrCreateChild(_doc?.Root, XmlTags.PROJECT);
+    public XElement Project => (_doc?.Root).GetOrCreateChild(PROJECT);
     
     /// <summary>
     /// Gets the main program element.
     /// </summary>
-    public XElement ProjectMain => GetOrCreateChild(Project, XmlTags.MAIN);
+    public XElement ProjectMain => Project.GetOrCreateChild(MAIN);
     
     /// <summary>
     /// Gets the HiL element.
     /// </summary>
-    public XElement ProjectHil => GetOrCreateChild(Project, XmlTags.HIL);
+    public XElement ProjectHil => Project.GetOrCreateChild(HIL);
     
     /// <summary>
-    /// Gets the plugin elements.
+    /// Gets the plugin elements as <see cref="XPlugin"/>.
     /// </summary>
-    public IEnumerable<XElement> PluginElements => Plugins.Elements(XmlTags.PLUGIN);
+    public IEnumerable<XPlugin> PluginElements => Plugins.Elements().Select(x => new XPlugin(x));
 
     /// <summary>
-    /// Tries to get a child from a given parent <see cref="XElement"/>.<br/>
-    /// Creates the child if it doesn't exist. 
+    /// Retrieves the <see cref="XPlugin"/> by the given name.
     /// </summary>
-    /// <param name="parent">The parent <see cref="XElement"/>.</param>
-    /// <param name="childName">The name of the child <see cref="XElement"/> to get or create.</param>
-    /// <returns>The child <see cref="XElement"/> with the given name.</returns>
-    public static XElement GetOrCreateChild(XElement? parent, string childName)
+    /// <param name="name">The name of the plugin to retrieve.</param>
+    /// <returns>The first <see cref="XPlugin"/> corresponding to the name, if any.</returns>
+    public XPlugin? GetPlugin(string name) => PluginElements.FirstOrDefault(x => x.Name == name);
+
+    /// <summary>
+    /// Removes all <see cref="XPlugin"/> elements by the given name.
+    /// </summary>
+    /// <param name="name">The name of the plugin to remove.</param>
+    public void RemovePlugin(string name)
     {
-        var element = parent?.Element(childName);
-        if (element is not null) return element;
-        element = new XElement(childName);
-        parent?.Add(element);
-        return element;
+        foreach (var xPlugin in PluginElements.Where(x => x.Name == name))
+        {
+            xPlugin.Element.Remove();
+        }
+        
+        Save();
     }
     
     /// <summary>
@@ -132,10 +176,10 @@ public class XmlFile
     /// </summary>
     public string PlcProjectName
     {
-        get => GetOrCreateChild(Settings, XmlTags.PLC_PROJECT_NAME).Value;
+        get => Settings.GetOrCreateChild(PLC_PROJECT_NAME).Value;
         set
         {
-            var element = GetOrCreateChild(Settings, XmlTags.PLC_PROJECT_NAME);
+            var element = Settings.GetOrCreateChild(PLC_PROJECT_NAME);
             element.Value = value;
             Save();
         }
@@ -146,10 +190,10 @@ public class XmlFile
     /// </summary>
     public string PlcTaskName
     {
-        get => GetOrCreateChild(Settings, XmlTags.PLC_TASK_NAME).Value;
+        get => Settings.GetOrCreateChild(PLC_TASK_NAME).Value;
         set
         {
-            var element = GetOrCreateChild(Settings, XmlTags.PLC_TASK_NAME);
+            var element = Settings.GetOrCreateChild(PLC_TASK_NAME);
             element.Value = value;
             Save();
         }
