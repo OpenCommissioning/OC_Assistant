@@ -9,6 +9,32 @@ namespace OC.Assistant.Plugins;
 internal static class XmlFileExtension
 {
     /// <summary>
+    /// Gets the plugin elements as <see cref="XPlugin"/>.
+    /// </summary>
+    public static IEnumerable<XPlugin> PluginElements(this XmlFile xmlFile) 
+        => xmlFile.Plugins.Elements().Select(x => new XPlugin(x));
+
+    /// <summary>
+    /// Retrieves the <see cref="XPlugin"/> by the given name.
+    /// </summary>
+    /// <returns>The first <see cref="XPlugin"/> corresponding to the name, if any.</returns>
+    public static XPlugin? GetPlugin(this XmlFile xmlFile, string name) 
+        => xmlFile.PluginElements().FirstOrDefault(x => x.Name == name);
+
+    /// <summary>
+    /// Removes all <see cref="XPlugin"/> elements by the given name.
+    /// </summary>
+    public static void RemovePlugin(this XmlFile xmlFile, string name)
+    {
+        foreach (var xPlugin in xmlFile.PluginElements().Where(x => x.Name == name))
+        {
+            xPlugin.Element.Remove();
+        }
+        
+        xmlFile.Save();
+    }
+    
+    /// <summary>
     /// Updates or adds the given <see cref="Plugin"/> to the <see cref="XmlFile"/>.
     /// </summary>
     public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin)
@@ -22,7 +48,7 @@ internal static class XmlFileExtension
         xPlugin.Element.Add(plugin.PluginController.InputStructure.XElement);
         xPlugin.Element.Add(plugin.PluginController.OutputStructure.XElement);
         
-        xmlFile.Plugins.Add(xPlugin);
+        xmlFile.Plugins.Add(xPlugin.Element);
         xmlFile.Save();
     }
         
@@ -34,7 +60,7 @@ internal static class XmlFileExtension
     {
         var plugins = new List<Plugin>();
 
-        foreach (var xPlugin in xmlFile.PluginElements)
+        foreach (var xPlugin in xmlFile.PluginElements())
         {
             var pluginInfo = PluginRegister.GetByTypeName(xPlugin.Type);
             if (pluginInfo is null)

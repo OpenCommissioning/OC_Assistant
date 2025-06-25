@@ -1,8 +1,9 @@
 ﻿using System.Xml.Linq;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Plugins;
 
 /// <summary>
 /// Represents a wrapper around a <see cref="XElement"/> for plugin-specific properties.

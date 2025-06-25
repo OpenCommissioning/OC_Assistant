@@ -146,32 +146,6 @@ public class XmlFile
     public XElement ProjectHil => Project.GetOrCreateChild(HIL);
     
     /// <summary>
-    /// Gets the plugin elements as <see cref="XPlugin"/>.
-    /// </summary>
-    public IEnumerable<XPlugin> PluginElements => Plugins.Elements().Select(x => new XPlugin(x));
-
-    /// <summary>
-    /// Retrieves the <see cref="XPlugin"/> by the given name.
-    /// </summary>
-    /// <param name="name">The name of the plugin to retrieve.</param>
-    /// <returns>The first <see cref="XPlugin"/> corresponding to the name, if any.</returns>
-    public XPlugin? GetPlugin(string name) => PluginElements.FirstOrDefault(x => x.Name == name);
-
-    /// <summary>
-    /// Removes all <see cref="XPlugin"/> elements by the given name.
-    /// </summary>
-    /// <param name="name">The name of the plugin to remove.</param>
-    public void RemovePlugin(string name)
-    {
-        foreach (var xPlugin in PluginElements.Where(x => x.Name == name))
-        {
-            xPlugin.Element.Remove();
-        }
-        
-        Save();
-    }
-    
-    /// <summary>
     /// Gets or sets the PlcProjectName value.
     /// </summary>
     public string PlcProjectName

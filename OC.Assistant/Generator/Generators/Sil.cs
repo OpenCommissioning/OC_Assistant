@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using OC.Assistant.Core;
+using OC.Assistant.Plugins;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 using TCatSysManagerLib;
@@ -39,7 +40,7 @@ internal static class Sil
     public static void UpdateAll(ITcSmTreeItem plcProjectItem)
     {
         if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null) plcProjectItem.DeleteChild(FOLDER_NAME);
-        foreach (var plugin in XmlFile.Instance.PluginElements)
+        foreach (var plugin in XmlFile.Instance.PluginElements())
         {
             Generate(plugin, plcProjectItem);
         }
