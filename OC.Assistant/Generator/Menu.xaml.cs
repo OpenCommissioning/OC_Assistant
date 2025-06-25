@@ -85,7 +85,9 @@ public partial class Menu
     
     private void ApiOnConfigReceived(XElement config)
     {
-        XmlFile.Instance.ClientUpdate(config);
+        XmlFile.Instance.Main = config;
+        XmlFile.Instance.Save();
+        
         DteSingleThread.Run(dte =>
         {
             if (GetPlcProject(dte) is not {} plcProjectItem) return;

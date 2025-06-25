@@ -102,14 +102,14 @@ internal static class Sil
         
         //Input struct
         var variables = "";
-        variables = plugin.InputStructure?.Elements()
+        variables = plugin.InputStructure.Elements()
             .Aggregate(variables, (current, var) => 
                 current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
         pluginFolder.CreateDutStruct($"{pluginName}Inputs", variables);
                     
         //Output struct
         variables = "";
-        variables = plugin.OutputStructure?.Elements()
+        variables = plugin.OutputStructure.Elements()
             .Aggregate(variables, (current, var) => 
                 current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
         pluginFolder.CreateDutStruct($"{pluginName}Outputs", variables);

@@ -39,16 +39,8 @@ internal static class XmlFileExtension
     /// </summary>
     public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin)
     {
-        if (plugin.Type is null || plugin.PluginController is null) return;
-        
         xmlFile.RemovePlugin(plugin.Name);
-        
-        var xPlugin = new XPlugin(plugin.Name, plugin.Type, plugin.PluginController.IoType);
-        xPlugin.Element.Add(plugin.PluginController.Parameter.XElement);
-        xPlugin.Element.Add(plugin.PluginController.InputStructure.XElement);
-        xPlugin.Element.Add(plugin.PluginController.OutputStructure.XElement);
-        
-        xmlFile.Plugins.Add(xPlugin.Element);
+        xmlFile.Plugins.Add(new XPlugin(plugin).Element);
         xmlFile.Save();
     }
         

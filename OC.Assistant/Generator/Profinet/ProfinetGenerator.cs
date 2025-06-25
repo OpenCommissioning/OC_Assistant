@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Xml.Linq;
 using EnvDTE;
 using OC.Assistant.Core;
 using TCatSysManagerLib;
@@ -92,6 +93,7 @@ internal class ProfinetGenerator(DTE dte, string folderName)
         pnFolder.CreateGvl(pnName, gvlVariables);
 
         //Add program name to xml for project generator
-        XmlFile.Instance.AddHilProgram(pnName);
+        XmlFile.Instance.Hil.Add(new XElement("Program", $"PRG_{pnName}".MakePlcCompatible()));
+        XmlFile.Instance.Save();
     }
 }

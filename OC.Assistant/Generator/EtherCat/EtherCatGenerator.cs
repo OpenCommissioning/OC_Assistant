@@ -134,7 +134,8 @@ internal class EtherCatGenerator
                 .Aggregate("", (current, device) => current + $"GVL_{name}.{device.InstanceName}();\n");
         }
         
-        XmlFile.Instance.AddHilProgram(name);
+        XmlFile.Instance.Hil.Add(new XElement("Program", $"PRG_{name}".MakePlcCompatible()));
+        XmlFile.Instance.Save();
     }
     
     private IEnumerable<EtherCatTemplate> TcEtherCatTemplates

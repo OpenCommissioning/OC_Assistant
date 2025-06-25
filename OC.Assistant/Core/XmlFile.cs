@@ -14,46 +14,6 @@ public class XmlFile
     private string? _path;
     
     /// <summary>
-    /// The name of the root node.
-    /// </summary>
-    private const string ROOT = "Config";
-
-    /// <summary>
-    /// The node name of the plugin category.
-    /// </summary>
-    private const string PLUGINS = "Plugins";
-    
-    /// <summary>
-    /// The node name of the plc project category.
-    /// </summary>
-    private const string PROJECT = "Project";
-
-    /// <summary>
-    /// The node name of the general settings.
-    /// </summary>
-    private const string SETTINGS = "Settings";
-    
-    /// <summary>
-    /// The node name of the projectName setting.
-    /// </summary>
-    private const string PLC_PROJECT_NAME = "PlcProjectName";
-    
-    /// <summary>
-    /// The node name of the taskName setting.
-    /// </summary>
-    private const string PLC_TASK_NAME = "PlcTaskName";
-    
-    /// <summary>
-    /// The node name of Hil.
-    /// </summary>
-    private const string HIL = "Hil";
-    
-    /// <summary>
-    /// The node name of the plc project root.
-    /// </summary>
-    private const string MAIN = "Main";
-    
-    /// <summary>
     /// The private constructor.
     /// </summary>
     private XmlFile()
@@ -98,16 +58,16 @@ public class XmlFile
         }
         
         _doc = new XDocument(
-            new XElement(ROOT,
-                new XElement(SETTINGS,
-                    new XElement(PLC_PROJECT_NAME, "OC"),
-                    new XElement(PLC_TASK_NAME, "PlcTask")),
-                new XElement(PLUGINS),
-                new XElement(PROJECT,
-                    new XElement(HIL),
-                    new XElement(MAIN))));
+            new XElement("Config",
+                new XElement(nameof(Settings),
+                    new XElement(nameof(PlcProjectName), "OC"),
+                    new XElement(nameof(PlcTaskName), "PlcTask")),
+                new XElement(nameof(Plugins)),
+                new XElement(nameof(Project),
+                    new XElement(nameof(Hil)),
+                    new XElement(nameof(Main)))));
         
-        _doc.Save(Path);
+        Save();
         Reloaded?.Invoke();
     }
 
@@ -121,40 +81,47 @@ public class XmlFile
     }
     
     /// <summary>
-    /// Gets the <see cref="SETTINGS"/> <see cref="XElement"/>.
+    /// Gets the Settings <see cref="XElement"/>.
     /// </summary>
-    public XElement Settings => (_doc?.Root).GetOrCreateChild(SETTINGS);
+    public XElement Settings => (_doc?.Root).GetOrCreateChild(nameof(Settings));
     
     /// <summary>
-    /// Gets the <see cref="PLUGINS"/> <see cref="XElement"/>.
+    /// Gets the Plugins <see cref="XElement"/>.
     /// </summary>
-    public XElement Plugins => (_doc?.Root).GetOrCreateChild(PLUGINS);
+    public XElement Plugins => (_doc?.Root).GetOrCreateChild(nameof(Plugins));
     
     /// <summary>
-    /// Gets the <see cref="PROJECT"/> <see cref="XElement"/>.
+    /// Gets the Project <see cref="XElement"/>.
     /// </summary>
-    public XElement Project => (_doc?.Root).GetOrCreateChild(PROJECT);
-    
-    /// <summary>
-    /// Gets the main program element.
-    /// </summary>
-    public XElement ProjectMain => Project.GetOrCreateChild(MAIN);
+    public XElement Project => (_doc?.Root).GetOrCreateChild(nameof(Project));
     
     /// <summary>
     /// Gets the HiL element.
     /// </summary>
-    public XElement ProjectHil => Project.GetOrCreateChild(HIL);
+    public XElement Hil => Project.GetOrCreateChild(nameof(Hil));
     
+    /// <summary>
+    /// Gets the main program <see cref="XElement"/> or sets its content.
+    /// </summary>
+    public XElement Main
+    {
+        get => Project.GetOrCreateChild(nameof(Main));
+        set
+        {
+            Project.GetOrCreateChild(nameof(Main)).ReplaceNodes(value.Nodes());
+            Save();       
+        }
+    }
+
     /// <summary>
     /// Gets or sets the PlcProjectName value.
     /// </summary>
     public string PlcProjectName
     {
-        get => Settings.GetOrCreateChild(PLC_PROJECT_NAME).Value;
+        get => Settings.GetOrCreateChild(nameof(PlcProjectName)).Value;
         set
         {
-            var element = Settings.GetOrCreateChild(PLC_PROJECT_NAME);
-            element.Value = value;
+            Settings.GetOrCreateChild(nameof(PlcProjectName)).Value = value;
             Save();
         }
     }
@@ -164,46 +131,11 @@ public class XmlFile
     /// </summary>
     public string PlcTaskName
     {
-        get => Settings.GetOrCreateChild(PLC_TASK_NAME).Value;
+        get => Settings.GetOrCreateChild(nameof(PlcTaskName)).Value;
         set
         {
-            var element = Settings.GetOrCreateChild(PLC_TASK_NAME);
-            element.Value = value;
+            Settings.GetOrCreateChild(nameof(PlcTaskName)).Value = value;
             Save();
         }
-    }
-    
-    /// <summary>
-    /// Implements a new client configuration.
-    /// </summary>
-    public void ClientUpdate(XElement config)
-    {
-        try
-        {
-            ProjectMain.ReplaceNodes(config.Elements());
-            Save();
-        }
-        catch (Exception e)
-        {
-            Sdk.Logger.LogWarning(nameof(XmlFile), e.Message);
-        }
-    }
-
-    /// <summary>
-    /// Removes all HiL programs.
-    /// </summary>
-    public void ClearHilPrograms()
-    {
-        ProjectHil.RemoveAll();
-        Save();
-    }
-
-    /// <summary>
-    /// Adds a HiL program with the given name.
-    /// </summary>
-    public void AddHilProgram(string name)
-    {
-        ProjectHil.Add(new XElement("Program", $"PRG_{name}".MakePlcCompatible()));
-        Save();
     }
 }
