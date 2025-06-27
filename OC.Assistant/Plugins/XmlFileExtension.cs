@@ -1,68 +1,67 @@
-﻿using System.Xml.Linq;
-using OC.Assistant.Core;
+﻿using OC.Assistant.Core;
 using OC.Assistant.Sdk;
-using OC.Assistant.Sdk.Plugin;
 
 namespace OC.Assistant.Plugins;
 
 /// <summary>
-/// <see cref="Core.XmlFile"/> extension to write and read plugin configurations.
+/// <see cref="Core.XmlFile"/> extension to update and load plugins.
 /// </summary>
 internal static class XmlFileExtension
 {
     /// <summary>
-    /// Removes the given plugin.
+    /// Gets the plugin elements as <see cref="XPlugin"/>.
     /// </summary>
-    public static void RemovePlugin(this XmlFile xmlFile, Plugin plugin)
+    public static IEnumerable<XPlugin> PluginElements(this XmlFile xmlFile) 
+        => xmlFile.Plugins.Elements().Select(x => new XPlugin(x));
+
+    /// <summary>
+    /// Retrieves the <see cref="XPlugin"/> by the given name.
+    /// </summary>
+    /// <returns>The first <see cref="XPlugin"/> corresponding to the name, if any.</returns>
+    public static XPlugin? GetPlugin(this XmlFile xmlFile, string name) 
+        => xmlFile.PluginElements().FirstOrDefault(x => x.Name == name);
+
+    /// <summary>
+    /// Removes all <see cref="XPlugin"/> elements by the given name.
+    /// </summary>
+    public static void RemovePlugin(this XmlFile xmlFile, string name)
     {
-        foreach (var item in xmlFile.Plugins.Elements())
+        foreach (var xPlugin in xmlFile.PluginElements().Where(x => x.Name == name))
         {
-            if (item.Attribute(XmlTags.PLUGIN_NAME)?.Value == plugin.Name) item.Remove();
+            xPlugin.Element.Remove();
         }
         
         xmlFile.Save();
     }
     
     /// <summary>
-    /// Updates or adds the given plugin.
+    /// Updates or adds the given <see cref="Plugin"/> to the <see cref="XmlFile"/>.
     /// </summary>
     public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin)
     {
-        xmlFile.RemovePlugin(plugin);
-
-        var xElement = new XElement(XmlTags.PLUGIN,
-            new XAttribute(XmlTags.PLUGIN_NAME, plugin.Name ?? ""),
-            new XAttribute(XmlTags.PLUGIN_TYPE, plugin.Type?.Name ?? ""),
-            new XAttribute(XmlTags.PLUGIN_IO_TYPE, plugin.PluginController?.IoType ?? IoType.None),
-            plugin.PluginController?.Parameter.XElement,
-            plugin.PluginController?.InputStructure.XElement,
-            plugin.PluginController?.OutputStructure.XElement);
-
-        xmlFile.Plugins.Add(xElement);
+        xmlFile.RemovePlugin(plugin.Name);
+        xmlFile.Plugins.Add(new XPlugin(plugin).Element);
         xmlFile.Save();
     }
         
     /// <summary>
-    /// Loads all plugins.
+    /// Gets a list of plugins from the <see cref="XmlFile"/>.
+    /// <returns>A <see cref="List{T}"/> of type <see cref="Plugin"/>.</returns>
     /// </summary>
     public static List<Plugin> LoadPlugins(this XmlFile xmlFile)
     {
         var plugins = new List<Plugin>();
 
-        foreach (var element in xmlFile.Plugins.Elements())
+        foreach (var xPlugin in xmlFile.PluginElements())
         {
-            var name = element.Attribute(XmlTags.PLUGIN_NAME)?.Value;
-            var type = element.Attribute(XmlTags.PLUGIN_TYPE)?.Value;
-            var parameter = element.Element(XmlTags.PLUGIN_PARAMETER);
-            var pluginInfo = PluginRegister.GetByTypeName(type);
+            var pluginInfo = PluginRegister.GetByTypeName(xPlugin.Type);
             if (pluginInfo is null)
             {
                 Logger.LogWarning(typeof(XmlFile), 
-                    $"Plugin for type '{type}' not found in directory {PluginRegister.SearchPath}");
+                    $"Plugin for type '{xPlugin.Type}' not found in directory {PluginRegister.SearchPath}");
                 continue;
             }
-            if (name is null || parameter is null) continue;
-            plugins.Add(new Plugin(name, pluginInfo.Type, parameter));
+            plugins.Add(new Plugin(xPlugin.Name, pluginInfo.Type, xPlugin.Parameter));
         }
             
         return plugins;
