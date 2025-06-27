@@ -28,7 +28,7 @@ internal static class XmlFileExtension
     {
         foreach (var xPlugin in xmlFile.PluginElements().Where(x => x.Name == name))
         {
-            xPlugin.Element.Remove();
+            xPlugin.Element?.Remove();
         }
         
         xmlFile.Save();
