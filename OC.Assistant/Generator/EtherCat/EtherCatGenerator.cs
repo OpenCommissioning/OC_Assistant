@@ -126,8 +126,7 @@ internal class EtherCatGenerator
 
         busFolder.CreateGvl(name, variables);
         
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (prg is ITcPlcImplementation impl)
+        if (prg.CastTo<ITcPlcImplementation>() is {} impl)
         {
             impl.ImplementationText = _instance
                 .Where(x => x.CyclicCall)

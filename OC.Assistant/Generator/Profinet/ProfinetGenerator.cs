@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
+﻿using System.IO;
 using System.Xml.Linq;
 using EnvDTE;
 using OC.Assistant.Core;
@@ -7,7 +6,7 @@ using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator.Profinet;
 
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
+
 internal class ProfinetGenerator(DTE dte, string folderName)
 {
     public void Generate(ITcSmTreeItem plcProjectItem)
@@ -60,10 +59,10 @@ internal class ProfinetGenerator(DTE dte, string folderName)
         //Create program
         if (pnFolder?.GetOrCreateChild($"PRG_{pnName}", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG) is not { } prg) return;
         if (prg.GetOrCreateChild("InitRun", TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD) is not {} initRun) return;
-        if (prg is not ITcPlcDeclaration prgDecl) return;
-        if (prg is not ITcPlcImplementation prgImpl) return;
-        if (initRun is not ITcPlcDeclaration initDecl) return;
-        if (initRun is not ITcPlcImplementation initImpl) return;
+        if (prg.CastTo<ITcPlcDeclaration>() is not {} prgDecl) return;
+        if (prg.CastTo<ITcPlcImplementation>() is not {} prgImpl) return;
+        if (initRun.CastTo<ITcPlcDeclaration>() is not {} initDecl) return;
+        if (initRun.CastTo<ITcPlcImplementation>() is not {} initImpl) return;
         
         prgDecl.DeclarationText = 
             $"""
