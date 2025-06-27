@@ -1,11 +1,17 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using TCatSysManagerLib;
+﻿using TCatSysManagerLib;
 
 namespace OC.Assistant.Core;
 
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 public static class TcSmTreeItemExtension
 {
+    /// <summary>
+    /// Tries to cast the given <see cref="ITcSmTreeItem"/> to the specified type.
+    /// </summary>
+    /// <typeparam name="T">The target class or interface to cast to.</typeparam>
+    /// <param name="item">The <see cref="ITcSmTreeItem"/> to cast.</param>
+    /// <returns>An instance of type <typeparamref name="T"/> if the cast is successful, otherwise null.</returns>
+    public static T? CastTo<T>(this ITcSmTreeItem? item) where T : class => item as T;
+    
     /// <summary>
     /// Searches for a child in the given tree by name.
     /// </summary>
@@ -87,7 +93,7 @@ public static class TcSmTreeItemExtension
             return null;
         }
 
-        if (gvlItem is not ITcPlcDeclaration gvlDecl)
+        if (gvlItem.CastTo<ITcPlcDeclaration>() is not {} gvlDecl)
         {
             return null;
         }
@@ -115,7 +121,7 @@ public static class TcSmTreeItemExtension
             return null;
         }
 
-        if (dutItem is not ITcPlcDeclaration dutDecl)
+        if (dutItem.CastTo<ITcPlcDeclaration>() is not {} dutDecl)
         {
             return null;
         }

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using OC.Assistant.Core;
+﻿using OC.Assistant.Core;
 using OC.Assistant.Plugins;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
@@ -10,7 +9,6 @@ namespace OC.Assistant.Generator.Generators;
 /// <summary>
 /// Generator for SiL signals.
 /// </summary>
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 internal static class Sil
 {
     private const string FOLDER_NAME = nameof(Sil);
@@ -39,7 +37,10 @@ internal static class Sil
     /// <param name="plcProjectItem">The given plc project.</param>
     public static void UpdateAll(ITcSmTreeItem plcProjectItem)
     {
-        if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null) plcProjectItem.DeleteChild(FOLDER_NAME);
+        if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null)
+        {
+            plcProjectItem.DeleteChild(FOLDER_NAME);
+        }
         foreach (var plugin in XmlFile.Instance.PluginElements())
         {
             Generate(plugin, plcProjectItem);
@@ -49,73 +50,57 @@ internal static class Sil
     private static void Generate(XPlugin? plugin, ITcSmTreeItem plcProjectItem)
     {
         if (plugin is null) return;
-        if (!Enum.TryParse(plugin.IoType, out IoType ioType)) return;
-        if (ioType == IoType.None) return;
-        var silFolder = plcProjectItem.GetOrCreateChild(FOLDER_NAME, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (silFolder is null) return;
+        if (!Enum.TryParse(plugin.IoType, out IoType ioType) || ioType == IoType.None) return;
+        
+        if (plcProjectItem.GetOrCreateChild(FOLDER_NAME, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} silFolder)
+        {
+            return;
+        }
         
         switch (ioType)
         {
             case IoType.Address:
-                AddressVariables(plugin, silFolder);
+                CreateAddressVariables(plugin, silFolder);
                 break;
             case IoType.Struct:
-                StructVariables(plugin, silFolder);
+                CreateStructVariables(plugin, silFolder);
                 break;
         }
     }
 
-    private static void AddressVariables(XPlugin plugin, ITcSmTreeItem silFolder)
+    private static void CreateAddressVariables(XPlugin plugin, ITcSmTreeItem silFolder)
     {
-        var pluginName = plugin.Name;
-        
-        var pluginFolder = silFolder.GetOrCreateChild(pluginName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pluginFolder is null) return;
-        
-        var gvlVariables = "";
-        
-        //Inputs
-        var request = plugin.InputAddress;
-        
-        if (request is not null)
+        var name = plugin.Name;
+        if (silFolder.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder)
         {
-            gvlVariables = request.Aggregate(gvlVariables, (current, t) => 
-                current + $"\tI{t}: {TcType.Byte.Name()};\n");
-        }
-                    
-        //Outputs
-        request = plugin.OutputAddress;
+            return;
+        } 
         
-        if (request is null) return;
-        gvlVariables = request.Aggregate(gvlVariables, (current, t) => 
-            current + $"\tQ{t}: {TcType.Byte.Name()};\n");
+        var inputs = plugin.InputAddress?.Aggregate("", (current, next) => 
+            $"{current}\tI{next}: {TcType.Byte.Name()};\n");
+        
+        var outputs = plugin.OutputAddress?.Aggregate("", (current, next) => 
+            $"{current}\tQ{next}: {TcType.Byte.Name()};\n");
 
-        pluginFolder.CreateGvl(pluginName, gvlVariables);
+        folder.CreateGvl(name, inputs + outputs);
     }
 
-    private static void StructVariables(XPlugin plugin, ITcSmTreeItem silFolder)
+    private static void CreateStructVariables(XPlugin plugin, ITcSmTreeItem silFolder)
     {
-        var pluginName = plugin.Name;
+        var name = plugin.Name;
+        if (silFolder.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder)
+        {
+            return;
+        }
         
-        var pluginFolder = silFolder.GetOrCreateChild(pluginName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pluginFolder is null) return;
+        var inputs = plugin.InputStructure.Elements().Aggregate("", (current, var) => 
+            current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
         
-        //Input struct
-        var variables = "";
-        variables = plugin.InputStructure.Elements()
-            .Aggregate(variables, (current, var) => 
-                current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
-        pluginFolder.CreateDutStruct($"{pluginName}Inputs", variables);
-                    
-        //Output struct
-        variables = "";
-        variables = plugin.OutputStructure.Elements()
-            .Aggregate(variables, (current, var) => 
-                current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
-        pluginFolder.CreateDutStruct($"{pluginName}Outputs", variables);
+        var outputs = plugin.OutputStructure.Elements().Aggregate("", (current, var) => 
+            current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
         
-        //GVL
-        pluginFolder.CreateGvl(pluginName, 
-            $"\tInputs : ST_{pluginName}Inputs;\n\tOutputs : ST_{pluginName}Outputs;\n");
+        folder.CreateDutStruct($"{name}Inputs", inputs);
+        folder.CreateDutStruct($"{name}Outputs", outputs);
+        folder.CreateGvl(name, $"\tInputs : ST_{name}Inputs;\n\tOutputs : ST_{name}Outputs;\n");
     }
 }

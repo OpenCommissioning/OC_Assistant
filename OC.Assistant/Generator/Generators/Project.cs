@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using OC.Assistant.Core;
 using TCatSysManagerLib;
@@ -9,7 +8,6 @@ namespace OC.Assistant.Generator.Generators;
 /// <summary>
 /// Generator for the plc project.
 /// </summary>
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 internal static partial class Project
 {
     /// <summary>
@@ -128,13 +126,13 @@ internal static partial class Project
 
     private static void UpdateDeclaration(this ITcSmTreeItem? item, string? text)
     {
-        if (item is not ITcPlcDeclaration declaration) return;
+        if (item?.CastTo<ITcPlcDeclaration>() is not {} declaration) return;
         ReplaceGeneratedText(declaration, text, item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD);
     }
     
     private static void UpdateImplementation(this ITcSmTreeItem? item, string? text)
     {
-        if (item is not ITcPlcImplementation implementation) return;
+        if (item?.CastTo<ITcPlcImplementation>() is not {} implementation) return;
         ReplaceGeneratedText(implementation, text);
     }
     

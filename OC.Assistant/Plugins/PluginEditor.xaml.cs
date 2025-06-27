@@ -81,13 +81,15 @@ internal partial class PluginEditor
     private void ShowParameter()
     {
         IndicateChanges = false;
-        if (_plugin?.IsValid != true)
+        if (_plugin is null) return;
+        
+        if (!_plugin.IsValid)
         {
-            if (_plugin?.InitType(TypeDropdown.SelectedType) != true) return;
+            if (!_plugin.InitType(TypeDropdown.SelectedType)) return;
         }
 
         ParameterPanel.Children.Clear();
-        foreach (var parameter in _plugin.PluginController?.Parameter.ToList() ?? [])
+        foreach (var parameter in _plugin.PluginController.Parameter.ToList())
         {
             var param = new PluginParameter(parameter);
             param.Changed += () => IndicateChanges = true;
