@@ -1,20 +1,15 @@
-﻿using System.Net.NetworkInformation;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+﻿using System.Windows.Controls;
+using System.Net.NetworkInformation;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
 
-/// <summary>
-/// Dropdown for network adapters, filtered by 'twincat-intel'
-/// </summary>
-internal class AdapterDropdown : ComboBox
+public partial class AdapterDropdown
 {
     public AdapterDropdown()
     {
-        Style = Application.Current.Resources["DefaultComboBoxStyle"] as Style;
-        Background = Application.Current.Resources["Dark1Brush"] as Brush;
+        InitializeComponent();
+
         try
         {
             var defaultItem = SelectedItem;

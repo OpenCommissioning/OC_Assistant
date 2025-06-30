@@ -1,41 +1,40 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using OC.Assistant.Core;
 
 namespace OC.Assistant.Generator;
 
-/// <summary>
-/// Dropdown for available plc projects.
-/// </summary>
-public class SettingsPlcDropdown : ComboBox
+public partial class SettingsTaskDropdown
 {
-    public string Selected { get; private set; } = XmlFile.Instance.PlcProjectName;
+    public string Selected { get; private set; } = XmlFile.Instance.PlcTaskName;
     
-    public SettingsPlcDropdown()
+    public SettingsTaskDropdown()
     {
-        Style = Application.Current.Resources["DefaultComboBoxStyle"] as Style;
-        Items.Add(new ComboBoxItem {Content = XmlFile.Instance.PlcProjectName});
+        InitializeComponent();
+        
+        Items.Add(new ComboBoxItem {Content = XmlFile.Instance.PlcTaskName});
         SelectedIndex = 0;
         DropDownOpened += OnOpened;
         return;
 
         void OnOpened(object? sender, EventArgs e)
         {
-            var projects = new List<string>();
+            var tasks = new List<string>();
             DteSingleThread.Run(dte =>
             {
                 if (dte.GetTcSysManager() is not {} tcSysManager) return;
-                projects.AddRange(tcSysManager
-                    .TryGetItems(TcShortcut.PLC)
+                
+                tasks.AddRange(tcSysManager
+                    .TryGetItems(TcShortcut.TASK)
+                    .Where(item => item.ItemSubType == (int)TcSmTreeItemSubType.TaskWithImage)
                     .Select(item => item.Name));
             }, 1000);
             
             Items.Clear();
-            foreach (var project in projects)
+            foreach (var task in tasks)
             {
                 var comboBoxItem = new ComboBoxItem
                 {
-                    Content = project
+                    Content = task
                 };
                 
                 comboBoxItem.Selected += ComboBoxItem_Selected;
@@ -44,7 +43,7 @@ public class SettingsPlcDropdown : ComboBox
 
             if (Items.Count == 0)
             {
-                Items.Add(new ComboBoxItem {Content = "No plc found", IsEnabled = false});
+                Items.Add(new ComboBoxItem {Content = "No task found", IsEnabled = false});
                 Selected = "";
                 return;
             }
@@ -57,7 +56,7 @@ public class SettingsPlcDropdown : ComboBox
             }
         }
     }
-
+    
     private void ComboBoxItem_Selected(object sender, EventArgs e)
     {
         var comboBoxItem = (ComboBoxItem)sender;

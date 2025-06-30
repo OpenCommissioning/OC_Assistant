@@ -11,7 +11,6 @@ public partial class MainWindow
     public MainWindow()
     {
         InitializeComponent();
-        Footer.Children.Add(ProjectState.View);
         ReadSettings();
 
         BusyState.Changed += BusyOverlay.SetState;

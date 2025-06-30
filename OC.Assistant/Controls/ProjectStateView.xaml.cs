@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Media;
+using OC.Assistant.Core;
 
 namespace OC.Assistant.Controls;
 
@@ -9,44 +10,37 @@ public partial class ProjectStateView
     {
         InitializeComponent();
         IndicateDisconnected();
-    }
-    
-    protected void SetSolutionPath(string? path)
-    {
-        Dispatcher.Invoke(() =>
-        {
-            SolutionLabel.Content = path;
-        });
+        
+        ProjectState.Events.Connected += SetSolutionPath;
+        ProjectState.Events.Disconnected += IndicateDisconnected;
+        ProjectState.Events.StartedRunning += IndicateRunMode;
+        ProjectState.Events.StoppedRunning += IndicateConfigMode;
     }
 
-    protected void IndicateDisconnected()
+    private void SetSolutionPath(string? path)
     {
-        Dispatcher.Invoke(() =>
-        {
-            StateBorder.Background = Application.Current.Resources["White4Brush"] as SolidColorBrush;
-            StateLabel.Content = "Offline";
-            NedIdLabel.Content = null;
-            SolutionLabel.Content = null;
-        });
+        SolutionLabel.Content = path;
     }
 
-    protected void IndicateRunMode()
+    private void IndicateDisconnected()
     {
-        Dispatcher.Invoke(() =>
-        {
-            StateBorder.Background = Application.Current.Resources["Success1Brush"] as SolidColorBrush;
-            StateLabel.Content = "Run";
-            NedIdLabel.Content = Sdk.ApiLocal.Interface.NetId;
-        });
+        StateBorder.Background = Application.Current.Resources["White4Brush"] as SolidColorBrush;
+        StateLabel.Content = "Offline";
+        NedIdLabel.Content = null;
+        SolutionLabel.Content = null;
     }
 
-    protected void IndicateConfigMode()
+    private void IndicateRunMode()
     {
-        Dispatcher.Invoke(() =>
-        {
-            StateBorder.Background = Application.Current.Resources["AccentBrush"] as SolidColorBrush;
-            StateLabel.Content = "Config";
-            NedIdLabel.Content = Sdk.ApiLocal.Interface.NetId;
-        });
+        StateBorder.Background = Application.Current.Resources["Success1Brush"] as SolidColorBrush;
+        StateLabel.Content = "Run";
+        NedIdLabel.Content = Sdk.ApiLocal.Interface.NetId;
+    }
+
+    private void IndicateConfigMode()
+    {
+        StateBorder.Background = Application.Current.Resources["AccentBrush"] as SolidColorBrush;
+        StateLabel.Content = "Config";
+        NedIdLabel.Content = Sdk.ApiLocal.Interface.NetId;
     }
 }
