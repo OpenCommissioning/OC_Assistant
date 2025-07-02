@@ -19,10 +19,8 @@ public partial class SettingsTaskDropdown
         void OnOpened(object? sender, EventArgs e)
         {
             var tasks = new List<string>();
-            DteSingleThread.Run(dte =>
+            DteSingleThread.Run(tcSysManager =>
             {
-                if (dte.GetTcSysManager() is not {} tcSysManager) return;
-                
                 tasks.AddRange(tcSysManager
                     .TryGetItems(TcShortcut.TASK)
                     .Where(item => item.ItemSubType == (int)TcSmTreeItemSubType.TaskWithImage)

@@ -19,11 +19,11 @@ public partial class Menu
 
     private void CreateProjectOnClick(object sender, RoutedEventArgs e)
     {
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            if (GetPlcProject(tcSysManager) is not {} plcProjectItem) return;
             XmlFile.Instance.Reload();
-            Generators.Hil.Update(dte, plcProjectItem);
+            Generators.Hil.Update(tcSysManager, plcProjectItem);
             Generators.Project.Update(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
         });
@@ -42,9 +42,9 @@ public partial class Menu
     
     private void CreateTaskOnClick(object sender, RoutedEventArgs e)
     {
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            Generators.Task.CreateVariables(dte);
+            Generators.Task.CreateVariables(tcSysManager);
             Logger.LogInfo(this, "Project update finished.");
         });
     }
@@ -88,17 +88,16 @@ public partial class Menu
         XmlFile.Instance.Main = config;
         XmlFile.Instance.Save();
         
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            if (GetPlcProject(tcSysManager) is not {} plcProjectItem) return;
             Generators.Project.Update(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
         });
     }
     
-    private ITcSmTreeItem? GetPlcProject(DTE? dte)
+    private ITcSmTreeItem? GetPlcProject(ITcSysManager15? tcSysManager)
     {
-        var tcSysManager = dte?.GetTcSysManager();
         tcSysManager?.SaveProject();
         if (tcSysManager?.TryGetPlcProject() is {} plcProjectItem) return plcProjectItem;
         Logger.LogError(this, "No Plc project found");

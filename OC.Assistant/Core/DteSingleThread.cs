@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using TCatSysManagerLib;
 
 namespace OC.Assistant.Core;
 
@@ -9,7 +10,7 @@ public static class DteSingleThread
 {
     /// <inheritdoc cref="Run(System.Action,int)"/><br/>
     /// This overload automatically gets the <see cref="EnvDTE.DTE"/> interface of the currently connected solution.
-    public static System.Threading.Thread Run(Action<DTE> action, int millisecondsTimeout = 0)
+    public static System.Threading.Thread Run(Action<ITcSysManager15> action, int millisecondsTimeout = 0)
     {
         return Run(() =>
         {
@@ -19,13 +20,14 @@ public static class DteSingleThread
                 return;
             }
 
-            DTE? dte = null;
-
             try
             {
-                dte = TcDte.GetInstance(ProjectState.Solution.FullName);
-                if (dte is null) return;
-                action(dte);
+                var dte = TcDte.GetInstance(ProjectState.Solution.FullName);
+                var tcSysManager = dte.GetTcSysManager();
+                ComObjects.Add(dte);
+                ComObjects.Add(tcSysManager);
+                if (dte is null || tcSysManager is null) return;
+                action(tcSysManager);
             }
             catch (Exception e)
             {
@@ -33,7 +35,7 @@ public static class DteSingleThread
             }
             finally
             {
-                dte?.Finalize();
+                ComObjects.ReleaseAll();
             }
         }, millisecondsTimeout);
     }

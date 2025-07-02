@@ -16,7 +16,7 @@ internal static class Hil
     /// <summary>
     /// Updates all HiL structures.
     /// </summary>
-    public static void Update(DTE dte, ITcSmTreeItem plcProjectItem)
+    public static void Update(ITcSysManager15 tcSysManager, ITcSmTreeItem plcProjectItem)
     {
         XmlFile.Instance.Hil.RemoveAll();
         XmlFile.Instance.Save();
@@ -26,7 +26,7 @@ internal static class Hil
             plcProjectItem.DeleteChild(FOLDER_NAME);
         }
         
-        new ProfinetGenerator(dte, FOLDER_NAME).Generate(plcProjectItem);
-        new EtherCatGenerator(dte, FOLDER_NAME).Generate(plcProjectItem);
+        new ProfinetGenerator(tcSysManager, FOLDER_NAME).Generate(plcProjectItem);
+        new EtherCatGenerator(tcSysManager, FOLDER_NAME).Generate(plcProjectItem);
     }
 }

@@ -37,7 +37,7 @@ public partial class DteSelector
                     ProjectFolder = instance.GetProjectFolder()
                 });
                 
-                instance.Finalize(false);
+                instance.Finalize();
             }
         
             GC.Collect();

@@ -20,7 +20,16 @@ public static class TcSmTreeItemExtension
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? TryLookupChild(this ITcSmTreeItem parent, string? childName)
     {
-        return parent.Cast<ITcSmTreeItem>().FirstOrDefault(c => c.Name == childName);
+        foreach (ITcSmTreeItem item in parent)
+        {
+            ComObjects.Add(item);
+            if (item.Name == childName || childName is null)
+            {
+                return item;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -46,17 +55,16 @@ public static class TcSmTreeItemExtension
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? FindChildRecursive(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
     {
+        if (parent.TryLookupChild(childName, type) is {} item)
+        {
+            return item;       
+        }
+        
         foreach (ITcSmTreeItem child in parent)
         {
-            if (child.Name.Equals(childName, StringComparison.CurrentCultureIgnoreCase) && child.ItemType == (int)type)
+            if (child.FindChildRecursive(childName, type) is {} grandChild)
             {
-                return child;
-            }
-
-            var grandChild = FindChildRecursive(child, childName, type);
-            if (grandChild is not null)
-            {
-                return grandChild;
+                return grandChild;       
             }
         }
         
@@ -76,7 +84,9 @@ public static class TcSmTreeItemExtension
         var item = parent.TryLookupChild(compatibleName, type);
         if (item is not null) return item;
         Thread.Sleep(1); //"Breathing room" for the COM interface
-        return parent.CreateChild(compatibleName, nSubType: (int)type);
+        var child = parent.CreateChild(compatibleName, nSubType: (int)type);
+        ComObjects.Add(child);
+        return child;
     }
     
     /// <summary>

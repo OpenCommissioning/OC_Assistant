@@ -19,9 +19,8 @@ public partial class SettingsPlcDropdown
         void OnOpened(object? sender, EventArgs e)
         {
             var projects = new List<string>();
-            DteSingleThread.Run(dte =>
+            DteSingleThread.Run(tcSysManager =>
             {
-                if (dte.GetTcSysManager() is not {} tcSysManager) return;
                 projects.AddRange(tcSysManager
                     .TryGetItems(TcShortcut.PLC)
                     .Select(item => item.Name));

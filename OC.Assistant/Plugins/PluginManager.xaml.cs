@@ -211,11 +211,10 @@ public partial class PluginManager
     
     private void UpdateProject(string name, bool delete)
     {
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            var tcSysManager = dte.GetTcSysManager();
-            tcSysManager?.SaveProject();
-            if (tcSysManager?.TryGetPlcProject() is not { } plcProjectItem)
+            tcSysManager.SaveProject();
+            if (tcSysManager.TryGetPlcProject() is not { } plcProjectItem)
             {
                 Sdk.Logger.LogError(this, "No Plc project found");
                 return;

@@ -1,25 +1,16 @@
 ﻿using System.IO;
 using System.Xml.Linq;
-using EnvDTE;
 using OC.Assistant.Core;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator.Profinet;
 
 
-internal class ProfinetGenerator(DTE dte, string folderName)
+internal class ProfinetGenerator(ITcSysManager15 tcSysManager, string folderName)
 {
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        var tcSysManager = dte.GetTcSysManager();
-        if (tcSysManager is null) return;
-        
-        if (!tcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
-        {
-            return;
-        }
-        
-        foreach (ITcSmTreeItem item in ioItem)
+        foreach (var item in tcSysManager.TryGetItems(TcShortcut.IO_DEVICE))
         {
             //Is not Profinet
             if (item.ItemSubType != (int) TcSmTreeItemSubType.ProfinetIoDevice) continue;

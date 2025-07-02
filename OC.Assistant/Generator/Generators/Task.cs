@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Xml.Linq;
-using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
@@ -15,9 +14,8 @@ internal static class Task
     /// <summary>
     /// Creates variables for a task, based on the plc instance.
     /// </summary>
-    public static void CreateVariables(DTE? dte)
+    public static void CreateVariables(ITcSysManager15? tcSysManager)
     {
-        var tcSysManager = dte?.GetTcSysManager();
         tcSysManager?.SaveProject();
         
         //Get plc instance

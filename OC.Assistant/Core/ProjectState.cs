@@ -46,8 +46,6 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
         
         DteSingleThread.Run(() =>
         {
-            DTE? dte = null;
-
             try
             {
                 _adsClient.Connect((int) AmsPort.R0_Realtime);
@@ -56,10 +54,6 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
             catch
             {
                 _adsNotOk = true;
-            }
-            finally
-            {
-                dte?.Finalize();
             }
         });
     }
@@ -203,9 +197,9 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
     private static int GetPlcPort()
     {
         var port = 0;
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            if (dte.GetTcSysManager()?.TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName) is not {} 
+            if (tcSysManager.TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName) is not {} 
                 plc) return;
             var value = XElement
                 .Parse(plc.ProduceXml()).Descendants("AdsPort").FirstOrDefault()?.Value;

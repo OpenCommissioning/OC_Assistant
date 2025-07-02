@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Xml.Linq;
-using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
@@ -12,7 +11,7 @@ namespace OC.Assistant.Generator.EtherCat;
 /// </summary>
 internal class EtherCatGenerator
 {
-    private readonly DTE _dte;
+    private readonly ITcSysManager15 _tcSysManager;
     private readonly List<EtherCatInstance> _instance = [];
     private readonly string? _projectFolder;
     private readonly string _folderName;
@@ -20,12 +19,12 @@ internal class EtherCatGenerator
     /// <summary>
     /// Instance of the <see cref="EtherCatGenerator"/>.
     /// </summary>
-    /// <param name="dte">The <see cref="DTE"/> interface of the connected project.</param>
+    /// <param name="tcSysManager">The <see cref="ITcSysManager15"/> interface of the connected project.</param>
     /// <param name="folderName">The plc folder locating the created GVL(s).</param>
-    public EtherCatGenerator(DTE dte, string folderName)
+    public EtherCatGenerator(ITcSysManager15 tcSysManager, string folderName)
     {
-        _dte = dte;
-        _projectFolder = dte.GetProjectFolder();
+        _tcSysManager = tcSysManager;
+        _projectFolder = ((EnvDTE.DTE)tcSysManager.DTE).GetProjectFolder();
         _folderName = folderName;
     }
         
@@ -35,17 +34,7 @@ internal class EtherCatGenerator
     /// <param name="plcProjectItem">The <see cref="ITcSmTreeItem"/> of the plc project.</param>
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        var tcSysManager =_dte.GetTcSysManager();
-        
-        if (tcSysManager is null) return;
-        
-        //Get io area of project
-        if (!tcSysManager.TryLookupTreeItem(TcShortcut.IO_DEVICE, out var ioItem))
-        {
-            return;
-        }
-        
-        foreach (ITcSmTreeItem item in ioItem)
+        foreach (var item in _tcSysManager.TryGetItems(TcShortcut.IO_DEVICE))
         {
             //Is not etherCat simulation
             if (item.ItemSubType != (int) TcSmTreeItemSubType.EtherCatSimulation) continue;
