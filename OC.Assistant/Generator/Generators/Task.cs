@@ -19,14 +19,14 @@ internal static class Task
         tcSysManager?.SaveProject();
         
         //Get plc instance
-        var instance = tcSysManager?.TryGetPlcInstance();
+        var instance = tcSysManager?.GetPlcInstance();
         if (instance is null) return;
         
         //Collect all symbols with 'simulation_interface' attribute
         var filter = instance.GetSymbolsWithAttribute("simulation_interface");
         
         //Get task
-        var task = tcSysManager?.TryGetItem(TcShortcut.TASK, XmlFile.Instance.PlcTaskName);
+        var task = tcSysManager?.GetItem(TcShortcut.TASK, XmlFile.Instance.PlcTaskName);
         if (task is null)
         {
             Logger.LogWarning(typeof(Task), "Task not found");

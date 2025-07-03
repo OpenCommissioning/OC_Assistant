@@ -29,15 +29,16 @@ public partial class DteSelector
         
         DteSingleThread.Run(() =>
         {
-            foreach (var instance in TcDte.GetInstances())
+            foreach (var dte in TcDte.GetInstances())
             {
+                var solution = dte.Solution;
                 _solutions.Add(new Solution
                 {
-                    SolutionFullName = instance.Solution?.FullName,
-                    ProjectFolder = instance.GetProjectFolder()
+                    SolutionFullName = solution?.FullName,
+                    ProjectFolder = dte.GetProjectFolder()
                 });
-                
-                instance.Finalize();
+                ComHelper.ReleaseObject(solution);
+                ComHelper.ReleaseObject(dte);
             }
         
             GC.Collect();

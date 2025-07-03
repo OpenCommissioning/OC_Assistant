@@ -10,7 +10,7 @@ internal class ProfinetGenerator(ITcSysManager15 tcSysManager, string folderName
 {
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        foreach (var item in tcSysManager.TryGetItems(TcShortcut.IO_DEVICE))
+        foreach (var item in tcSysManager.GetItems(TcShortcut.IO_DEVICE))
         {
             //Is not Profinet
             if (item.ItemSubType != (int) TcSmTreeItemSubType.ProfinetIoDevice) continue;

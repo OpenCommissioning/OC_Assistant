@@ -34,7 +34,7 @@ internal class EtherCatGenerator
     /// <param name="plcProjectItem">The <see cref="ITcSmTreeItem"/> of the plc project.</param>
     public void Generate(ITcSmTreeItem plcProjectItem)
     {
-        foreach (var item in _tcSysManager.TryGetItems(TcShortcut.IO_DEVICE))
+        foreach (var item in _tcSysManager.GetItems(TcShortcut.IO_DEVICE))
         {
             //Is not etherCat simulation
             if (item.ItemSubType != (int) TcSmTreeItemSubType.EtherCatSimulation) continue;
@@ -113,7 +113,7 @@ internal class EtherCatGenerator
         var variables = _instance
             .Aggregate("", (current, next) => current + $"{next.DeclarationText}\n");
 
-        busFolder.CreateGvl(name, variables);
+        busFolder?.CreateGvl(name, variables);
         
         if (prg.CastTo<ITcPlcImplementation>() is {} impl)
         {

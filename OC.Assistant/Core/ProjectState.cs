@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Windows;
 using System.Xml.Linq;
-using EnvDTE;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using TwinCAT.Ads;
@@ -18,7 +17,6 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
     private CancellationTokenSource _cancellationTokenSource = new();
     private AdsState _lastRunState = AdsState.Idle;
     private AmsNetId _amsNetId = AmsNetId.Local;
-    private DTE? _dte;
     private ITcSysManager15? _tcSysManager;
     private bool _adsNotOk;
     private bool IsProjectConnected => FullName is not null;
@@ -44,16 +42,21 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
     {
         if (LazyInstance.IsValueCreated) return;
         
-        DteSingleThread.Run(() =>
+        Task.Run(() =>
         {
             try
             {
+                BusyState.Set(this);
                 _adsClient.Connect((int) AmsPort.R0_Realtime);
                 _adsClient.Disconnect();
             }
             catch
             {
                 _adsNotOk = true;
+            }
+            finally
+            {
+                BusyState.Reset(this);
             }
         });
     }
@@ -91,7 +94,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
             _lastRunState = AdsState.Idle;
             _cancellationTokenSource.Cancel();
             _adsClient.Disconnect();
-            _dte?.Finalize();
+            ComHelper.ReleaseObject(_tcSysManager);
             _tcSysManager = null;
         });
     }
@@ -137,8 +140,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
         {
             if (_tcSysManager is null && FullName is not null)
             {
-                _dte = TcDte.GetInstance(FullName);
-                _tcSysManager = _dte.GetTcSysManager();
+                _tcSysManager = TcDte.GetTcSysManager(FullName);
             }
         }
         catch
@@ -199,7 +201,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
         var port = 0;
         DteSingleThread.Run(tcSysManager =>
         {
-            if (tcSysManager.TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName) is not {} 
+            if (tcSysManager.GetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName) is not {} 
                 plc) return;
             var value = XElement
                 .Parse(plc.ProduceXml()).Descendants("AdsPort").FirstOrDefault()?.Value;

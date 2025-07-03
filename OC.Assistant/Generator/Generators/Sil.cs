@@ -22,7 +22,7 @@ internal static class Sil
     public static void Update(ITcSmTreeItem plcProjectItem, string name, bool delete)
     {
         var sil = plcProjectItem.GetOrCreateChild(FOLDER_NAME, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (sil?.TryLookupChild(name) is not null) sil.DeleteChild(name);
+        if (sil?.GetChild(name) is not null) sil.DeleteChild(name);
         if (delete)
         {
             if (sil?.ChildCount == 0) plcProjectItem.DeleteChild(sil.Name);
@@ -37,7 +37,7 @@ internal static class Sil
     /// <param name="plcProjectItem">The given plc project.</param>
     public static void UpdateAll(ITcSmTreeItem plcProjectItem)
     {
-        if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null)
+        if (plcProjectItem.GetChild(FOLDER_NAME) is not null)
         {
             plcProjectItem.DeleteChild(FOLDER_NAME);
         }

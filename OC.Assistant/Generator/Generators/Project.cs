@@ -65,7 +65,7 @@ internal static partial class Project
     private static void CreateMainPrg(ITcSmTreeItem? parent, IReadOnlyCollection<PouInstance> instances)
     {
         //Find or create main program
-        var pou = parent?.FindChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
+        var pou = parent?.GetChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         pou ??= parent?.GetOrCreateChild("MAIN", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         
         //Declaration

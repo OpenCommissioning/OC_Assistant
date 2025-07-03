@@ -3,7 +3,6 @@ using System.Windows.Controls;
 using System.Xml.Linq;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
-using EnvDTE;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator;
@@ -99,7 +98,7 @@ public partial class Menu
     private ITcSmTreeItem? GetPlcProject(ITcSysManager15? tcSysManager)
     {
         tcSysManager?.SaveProject();
-        if (tcSysManager?.TryGetPlcProject() is {} plcProjectItem) return plcProjectItem;
+        if (tcSysManager?.GetPlcProject() is {} plcProjectItem) return plcProjectItem;
         Logger.LogError(this, "No Plc project found");
         return null;
     }

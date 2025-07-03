@@ -22,11 +22,9 @@ public static class DteSingleThread
 
             try
             {
-                var dte = TcDte.GetInstance(ProjectState.Solution.FullName);
-                var tcSysManager = dte.GetTcSysManager();
-                ComObjects.Add(dte);
-                ComObjects.Add(tcSysManager);
-                if (dte is null || tcSysManager is null) return;
+                var tcSysManager = TcDte.GetTcSysManager(ProjectState.Solution.FullName);
+                ComHelper.TrackObject(tcSysManager);
+                if (tcSysManager is null) return;
                 action(tcSysManager);
             }
             catch (Exception e)
@@ -35,7 +33,7 @@ public static class DteSingleThread
             }
             finally
             {
-                ComObjects.ReleaseAll();
+                ComHelper.ReleaseTrackedObjects();
             }
         }, millisecondsTimeout);
     }

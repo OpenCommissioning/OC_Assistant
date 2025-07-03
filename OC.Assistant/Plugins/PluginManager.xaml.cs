@@ -214,7 +214,7 @@ public partial class PluginManager
         DteSingleThread.Run(tcSysManager =>
         {
             tcSysManager.SaveProject();
-            if (tcSysManager.TryGetPlcProject() is not { } plcProjectItem)
+            if (tcSysManager.GetPlcProject() is not { } plcProjectItem)
             {
                 Sdk.Logger.LogError(this, "No Plc project found");
                 return;

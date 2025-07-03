@@ -130,7 +130,7 @@ public class Control(string scannerTool)
             
         UpdateTcPnDevice(tcPnDevice);
         
-        if (tcSysManager.TryGetPlcProject() is {} plcProjectItem)
+        if (tcSysManager.GetPlcProject() is {} plcProjectItem)
         {
             Logger.LogInfo(this, "Create HiL structure...");
             Generator.Generators.Hil.Update(tcSysManager, plcProjectItem);

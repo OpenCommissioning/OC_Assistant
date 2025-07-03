@@ -28,7 +28,7 @@ public static class DeviceTemplate
 			return;
 		}
 		
-		if (parent.TryLookupChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
+		if (parent.GetChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
 		{
 			Logger.LogWarning(typeof(DeviceTemplate), $"{name} already exists");
 			return;
