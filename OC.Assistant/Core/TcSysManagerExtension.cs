@@ -21,66 +21,41 @@ public static class TcSysManagerExtension
     }
     
     /// <summary>
-    /// Gets an <see cref="ITcSmTreeItem"/> by the given name.
+    /// Gets an <see cref="ITcSmTreeItem"/> by the given path.
     /// </summary>
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
-    /// <param name="rootItemName">The name of the root <see cref="ITcSmTreeItem"/>.</param>
-    /// <param name="name">The name or path of the <see cref="ITcSmTreeItem"/> to find.</param>
-    public static ITcSmTreeItem? GetItem(this ITcSysManager15 sysManager, string rootItemName, string? name = null)
+    /// <param name="itemPath">The path of the <see cref="ITcSmTreeItem"/>.</param>
+    public static ITcSmTreeItem? GetItem(this ITcSysManager15 sysManager, string itemPath)
     {
-        var path = rootItemName;
-        if (!string.IsNullOrEmpty(name))
-        {
-            path += $"^{name}";
-        }
-        if (sysManager.TryLookupTreeItem(path, out var item))
+        if (sysManager.TryLookupTreeItem(itemPath, out var item))
         {
             ComHelper.TrackObject(item);
             return item;
         }
-        Logger.LogError(typeof(TcSysManagerExtension), $"{path} not found");
+        Logger.LogError(typeof(TcSysManagerExtension), $"{itemPath} not found");
         return null;
-    }
-    
-    /// <summary>
-    /// Gets an enumeration of type <see cref="ITcSmTreeItem"/>.
-    /// </summary>
-    /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
-    /// <param name="rootItemName">The name of the root <see cref="ITcSmTreeItem"/>.</param>
-    public static IEnumerable<ITcSmTreeItem> GetItems(this ITcSysManager15 sysManager, string rootItemName)
-    {
-        if (sysManager.GetItem(rootItemName) is not {} rootItem)
-        {
-            yield break;
-        }
-        
-        foreach (ITcSmTreeItem item in rootItem)
-        {
-            ComHelper.TrackObject(item);
-            yield return item;
-        }
     }
 
     /// <summary>
-    /// Gets the plc project as <see cref="ITcSmTreeItem"/>.
+    /// Gets the plc project <see cref="ITcSmTreeItem"/>.
     /// </summary>
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
     public static ITcSmTreeItem? GetPlcProject(this ITcSysManager15 sysManager)
     {
-        var plc = sysManager.GetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName);
-        var item = plc?.GetChild(TREEITEMTYPES.TREEITEMTYPE_PLCAPP);
-        return item;
+        return sysManager
+            .GetItem($"{TcShortcut.PLC}^{XmlFile.Instance.PlcProjectName}")?
+            .GetChild(TREEITEMTYPES.TREEITEMTYPE_PLCAPP);
     }
         
     /// <summary>
-    /// Gets the plc instance as <see cref="ITcSmTreeItem"/>.
+    /// Gets the plc instance <see cref="ITcSmTreeItem"/>.
     /// </summary>
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
     public static ITcSmTreeItem? GetPlcInstance(this ITcSysManager15 sysManager)
     {
-        var plc = sysManager.GetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName);
-        var item = plc?.GetChild(TREEITEMTYPES.TREEITEMTYPE_TCOMPLCOBJECT);
-        return item;
+        return sysManager
+            .GetItem($"{TcShortcut.PLC}^{XmlFile.Instance.PlcProjectName}")?
+            .GetChild(TREEITEMTYPES.TREEITEMTYPE_TCOMPLCOBJECT);
     }
 
     /// <summary>
