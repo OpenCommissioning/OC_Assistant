@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml.Linq;
@@ -11,7 +12,10 @@ internal partial class Plugin
 {
     public Type? Type { get; private set; }
     public IPluginController? PluginController { get; private set; }
-    public bool IsValid => PluginController is not null;
+    
+    [MemberNotNullWhen(true, nameof(Type))]
+    [MemberNotNullWhen(true, nameof(PluginController))]
+    public bool IsValid => Type is not null && PluginController is not null;
 
     public Plugin()
     {
@@ -33,11 +37,13 @@ internal partial class Plugin
     {
         if (!IsValid) return false;
         Name = name;
-        PluginController?.Stop();
-        BtnEditText.Text = $"{Name}  ({Type?.Name})";
-        return PluginController?.Save(name) == true;
+        PluginController.Stop();
+        BtnEditText.Text = $"{Name}  ({Type.Name})";
+        return PluginController.Save(name);
     }
         
+    [MemberNotNullWhen(true, nameof(Type))]
+    [MemberNotNullWhen(true, nameof(PluginController))]
     public bool InitType(Type? type)
     {
         try
@@ -134,7 +140,7 @@ internal partial class Plugin
     private void RemoveButton_Click(object sender, RoutedEventArgs name)
     {
         if (PluginController?.IsRunning == true) return;
-        if (Theme.MessageBox.Show(
+        if (MainWindow.ShowMessageBox(
                 "Delete?",
                 Name, MessageBoxButton.OKCancel, MessageBoxImage.Warning)
             == MessageBoxResult.OK)

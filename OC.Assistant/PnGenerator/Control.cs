@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Xml.Linq;
-using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
@@ -40,10 +39,10 @@ public class Control(string scannerTool)
             return;
         }
         
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
             RunScanner();
-            ImportPnDevice(dte);
+            ImportPnDevice(tcSysManager);
         });
     }
 
@@ -104,7 +103,7 @@ public class Control(string scannerTool)
     /// <summary>
     /// Imports a xti-file.
     /// </summary>
-    private void ImportPnDevice(DTE dte)
+    private void ImportPnDevice(ITcSysManager15 tcSysManager)
     {
         //No file found
         var xtiFilePath = $"{AppData.Path}\\{_settings.PnName}.xti";
@@ -122,20 +121,19 @@ public class Control(string scannerTool)
             return;
         }
         
-        var tcSysManager = dte.GetTcSysManager();
-        tcSysManager?.SaveProject();
+        tcSysManager.SaveProject();
             
         //Import and delete xti file 
         Logger.LogInfo(this, $"Import {xtiFilePath}...");
-        var tcPnDevice = tcSysManager?.UpdateIoDevice(_settings.PnName, xtiFilePath);
+        var tcPnDevice = tcSysManager.UpdateIoDevice(_settings.PnName, xtiFilePath);
         File.Delete(xtiFilePath);
             
         UpdateTcPnDevice(tcPnDevice);
         
-        if (tcSysManager?.TryGetPlcProject() is {} plcProjectItem)
+        if (tcSysManager.GetPlcProject() is {} plcProjectItem)
         {
             Logger.LogInfo(this, "Create HiL structure...");
-            Generator.Generators.Hil.Update(dte, plcProjectItem);
+            Generator.Generators.Hil.Update(tcSysManager, plcProjectItem);
         }
 
         Logger.LogInfo(this, "Finished");

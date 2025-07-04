@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using OC.Assistant.Core;
 using TCatSysManagerLib;
@@ -9,7 +8,6 @@ namespace OC.Assistant.Generator.Generators;
 /// <summary>
 /// Generator for the plc project.
 /// </summary>
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 internal static partial class Project
 {
     /// <summary>
@@ -17,7 +15,7 @@ internal static partial class Project
     /// </summary>
     public static void Update(ITcSmTreeItem plcProjectItem)
     {
-        var main = XmlFile.Instance.ProjectMain;
+        var main = XmlFile.Instance.Main;
         var instances = new List<PouInstance>();
         
         foreach (var child in main.Elements())
@@ -67,7 +65,7 @@ internal static partial class Project
     private static void CreateMainPrg(ITcSmTreeItem? parent, IReadOnlyCollection<PouInstance> instances)
     {
         //Find or create main program
-        var pou = parent?.FindChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
+        var pou = parent?.GetChildRecursive("main", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         pou ??= parent?.GetOrCreateChild("MAIN", TREEITEMTYPES.TREEITEMTYPE_PLCPOUPROG);
         
         //Declaration
@@ -82,7 +80,7 @@ internal static partial class Project
         var implementation = "\tInitRun();\n\tfbSystem();\n";
         
         //HiL calls
-        implementation = XmlFile.Instance.ProjectHil.Elements().Select(x => x.Value).
+        implementation = XmlFile.Instance.Hil.Elements().Select(x => x.Value).
             Aggregate(implementation, (current, next) => $"{current}\t{next}();\n");
 
         //Instance calls
@@ -128,13 +126,13 @@ internal static partial class Project
 
     private static void UpdateDeclaration(this ITcSmTreeItem? item, string? text)
     {
-        if (item is not ITcPlcDeclaration declaration) return;
+        if (item?.CastTo<ITcPlcDeclaration>() is not {} declaration) return;
         ReplaceGeneratedText(declaration, text, item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD);
     }
     
     private static void UpdateImplementation(this ITcSmTreeItem? item, string? text)
     {
-        if (item is not ITcPlcImplementation implementation) return;
+        if (item?.CastTo<ITcPlcImplementation>() is not {} implementation) return;
         ReplaceGeneratedText(implementation, text);
     }
     

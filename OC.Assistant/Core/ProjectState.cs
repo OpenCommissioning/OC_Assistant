@@ -1,8 +1,6 @@
 ﻿using System.Reflection;
 using System.Windows;
 using System.Xml.Linq;
-using EnvDTE;
-using OC.Assistant.Controls;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using TwinCAT.Ads;
@@ -12,22 +10,16 @@ namespace OC.Assistant.Core;
 /// <summary>
 /// Singleton class for the project state.
 /// </summary>
-public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectStateSolution
+public class ProjectState : IProjectStateEvents, IProjectStateSolution
 {
     private static readonly Lazy<ProjectState> LazyInstance = new(() => new ProjectState());
     private readonly AdsClient _adsClient = new();
     private CancellationTokenSource _cancellationTokenSource = new();
     private AdsState _lastRunState = AdsState.Idle;
     private AmsNetId _amsNetId = AmsNetId.Local;
-    private DTE? _dte;
     private ITcSysManager15? _tcSysManager;
     private bool _adsNotOk;
     private bool IsProjectConnected => FullName is not null;
-    
-    /// <summary>
-    /// Gets the <see cref="ProjectStateView"/> element.
-    /// </summary>
-    public static ProjectStateView View => LazyInstance.Value;
     
     /// <summary>
     /// Gets the <see cref="IProjectStateSolution"/> interface.
@@ -49,42 +41,29 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
     private ProjectState()
     {
         if (LazyInstance.IsValueCreated) return;
-        Loaded += OnLoaded;
-    }
-    
-    private void OnLoaded(object sender, RoutedEventArgs e)
-    {
-        DteSingleThread.Run(() =>
+        
+        Task.Run(() =>
         {
-            DTE? dte = null;
             try
             {
-                Logger.LogInfo(this, "Checking TwinCAT ADS server...");
+                BusyState.Set(this);
                 _adsClient.Connect((int) AmsPort.R0_Realtime);
                 _adsClient.Disconnect();
-                Logger.LogInfo(this, "TwinCAT ADS server ok");
-
-                if (Environment.GetCommandLineArgs()
-                        .FirstOrDefault(arg => arg.EndsWith(".sln")) is not {} solution) return;
-                dte = TcDte.GetInstance(solution);
-                if (dte?.GetProjectFolder() is not {} projectFolder) return;
-                Connect(solution, projectFolder);
             }
-            catch (Exception exception)
+            catch
             {
                 _adsNotOk = true;
-                Logger.LogError(this, exception.Message);
             }
             finally
             {
-                dte?.Finalize();
+                BusyState.Reset(this);
             }
         });
     }
     
     public void Connect(string solutionFullName, string projectFolder)
     {
-        Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.Invoke(() =>
         {
             if (_adsNotOk) return;
             if (IsProjectConnected) Disconnect();
@@ -99,7 +78,6 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
             
             StartPolling(UpdateNetId, 1000);
             StartPolling(UpdateAdsState, 10);
-            SetSolutionPath(solutionFullName);
             Connected?.Invoke(solutionFullName);
             Logger.LogInfo(this, $"{FullName} connected");
         });
@@ -107,7 +85,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
     
     private void Disconnect()
     {
-        Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.Invoke(() =>
         {
             Logger.LogWarning(this, $"{FullName} disconnected");
             FullName = null;
@@ -116,9 +94,8 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
             _lastRunState = AdsState.Idle;
             _cancellationTokenSource.Cancel();
             _adsClient.Disconnect();
-            _dte?.Finalize();
+            ComHelper.ReleaseObject(_tcSysManager);
             _tcSysManager = null;
-            IndicateDisconnected();
         });
     }
 
@@ -136,7 +113,10 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
                 ApiLocal.Interface.NetId = _amsNetId;
                 _adsClient.Disconnect();
                 _adsClient.Connect(_amsNetId, (int)AmsPort.R0_Realtime);
-                IndicateConfigMode();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    StoppedRunning?.Invoke();
+                });
             }
 
             if (_adsClient.TryReadState(out var stateInfo) == AdsErrorCode.NoError)
@@ -160,8 +140,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         {
             if (_tcSysManager is null && FullName is not null)
             {
-                _dte = TcDte.GetInstance(FullName);
-                _tcSysManager = _dte.GetTcSysManager();
+                _tcSysManager = TcDte.GetTcSysManager(FullName);
             }
         }
         catch
@@ -220,9 +199,9 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
     private static int GetPlcPort()
     {
         var port = 0;
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            if (dte.GetTcSysManager()?.TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName) is not {} 
+            if (tcSysManager.GetItem($"{TcShortcut.NODE_PLC_CONFIG}^{XmlFile.Instance.PlcProjectName}") is not {} 
                 plc) return;
             var value = XElement
                 .Parse(plc.ProduceXml()).Descendants("AdsPort").FirstOrDefault()?.Value;
@@ -242,10 +221,9 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
         switch (adsState)
         {
             case AdsState.Run:
-                IndicateRunMode();
                 ApiLocal.Interface.Port = GetPlcPort();
                 ApiLocal.Interface.TriggerTcRestart();
-                Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     StartedRunning?.Invoke();
                     Locked?.Invoke(true);
@@ -253,8 +231,7 @@ public class ProjectState : ProjectStateView, IProjectStateEvents, IProjectState
                 
                 break;
             default:
-                IndicateConfigMode();
-                Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     StoppedRunning?.Invoke();
                     Locked?.Invoke(false);

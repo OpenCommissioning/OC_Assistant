@@ -25,7 +25,7 @@ public partial class Menu
     private void ScanOnClick(object sender, RoutedEventArgs e)
     {
         var settingsView = new SettingsView();
-        var result = Theme.MessageBox.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
+        var result = MainWindow.ShowMessageBox("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
         if (result != MessageBoxResult.OK) return;
         _control.StartCapture(settingsView.Settings);
     }

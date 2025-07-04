@@ -1,5 +1,4 @@
-﻿using EnvDTE;
-using OC.Assistant.Core;
+﻿using OC.Assistant.Core;
 using OC.Assistant.Generator.EtherCat;
 using OC.Assistant.Generator.Profinet;
 using TCatSysManagerLib;
@@ -16,16 +15,17 @@ internal static class Hil
     /// <summary>
     /// Updates all HiL structures.
     /// </summary>
-    public static void Update(DTE dte, ITcSmTreeItem plcProjectItem)
+    public static void Update(ITcSysManager15 tcSysManager, ITcSmTreeItem plcProjectItem)
     {
-        XmlFile.Instance.ClearHilPrograms();
+        XmlFile.Instance.Hil.RemoveAll();
+        XmlFile.Instance.Save();
         
-        if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null)
+        if (plcProjectItem.GetChild(FOLDER_NAME) is not null)
         {
             plcProjectItem.DeleteChild(FOLDER_NAME);
         }
         
-        new ProfinetGenerator(dte, FOLDER_NAME).Generate(plcProjectItem);
-        new EtherCatGenerator(dte, FOLDER_NAME).Generate(plcProjectItem);
+        new ProfinetGenerator(tcSysManager, FOLDER_NAME).Generate(plcProjectItem);
+        new EtherCatGenerator(tcSysManager, FOLDER_NAME).Generate(plcProjectItem);
     }
 }

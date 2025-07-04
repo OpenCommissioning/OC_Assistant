@@ -48,7 +48,7 @@ internal partial class ProfinetVariable
             
         Direction = isInput ? "I" : "Q";
         Link = nameList
-            .Aggregate($"{TcShortcut.IO_DEVICE}^{pnName}", (current, next) => $"{current}^{next}");
+            .Aggregate($"{TcShortcut.NODE_IO_DEVICES}^{pnName}", (current, next) => $"{current}^{next}");
         Type = element?.Element("Type")?.Value ?? TcType.Byte.Name();
         
         Name = nameList[^1];

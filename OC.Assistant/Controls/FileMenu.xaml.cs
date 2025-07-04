@@ -45,7 +45,7 @@ internal partial class FileMenu
         
         if (openFileDialog.ShowDialog() == true)
         {
-            OpenDte(openFileDialog.FileName);
+            OpenSolution(() => openFileDialog.FileName);
         }
     }
     
@@ -63,56 +63,57 @@ internal partial class FileMenu
         }
     }
 
-    private void OpenDte(string path, Task? previousTask = null)
+    private void OpenSolution(Func<string?> getSolutionFullName)
     {
-        string? projectFolder = null;
-        
-        var thread = DteSingleThread.Run(() =>
-        {
-            previousTask?.Wait();
-            if (previousTask?.IsFaulted == true) return; 
-
-            DTE? dte = null;
-
-            try
-            {
-                dte = TcDte.Create();
-                Logger.LogInfo(this, $"Open project '{path}' ...");
-                dte.Solution?.Open(path);
-                dte.UserControl = true;
-                if (!dte.UserControl) return;
-                projectFolder = dte.GetProjectFolder();
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(this, e.Message);
-            }
-            finally
-            {
-                dte?.Finalize();
-            }
-        });
-        
         Task.Run(() =>
         {
-            thread.Join();
-            if (projectFolder is null)
+            string? solutionFullName = null;
+            string? projectFolder = null;
+            
+            DteSingleThread.Run(() =>
+            {
+                solutionFullName = getSolutionFullName.Invoke();
+                if (string.IsNullOrEmpty(solutionFullName)) return;
+                
+                DTE? dte = null;
+                Solution? solution = null;
+
+                try
+                {
+                    dte = TcDte.Create();
+                    solution = dte.Solution;
+                    Logger.LogInfo(this, $"Open project '{solutionFullName}' ...");
+                    solution?.Open(solutionFullName);
+                    dte.UserControl = true;
+                    if (!dte.UserControl) return;
+                    projectFolder = dte.GetProjectFolder();
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(this, e.Message);
+                }
+                finally
+                {
+                    ComHelper.ReleaseObject(solution);
+                    ComHelper.ReleaseObject(dte);
+                }
+            }).Join();
+            
+            if (string.IsNullOrEmpty(solutionFullName) || string.IsNullOrEmpty(projectFolder))
             {
                 Logger.LogError(this, "Failed to connect solution");
                 return;
             }
-            ProjectState.Solution.Connect(path, projectFolder);
+            ProjectState.Solution.Connect(solutionFullName, projectFolder);
         });
     }
     
     private void CreateSolution(string slnFilePath)
     {
-        var task = Task.Run(() =>
+        OpenSolution(() =>
         {
             try
             {
-                BusyState.Set(this);
-                
                 const string templateName = "OC.TcTemplate";
                 var rootFolder = Path.GetDirectoryName(slnFilePath);
                 var projectName = Path.GetFileNameWithoutExtension(slnFilePath);
@@ -148,19 +149,13 @@ internal partial class FileMenu
                 File.Move($@"{rootFolder}\{projectName}\{templateName}.tsproj",
                     $@"{rootFolder}\{projectName}\{projectName}.tsproj");
                 
-                return Task.CompletedTask;
+                return slnFilePath;
             }
             catch (Exception e)
             {
                 Logger.LogError(this, e.Message);
-                return Task.FromException(e);
-            }
-            finally
-            {
-                BusyState.Reset(this);
+                return null;
             }
         });
-        
-        OpenDte(slnFilePath, task);
     }
 }

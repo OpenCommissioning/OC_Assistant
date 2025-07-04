@@ -1,6 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Xml.Linq;
-using OC.Assistant.Core;
+﻿using OC.Assistant.Core;
+using OC.Assistant.Plugins;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 using TCatSysManagerLib;
@@ -10,7 +9,6 @@ namespace OC.Assistant.Generator.Generators;
 /// <summary>
 /// Generator for SiL signals.
 /// </summary>
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 internal static class Sil
 {
     private const string FOLDER_NAME = nameof(Sil);
@@ -24,13 +22,13 @@ internal static class Sil
     public static void Update(ITcSmTreeItem plcProjectItem, string name, bool delete)
     {
         var sil = plcProjectItem.GetOrCreateChild(FOLDER_NAME, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (sil?.TryLookupChild(name) is not null) sil.DeleteChild(name);
+        if (sil?.GetChild(name) is not null) sil.DeleteChild(name);
         if (delete)
         {
             if (sil?.ChildCount == 0) plcProjectItem.DeleteChild(sil.Name);
             return;
         }
-        Generate(XmlFile.Instance.PluginElements.First(x => x.Attribute(XmlTags.PLUGIN_NAME)?.Value == name), plcProjectItem);
+        Generate(XmlFile.Instance.GetPlugin(name), plcProjectItem);
     }
     
     /// <summary>
@@ -39,92 +37,70 @@ internal static class Sil
     /// <param name="plcProjectItem">The given plc project.</param>
     public static void UpdateAll(ITcSmTreeItem plcProjectItem)
     {
-        if (plcProjectItem.TryLookupChild(FOLDER_NAME) is not null) plcProjectItem.DeleteChild(FOLDER_NAME);
-        foreach (var plugin in XmlFile.Instance.PluginElements)
+        if (plcProjectItem.GetChild(FOLDER_NAME) is not null)
+        {
+            plcProjectItem.DeleteChild(FOLDER_NAME);
+        }
+        foreach (var plugin in XmlFile.Instance.PluginElements())
         {
             Generate(plugin, plcProjectItem);
         }
     }
     
-    private static void Generate(XElement? plugin, ITcSmTreeItem plcProjectItem)
+    private static void Generate(XPlugin? plugin, ITcSmTreeItem plcProjectItem)
     {
         if (plugin is null) return;
-        if (!Enum.TryParse(plugin.Attribute(XmlTags.PLUGIN_IO_TYPE)?.Value, out IoType ioType)) return;
-        if (ioType == IoType.None) return;
-        var silFolder = plcProjectItem.GetOrCreateChild(FOLDER_NAME, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (silFolder is null) return;
+        if (!Enum.TryParse(plugin.IoType, out IoType ioType) || ioType == IoType.None) return;
+        
+        if (plcProjectItem.GetOrCreateChild(FOLDER_NAME, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} silFolder)
+        {
+            return;
+        }
         
         switch (ioType)
         {
             case IoType.Address:
-                AddressVariables(plugin, silFolder);
+                CreateAddressVariables(plugin, silFolder);
                 break;
             case IoType.Struct:
-                StructVariables(plugin, silFolder);
+                CreateStructVariables(plugin, silFolder);
                 break;
         }
     }
 
-    private static void AddressVariables(XElement plugin, ITcSmTreeItem silFolder)
+    private static void CreateAddressVariables(XPlugin plugin, ITcSmTreeItem silFolder)
     {
-        var pluginName = plugin.Attribute(XmlTags.PLUGIN_NAME)?.Value;
-        if (pluginName is null) return;
-        
-        var pluginFolder = silFolder.GetOrCreateChild(pluginName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pluginFolder is null) return;
-        
-        var gvlVariables = "";
-        
-        //Inputs
-        var request = plugin
-            .Element(XmlTags.PLUGIN_PARAMETER)?
-            .Element(XmlTags.PLUGIN_PARAMETER_INPUT_ADDRESS)?.Value.ToNumberList();
-        
-        if (request is not null)
+        var name = plugin.Name;
+        if (silFolder.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder)
         {
-            gvlVariables = request.Aggregate(gvlVariables, (current, t) => 
-                current + $"\tI{t}: {TcType.Byte.Name()};\n");
-        }
-                    
-        //Outputs
-        request = plugin
-            .Element(XmlTags.PLUGIN_PARAMETER)?
-            .Element(XmlTags.PLUGIN_PARAMETER_OUTPUT_ADDRESS)?.Value.ToNumberList();
+            return;
+        } 
         
-        if (request is null) return;
-        gvlVariables = request.Aggregate(gvlVariables, (current, t) => 
-            current + $"\tQ{t}: {TcType.Byte.Name()};\n");
+        var inputs = plugin.InputAddress?.Aggregate("", (current, next) => 
+            $"{current}\tI{next}: {TcType.Byte.Name()};\n");
+        
+        var outputs = plugin.OutputAddress?.Aggregate("", (current, next) => 
+            $"{current}\tQ{next}: {TcType.Byte.Name()};\n");
 
-        pluginFolder.CreateGvl(pluginName, gvlVariables);
+        folder.CreateGvl(name, inputs + outputs);
     }
 
-    private static void StructVariables(XElement plugin, ITcSmTreeItem silFolder)
+    private static void CreateStructVariables(XPlugin plugin, ITcSmTreeItem silFolder)
     {
-        var pluginName = plugin.Attribute(XmlTags.PLUGIN_NAME)?.Value;
-        if (pluginName is null) return;
+        var name = plugin.Name;
+        if (silFolder.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder)
+        {
+            return;
+        }
         
-        var pluginFolder = silFolder.GetOrCreateChild(pluginName, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
-        if (pluginFolder is null) return;
+        var inputs = plugin.InputStructure.Elements().Aggregate("", (current, var) => 
+            current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
         
-        var inputStruct = plugin.Element(XmlTags.PLUGIN_INPUT_STRUCT);
-        var outputStruct = plugin.Element(XmlTags.PLUGIN_OUTPUT_STRUCT);
+        var outputs = plugin.OutputStructure.Elements().Aggregate("", (current, var) => 
+            current + $"\t{var.Element("Name")?.Value}: {var.Element("Type")?.Value};\n");
         
-        //Input struct
-        var variables = "";
-        variables = inputStruct?.Elements()
-            .Aggregate(variables, (current, var) => 
-                current + $"\t{var.Element(XmlTags.PLUGIN_NAME)?.Value}: {var.Element(XmlTags.PLUGIN_TYPE)?.Value};\n");
-        pluginFolder.CreateDutStruct($"{pluginName}Inputs", variables);
-                    
-        //Output struct
-        variables = "";
-        variables = outputStruct?.Elements()
-            .Aggregate(variables, (current, var) => 
-                current + $"\t{var.Element(XmlTags.PLUGIN_NAME)?.Value}: {var.Element(XmlTags.PLUGIN_TYPE)?.Value};\n");
-        pluginFolder.CreateDutStruct($"{pluginName}Outputs", variables);
-        
-        //GVL
-        pluginFolder.CreateGvl(pluginName, 
-            $"\tInputs : ST_{pluginName}Inputs;\n\tOutputs : ST_{pluginName}Outputs;\n");
+        folder.CreateDutStruct($"{name}Inputs", inputs);
+        folder.CreateDutStruct($"{name}Outputs", outputs);
+        folder.CreateGvl(name, $"\tInputs : ST_{name}Inputs;\n\tOutputs : ST_{name}Outputs;\n");
     }
 }

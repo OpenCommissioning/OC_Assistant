@@ -15,64 +15,47 @@ public static class TcSysManagerExtension
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
     public static void SaveProject(this ITcSysManager15 sysManager)
     {
-        (sysManager.VsProject as Project)?.Save();
+        var project = sysManager.VsProject as Project;
+        project?.Save();
+        ComHelper.ReleaseObject(project);
     }
     
     /// <summary>
-    /// Gets an <see cref="ITcSmTreeItem"/> by the given name.
+    /// Gets an <see cref="ITcSmTreeItem"/> by the given path.
     /// </summary>
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
-    /// <param name="rootItemName">The name of the root <see cref="ITcSmTreeItem"/>.</param>
-    /// <param name="name">The name of the <see cref="ITcSmTreeItem"/> to find.</param>
-    public static ITcSmTreeItem? TryGetItem(this ITcSysManager15 sysManager, string rootItemName, string? name)
+    /// <param name="itemPath">The path of the <see cref="ITcSmTreeItem"/>.</param>
+    public static ITcSmTreeItem? GetItem(this ITcSysManager15 sysManager, string itemPath)
     {
-        var path = $"{rootItemName}^{name}";
-        if (sysManager.TryLookupTreeItem(path, out var item)) return item;
-        Logger.LogError(typeof(TcSysManagerExtension), $"{path} not found");
+        if (sysManager.TryLookupTreeItem(itemPath, out var item))
+        {
+            ComHelper.TrackObject(item);
+            return item;
+        }
+        Logger.LogError(typeof(TcSysManagerExtension), $"{itemPath} not found");
         return null;
-    }
-    
-    /// <summary>
-    /// Gets an enumeration of type <see cref="ITcSmTreeItem"/>.
-    /// </summary>
-    /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
-    /// <param name="rootItemName">The name of the root <see cref="ITcSmTreeItem"/>.</param>
-    public static IEnumerable<ITcSmTreeItem> TryGetItems(this ITcSysManager15 sysManager, string rootItemName)
-    {
-        if (!sysManager.TryLookupTreeItem(rootItemName, out var rootItem))
-        {
-            Logger.LogError(typeof(TcSysManagerExtension), $"RootItem {rootItemName} not found");
-            yield break;
-        }
-        
-        foreach (var item in rootItem.Cast<ITcSmTreeItem>())
-        {
-            yield return item;
-        }
     }
 
     /// <summary>
-    /// Gets the plc project as <see cref="ITcSmTreeItem"/>.
+    /// Gets the plc project <see cref="ITcSmTreeItem"/>.
     /// </summary>
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
-    public static ITcSmTreeItem? TryGetPlcProject(this ITcSysManager15 sysManager)
+    public static ITcSmTreeItem? GetPlcProject(this ITcSysManager15 sysManager)
     {
         return sysManager
-            .TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName)?
-            .Cast<ITcSmTreeItem>()
-            .FirstOrDefault(item => item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_PLCAPP);
+            .GetItem($"{TcShortcut.NODE_PLC_CONFIG}^{XmlFile.Instance.PlcProjectName}")?
+            .GetChild(TREEITEMTYPES.TREEITEMTYPE_PLCAPP);
     }
         
     /// <summary>
-    /// Gets the plc instance as <see cref="ITcSmTreeItem"/>.
+    /// Gets the plc instance <see cref="ITcSmTreeItem"/>.
     /// </summary>
     /// <param name="sysManager">The <see cref="ITcSysManager15"/> interface.</param>
-    public static ITcSmTreeItem? TryGetPlcInstance(this ITcSysManager15 sysManager)
+    public static ITcSmTreeItem? GetPlcInstance(this ITcSysManager15 sysManager)
     {
         return sysManager
-            .TryGetItem(TcShortcut.PLC, XmlFile.Instance.PlcProjectName)?
-            .Cast<ITcSmTreeItem>()
-            .FirstOrDefault(item => item.ItemType == (int) TREEITEMTYPES.TREEITEMTYPE_TCOMPLCOBJECT);
+            .GetItem($"{TcShortcut.NODE_PLC_CONFIG}^{XmlFile.Instance.PlcProjectName}")?
+            .GetChild(TREEITEMTYPES.TREEITEMTYPE_TCOMPLCOBJECT);
     }
 
     /// <summary>
@@ -84,11 +67,15 @@ public static class TcSysManagerExtension
     /// <returns>The updated or created IoDevice as <see cref="ITcSmTreeItem"/>.</returns>
     public static ITcSmTreeItem? UpdateIoDevice(this ITcSysManager15 sysManager, string deviceName, string xtiFilePath)
     {
-        if (sysManager.TryLookupTreeItem($"{TcShortcut.IO_DEVICE}^{deviceName}", out _))
+        if (sysManager.GetItem(TcShortcut.NODE_IO_DEVICES) is not {} ioDevice) return null;
+        
+        if (ioDevice.GetChild(deviceName) is not null)
         {
-            sysManager.LookupTreeItem(TcShortcut.IO_DEVICE).DeleteChild(deviceName);
+            ioDevice.DeleteChild(deviceName);
         }
         
-        return sysManager.LookupTreeItem(TcShortcut.IO_DEVICE).ImportChild(xtiFilePath);
+        var device = ioDevice.ImportChild(xtiFilePath);
+        ComHelper.TrackObject(device);
+        return device;
     }
 }

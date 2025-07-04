@@ -3,7 +3,6 @@ using System.Windows.Controls;
 using System.Xml.Linq;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
-using EnvDTE;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Generator;
@@ -19,11 +18,11 @@ public partial class Menu
 
     private void CreateProjectOnClick(object sender, RoutedEventArgs e)
     {
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            if (GetPlcProject(tcSysManager) is not {} plcProjectItem) return;
             XmlFile.Instance.Reload();
-            Generators.Hil.Update(dte, plcProjectItem);
+            Generators.Hil.Update(tcSysManager, plcProjectItem);
             Generators.Project.Update(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
         });
@@ -42,9 +41,9 @@ public partial class Menu
     
     private void CreateTaskOnClick(object sender, RoutedEventArgs e)
     {
-        DteSingleThread.Run(dte =>
+        DteSingleThread.Run(tcSysManager =>
         {
-            Generators.Task.CreateVariables(dte);
+            Generators.Task.CreateVariables(tcSysManager);
             Logger.LogInfo(this, "Project update finished.");
         });
     }
@@ -53,8 +52,7 @@ public partial class Menu
     {
         var input = new TextBox { Height = 24, Text = "DeviceName" };
 
-        if (Theme.MessageBox
-                .Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
+        if (MainWindow.ShowMessageBox("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
             MessageBoxResult.OK)
         {
             return;
@@ -75,8 +73,7 @@ public partial class Menu
     {
         var settings = new Settings();
 
-        if (Theme.MessageBox
-                .Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
+        if (MainWindow.ShowMessageBox("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
             MessageBoxResult.OK)
         {
             settings.Save();
@@ -85,20 +82,21 @@ public partial class Menu
     
     private void ApiOnConfigReceived(XElement config)
     {
-        XmlFile.Instance.ClientUpdate(config);
-        DteSingleThread.Run(dte =>
+        XmlFile.Instance.Main = config;
+        XmlFile.Instance.Save();
+        
+        DteSingleThread.Run(tcSysManager =>
         {
-            if (GetPlcProject(dte) is not {} plcProjectItem) return;
+            if (GetPlcProject(tcSysManager) is not {} plcProjectItem) return;
             Generators.Project.Update(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
         });
     }
     
-    private ITcSmTreeItem? GetPlcProject(DTE? dte)
+    private ITcSmTreeItem? GetPlcProject(ITcSysManager15? tcSysManager)
     {
-        var tcSysManager = dte?.GetTcSysManager();
         tcSysManager?.SaveProject();
-        if (tcSysManager?.TryGetPlcProject() is {} plcProjectItem) return plcProjectItem;
+        if (tcSysManager?.GetPlcProject() is {} plcProjectItem) return plcProjectItem;
         Logger.LogError(this, "No Plc project found");
         return null;
     }

@@ -81,13 +81,15 @@ internal partial class PluginEditor
     private void ShowParameter()
     {
         IndicateChanges = false;
-        if (_plugin?.IsValid != true)
+        if (_plugin is null) return;
+        
+        if (!_plugin.IsValid)
         {
-            if (_plugin?.InitType(TypeDropdown.SelectedType) != true) return;
+            if (!_plugin.InitType(TypeDropdown.SelectedType)) return;
         }
 
         ParameterPanel.Children.Clear();
-        foreach (var parameter in _plugin.PluginController?.Parameter.ToList() ?? [])
+        foreach (var parameter in _plugin.PluginController.Parameter.ToList())
         {
             var param = new PluginParameter(parameter);
             param.Changed += () => IndicateChanges = true;
@@ -104,17 +106,17 @@ internal partial class PluginEditor
     {
         if (!PluginName.Text.IsPlcCompatible())
         {
-            Theme.MessageBox.Show(PluginName.Text, "Name is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MainWindow.ShowMessageBox(PluginName.Text, "Name is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         
         if (_plugins.Any(plugin => plugin.Name == PluginName.Text && plugin != _plugin))
         {
-            Theme.MessageBox.Show(PluginName.Text, "Name already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MainWindow.ShowMessageBox(PluginName.Text, "Name already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         
-        if (Theme.MessageBox.Show("Editor", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
+        if (MainWindow.ShowMessageBox("Editor", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
                 MessageBoxImage.Question) == MessageBoxResult.Cancel)
         {
             return;

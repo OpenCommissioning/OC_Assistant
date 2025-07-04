@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using OC.Assistant.Core;
+﻿using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
@@ -8,7 +7,6 @@ namespace OC.Assistant.Generator.Generators;
 /// <summary>
 /// Generator for device templates.
 /// </summary>
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 public static class DeviceTemplate
 {
 	/// <summary>
@@ -30,7 +28,7 @@ public static class DeviceTemplate
 			return;
 		}
 		
-		if (parent.TryLookupChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
+		if (parent.GetChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
 		{
 			Logger.LogWarning(typeof(DeviceTemplate), $"{name} already exists");
 			return;
@@ -78,11 +76,11 @@ public static class DeviceTemplate
 	
 	private static void SetContent(this ITcSmTreeItem parent, string declText, string? implText = null)
 	{
-		if (parent is not ITcPlcDeclaration decl) return;
+		if (parent.CastTo<ITcPlcDeclaration>() is not {} decl) return;
 		decl.DeclarationText = declText;
 		if (implText is null) return;
 		
-		if (parent is not ITcPlcImplementation impl) return;
+		if (parent.CastTo<ITcPlcImplementation>() is not {} impl) return;
 		impl.ImplementationText = implText;
 	}
 

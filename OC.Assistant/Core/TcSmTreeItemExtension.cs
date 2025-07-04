@@ -1,34 +1,94 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using TCatSysManagerLib;
+﻿using TCatSysManagerLib;
 
 namespace OC.Assistant.Core;
 
-[SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 public static class TcSmTreeItemExtension
 {
     /// <summary>
-    /// Searches for a child in the given tree by name.
+    /// Internal try catch for <see cref="ITcSmTreeItem.LookupChild"/>.
     /// </summary>
-    /// <param name="parent">The parent <see cref="ITcSmTreeItem"/></param>
-    /// <param name="childName">The name of the child item.</param>
-    /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
-    public static ITcSmTreeItem? TryLookupChild(this ITcSmTreeItem parent, string? childName)
+    private static ITcSmTreeItem? TryLookupChild(this ITcSmTreeItem? parent, string? childName)
     {
-        return parent.Cast<ITcSmTreeItem>().FirstOrDefault(c => c.Name == childName);
+        try { return parent?.LookupChild(childName); }
+        catch { return null; }
     }
-
+    
     /// <summary>
-    /// Searches for a child in the given tree by name and type.
+    /// Tries to cast the given <see cref="ITcSmTreeItem"/> to the specified type.
+    /// </summary>
+    /// <typeparam name="T">The target class or interface to cast to.</typeparam>
+    /// <param name="item">The <see cref="ITcSmTreeItem"/> to cast.</param>
+    /// <returns>An instance of type <typeparamref name="T"/> if the cast is successful, otherwise null.</returns>
+    public static T? CastTo<T>(this ITcSmTreeItem? item) where T : class => item as T;
+    
+    /// <summary>
+    /// Searches for a child in the given <see cref="ITcSmTreeItem"/> by name and type.
+    /// </summary>
+    /// <param name="parent">The parent <see cref="ITcSmTreeItem"/>.</param>
+    /// <param name="childName">The name of the child item.</param>
+    /// <param name="type">The type of the child item.</param>
+    /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
+    public static ITcSmTreeItem? GetChild(this ITcSmTreeItem? parent, string? childName, TREEITEMTYPES type)
+    {
+        if (parent is null) return null;
+        var nameIsUnknown = string.IsNullOrEmpty(childName);
+        var typeIsUnknown = type == TREEITEMTYPES.TREEITEMTYPE_UNKNOWN;
+        if (nameIsUnknown && typeIsUnknown) return null;
+
+        if (!nameIsUnknown)
+        {
+            if (parent.TryLookupChild(childName) is not {} item) return null;
+            
+            if (typeIsUnknown || item.ItemType == (int) type)
+            {
+                ComHelper.TrackObject(item);
+                return item;
+            }
+            
+            ComHelper.ReleaseObject(item);
+            return null;
+        }
+        
+        foreach (ITcSmTreeItem item in parent)
+        {
+            ComHelper.TrackObject(item);
+            if (item.ItemType == (int)type) return item;
+        }
+
+        return null;
+    }
+    
+    /// <summary>
+    /// Searches for a child in the given <see cref="ITcSmTreeItem"/> by name.
+    /// </summary>
+    /// <param name="parent">The parent <see cref="ITcSmTreeItem"/>.</param>
+    /// <param name="childName">The name of the child item.</param>
+    /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
+    public static ITcSmTreeItem? GetChild(this ITcSmTreeItem? parent, string? childName) => 
+        GetChild(parent, childName, TREEITEMTYPES.TREEITEMTYPE_UNKNOWN);
+    
+    /// <summary>
+    /// Searches for a child in the given <see cref="ITcSmTreeItem"/> by type.
     /// </summary>
     /// <param name="parent">The parent <see cref="ITcSmTreeItem"/></param>
-    /// <param name="childName">The name of the child item.</param>
-    /// <param name="type">The <see cref="TREEITEMTYPES"/> of the child item.</param>
+    /// <param name="type">The type of the child item.</param>
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
-    public static ITcSmTreeItem? TryLookupChild(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
+    public static ITcSmTreeItem? GetChild(this ITcSmTreeItem? parent, TREEITEMTYPES type) => 
+        GetChild(parent, null, type);
+    
+    /// <summary>
+    /// Gets the child items as an enumeration of type <see cref="ITcSmTreeItem"/>.
+    /// </summary>
+    /// <param name="parent">The parent <see cref="ITcSmTreeItem"/>.</param>
+    /// <returns>An enumeration of type <see cref="ITcSmTreeItem"/>, if any.</returns>
+    public static IEnumerable<ITcSmTreeItem> GetChildren(this ITcSmTreeItem? parent)
     {
-        var child = parent.TryLookupChild(childName);
-        if (child is null) return null;
-        return child.ItemType == (int) type ? child : null;
+        if (parent is null) yield break;
+        foreach (ITcSmTreeItem item in parent)
+        {
+            ComHelper.TrackObject(item);
+            yield return item;
+        }
     }
     
     /// <summary>
@@ -38,20 +98,23 @@ public static class TcSmTreeItemExtension
     /// <param name="childName">The name of the child item.</param>
     /// <param name="type">The <see cref="TREEITEMTYPES"/> of the child item.</param>
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
-    public static ITcSmTreeItem? FindChildRecursive(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
+    public static ITcSmTreeItem? GetChildRecursive(this ITcSmTreeItem? parent, string? childName, TREEITEMTYPES type)
     {
+        if (parent is null) return null;
+        
+        if (parent.GetChild(childName, type) is {} item)
+        {
+            return item;       
+        }
+        
         foreach (ITcSmTreeItem child in parent)
         {
-            if (child.Name.Equals(childName, StringComparison.CurrentCultureIgnoreCase) && child.ItemType == (int)type)
+            if (child.GetChildRecursive(childName, type) is {} grandChild)
             {
-                return child;
+                ComHelper.ReleaseObject(child);
+                return grandChild;       
             }
-
-            var grandChild = FindChildRecursive(child, childName, type);
-            if (grandChild is not null)
-            {
-                return grandChild;
-            }
+            ComHelper.ReleaseObject(child);
         }
         
         return null;
@@ -64,13 +127,14 @@ public static class TcSmTreeItemExtension
     /// <param name="childName">The name of the child item.</param>
     /// <param name="type">The <see cref="TREEITEMTYPES"/> of the child item.</param>
     /// <returns>The <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
-    public static ITcSmTreeItem? GetOrCreateChild(this ITcSmTreeItem parent, string? childName, TREEITEMTYPES type)
+    public static ITcSmTreeItem? GetOrCreateChild(this ITcSmTreeItem? parent, string? childName, TREEITEMTYPES type)
     {
         var compatibleName = childName?.MakePlcCompatible();
-        var item = parent.TryLookupChild(compatibleName, type);
+        var item = parent.GetChild(compatibleName, type);
         if (item is not null) return item;
-        Thread.Sleep(1); //"Breathing room" for the COM interface
-        return parent.CreateChild(compatibleName, nSubType: (int)type);
+        var child = parent?.CreateChild(compatibleName, nSubType: (int)type);
+        ComHelper.TrackObject(child);
+        return child;
     }
     
     /// <summary>
@@ -82,12 +146,12 @@ public static class TcSmTreeItemExtension
     /// <returns>The GVL <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? CreateGvl(this ITcSmTreeItem? parent, string name, string? variables)
     {
-        if (parent?.GetOrCreateChild($"GVL_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not { } gvlItem)
+        if (parent.GetOrCreateChild($"GVL_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCGVL) is not { } gvlItem)
         {
             return null;
         }
 
-        if (gvlItem is not ITcPlcDeclaration gvlDecl)
+        if (gvlItem.CastTo<ITcPlcDeclaration>() is not {} gvlDecl)
         {
             return null;
         }
@@ -110,12 +174,12 @@ public static class TcSmTreeItemExtension
     /// <returns>The DUT struct <see cref="ITcSmTreeItem"/> if successful, otherwise null.</returns>
     public static ITcSmTreeItem? CreateDutStruct(this ITcSmTreeItem? parent, string name, string? variables)
     {
-        if (parent?.GetOrCreateChild($"ST_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCDUTSTRUCT) is not { } dutItem)
+        if (parent.GetOrCreateChild($"ST_{name}", TREEITEMTYPES.TREEITEMTYPE_PLCDUTSTRUCT) is not { } dutItem)
         {
             return null;
         }
 
-        if (dutItem is not ITcPlcDeclaration dutDecl)
+        if (dutItem.CastTo<ITcPlcDeclaration>() is not {} dutDecl)
         {
             return null;
         }

@@ -1,18 +1,15 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace OC.Assistant.Plugins;
 
-/// <summary>
-/// Dropdown for available plugins.
-/// </summary>
-public class PluginDropdown : ComboBox
+public partial class PluginDropdown
 {
     public Type? SelectedType { get; private set; }
-
+    
     public PluginDropdown()
     {
-        Style = Application.Current.Resources["DefaultComboBoxStyle"] as Style;
+        InitializeComponent();
+        
         Loaded += (_, _) =>
         {
             Items.Clear();
@@ -30,7 +27,7 @@ public class PluginDropdown : ComboBox
             SelectedIndex = 0;
         };
     }
-
+    
     private void ComboBoxItem_Selected(object sender, EventArgs e)
     {
         var comboBoxItem = (ComboBoxItem)sender;

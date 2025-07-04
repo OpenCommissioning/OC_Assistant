@@ -12,28 +12,33 @@
         mc:Ignorable="d"
         Title="Open Commissioning Assistant" Height="600" Width="800"
         Closing="MainWindowOnClosing">
-    <Grid>
-        <Menu VerticalAlignment="Top">
-            <controls:FileMenu />
-            <generator:Menu />
-            <pnGenerator:Menu />
-            <controls:HelpMenu/>
-        </Menu>
-        <Grid Height="32" Margin="0 0 10 0" VerticalAlignment="Top" HorizontalAlignment="Right">
-            <controls:VersionCheck/>
+    <Border>
+        <Border.Effect>
+            <BlurEffect x:Name="BlurEffect" Radius="0"/>
+        </Border.Effect>
+        <Grid>
+            <Menu VerticalAlignment="Top">
+                <controls:FileMenu />
+                <generator:Menu />
+                <pnGenerator:Menu />
+                <controls:HelpMenu/>
+            </Menu>
+            <Grid Height="32" Margin="0 0 10 0" VerticalAlignment="Top" HorizontalAlignment="Right">
+                <controls:VersionCheck/>
+            </Grid>
+            <Grid Margin="0,32,0,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="4"/>
+                    <RowDefinition Height="140" MinHeight="27" x:Name="ConsoleRow"/>
+                </Grid.RowDefinitions>
+                <plugins:PluginManager Grid.Row="0" Margin="0,0,0,-2"/>
+                <theme:LogViewer x:Name="LogViewer" Grid.Row="2"/>
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
+                <controls:NotConnectedOverlay Grid.Row="0" />
+            </Grid>
+            <controls:ProjectStateView Height="24" VerticalAlignment="Bottom"/>
+            <theme:BusyOverlay x:Name="BusyOverlay"/>
         </Grid>
-        <Grid Margin="0,32,0,24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="4"/>
-                <RowDefinition Height="140" MinHeight="27" x:Name="ConsoleRow"/>
-            </Grid.RowDefinitions>
-            <plugins:PluginManager Grid.Row="0" Margin="0,0,0,-2"/>
-            <theme:LogViewer x:Name="LogViewer" Grid.Row="2"/>
-            <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
-            <controls:NotConnectedOverlay Grid.Row="0" />
-        </Grid>
-        <Grid x:Name="Footer" Height="24" VerticalAlignment="Bottom"/>
-        <theme:BusyOverlay x:Name="BusyOverlay"/>
-    </Grid>
+    </Border>
 </Window>

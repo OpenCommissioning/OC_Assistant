@@ -51,17 +51,29 @@ public static class TcDte
     }
     
     /// <summary>
-    /// Releases all references to the given <see cref="DTE"/> interface and forces a garbage collection.
+    /// Tries to get the first <see cref="Project"/> of the given <see cref="DTE"/> that implements <see cref="ITcSysManager15"/>.
     /// </summary>
     /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    /// <param name="gcCollect">Forces an immediate garbage collection of all generations.</param>
-    public static void Finalize(this DTE? dte, bool gcCollect = true)
+    /// <returns>The first <see cref="Project"/> implementing <see cref="ITcSysManager15"/> if succeeded, otherwise <see langword="null"/>.</returns>
+    public static Project? GetTcProject(this DTE? dte)
     {
-        if (dte is null) return;
-        Marshal.FinalReleaseComObject(dte);
-        if (!gcCollect) return;
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
+        if (dte is null) return null;
+        var solution = dte.Solution;
+        var projects = solution.Projects;
+        foreach (Project project in projects)
+        {
+            if (project.Object is ITcSysManager15)
+            {
+                ComHelper.ReleaseObject(projects);
+                ComHelper.ReleaseObject(solution);
+                return project;
+            }
+            ComHelper.ReleaseObject(project);
+        }
+        
+        ComHelper.ReleaseObject(projects);
+        ComHelper.ReleaseObject(solution);
+        return null;
     }
     
     /// <summary>
@@ -72,39 +84,34 @@ public static class TcDte
     public static string? GetProjectFolder(this DTE? dte)
     {
         var project = GetTcProject(dte);
-        return project is null ? null : Directory.GetParent(project.FullName)?.FullName;
-    }
-
-    /// <summary>
-    /// Tries to get the <see cref="ITcSysManager15"/>.
-    /// </summary>
-    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    /// <returns>The <see cref="ITcSysManager15"/> interface if succeeded, otherwise <see langword="null"/>.</returns>
-    public static ITcSysManager15? GetTcSysManager(this DTE? dte)
-    {
-        return GetTcProject(dte)?.Object as ITcSysManager15;
-    }
-
-    /// <summary>
-    /// Tries to get the first <see cref="Project"/> of the given <see cref="DTE"/> that implements <see cref="ITcSysManager15"/>.
-    /// </summary>
-    /// <param name="dte">The given <see cref="DTE"/> interface.</param>
-    /// <returns>The first <see cref="Project"/> implementing <see cref="ITcSysManager15"/> if succeeded, otherwise <see langword="null"/>.</returns>
-    public static Project? GetTcProject(this DTE? dte)
-    {
-        if (dte is null) return null;
-        return (from Project project in dte.Solution.Projects select project)
-            .FirstOrDefault(pro => pro.Object is ITcSysManager15);
+        var path = project is null ? null : Directory.GetParent(project.FullName)?.FullName;
+        ComHelper.ReleaseObject(project);
+        return path;
     }
     
     /// <summary>
-    /// Gets the <see cref="DTE"/> interface of the given solution path.
+    /// Tries to get the <see cref="ITcSysManager15"/>.
     /// </summary>
     /// <param name="solutionFullName">The full name of the solution file.</param>
-    /// <returns>The <see cref="DTE"/> interface of the given solution path if any, otherwise null.</returns>
-    public static DTE? GetInstance(string solutionFullName)
+    /// <returns>The <see cref="ITcSysManager15"/> interface if succeeded, otherwise <see langword="null"/>.</returns>
+    public static ITcSysManager15? GetTcSysManager(string solutionFullName)
     {
-        return GetInstances(solutionFullName).FirstOrDefault();
+        if (GetInstances(solutionFullName).FirstOrDefault() is not {} dte)
+        {
+            return null;
+        }
+        
+        if (GetTcProject(dte) is not {} project)
+        {
+            return null;
+        }
+        
+        var tcSysManager = project.Object as ITcSysManager15;
+        
+        ComHelper.ReleaseObject(project);
+        ComHelper.ReleaseObject(dte);
+        
+        return tcSysManager;
     }
     
     /// <summary>
@@ -134,30 +141,34 @@ public static class TcDte
                 if (runningObjectTable.GetObject(moniker[0], out var obj) != 0) continue;
                 
                 dte = (DTE?) obj;
-                var fullName = dte?.Solution?.FullName;
+                var solution = dte?.Solution;
+                var fullName = solution?.FullName;
+                ComHelper.ReleaseObject(solution);
                 
                 if (string.IsNullOrEmpty(fullName))
                 {
-                    dte?.Finalize();
+                    ComHelper.ReleaseObject(dte);
                     continue;
                 }
 
                 if (!string.IsNullOrEmpty(solutionFullName) &&
                     !string.Equals(solutionFullName, fullName, StringComparison.OrdinalIgnoreCase))
                 {
-                    dte?.Finalize();
+                    ComHelper.ReleaseObject(dte);
                     continue;
                 }
-
-                if (dte?.GetTcProject() is null)
+                
+                if (dte?.GetTcProject() is not {} tcProject)
                 {
-                    dte?.Finalize();
+                    ComHelper.ReleaseObject(dte);
                     continue;
                 }
+                
+                ComHelper.ReleaseObject(tcProject);
             }
             catch (Exception e)
             {
-                dte?.Finalize();
+                ComHelper.ReleaseObject(dte);
                 Logger.LogError(typeof(TcDte), e.Message, true);
                 continue;
             }

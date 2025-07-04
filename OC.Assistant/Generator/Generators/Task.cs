@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Xml.Linq;
-using EnvDTE;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
@@ -15,20 +14,19 @@ internal static class Task
     /// <summary>
     /// Creates variables for a task, based on the plc instance.
     /// </summary>
-    public static void CreateVariables(DTE? dte)
+    public static void CreateVariables(ITcSysManager15? tcSysManager)
     {
-        var tcSysManager = dte?.GetTcSysManager();
         tcSysManager?.SaveProject();
         
         //Get plc instance
-        var instance = tcSysManager?.TryGetPlcInstance();
+        var instance = tcSysManager?.GetPlcInstance();
         if (instance is null) return;
         
         //Collect all symbols with 'simulation_interface' attribute
         var filter = instance.GetSymbolsWithAttribute("simulation_interface");
         
         //Get task
-        var task = tcSysManager?.TryGetItem(TcShortcut.TASK, XmlFile.Instance.PlcTaskName);
+        var task = tcSysManager?.GetItem($"{TcShortcut.NODE_RT_TASKS}^{XmlFile.Instance.PlcTaskName}");
         if (task is null)
         {
             Logger.LogWarning(typeof(Task), "Task not found");
@@ -82,8 +80,8 @@ internal static class Task
 
     private static HashSet<string?> GetSymbolsWithAttribute(this ITcSmTreeItem instance, string attribute)
     {
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        return XDocument.Parse(((ITcModuleInstance2) instance).ExportXml())
+        if (instance.CastTo<ITcModuleInstance2>() is not {} moduleInstance) return [];
+        return XDocument.Parse(moduleInstance.ExportXml())
             .Descendants("Symbol")
             .Where(symbol => 
                 symbol.Element("Properties")?
@@ -136,8 +134,8 @@ internal static class Task
             var xElement = XElement.Parse(variable.ProduceXml());
             var type = xElement.Descendants("VarType").FirstOrDefault();
             if (type is null) continue;
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            var var = (ITcVariable2) varGroup.CreateChild(variable.Name, -1, null, type.Value);
+            if (varGroup.CreateChild(variable.Name, -1, null, type.Value)
+                    .CastTo<ITcVariable2>() is not {} var) continue;
             var.AddLinkToVariable(variable.PathName);
         }
     }
