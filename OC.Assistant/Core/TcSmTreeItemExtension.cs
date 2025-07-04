@@ -5,6 +5,15 @@ namespace OC.Assistant.Core;
 public static class TcSmTreeItemExtension
 {
     /// <summary>
+    /// Internal try catch for <see cref="ITcSmTreeItem.LookupChild"/>.
+    /// </summary>
+    private static ITcSmTreeItem? TryLookupChild(this ITcSmTreeItem? parent, string? childName)
+    {
+        try { return parent?.LookupChild(childName); }
+        catch { return null; }
+    }
+    
+    /// <summary>
     /// Tries to cast the given <see cref="ITcSmTreeItem"/> to the specified type.
     /// </summary>
     /// <typeparam name="T">The target class or interface to cast to.</typeparam>
@@ -25,19 +34,25 @@ public static class TcSmTreeItemExtension
         var nameIsUnknown = string.IsNullOrEmpty(childName);
         var typeIsUnknown = type == TREEITEMTYPES.TREEITEMTYPE_UNKNOWN;
         if (nameIsUnknown && typeIsUnknown) return null;
-        
-        foreach (ITcSmTreeItem item in parent)
+
+        if (!nameIsUnknown)
         {
-            var nameIsEqual = string.Equals(item.Name, childName, StringComparison.OrdinalIgnoreCase);
-            var typeIsEqual = item.ItemType == (int)type;
+            if (parent.TryLookupChild(childName) is not {} item) return null;
             
-            if (nameIsEqual && typeIsEqual || nameIsEqual && typeIsUnknown || typeIsEqual && nameIsUnknown)
+            if (typeIsUnknown || item.ItemType == (int) type)
             {
                 ComHelper.TrackObject(item);
                 return item;
             }
-
+            
             ComHelper.ReleaseObject(item);
+            return null;
+        }
+        
+        foreach (ITcSmTreeItem item in parent)
+        {
+            ComHelper.TrackObject(item);
+            if (item.ItemType == (int)type) return item;
         }
 
         return null;
