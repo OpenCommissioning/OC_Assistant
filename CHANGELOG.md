@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.14.1"></a>
+## [1.14.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.14.1) (2025-07-04)
+
+### Bug Fixes
+
+* add a blur effect when showing a MessageBox ([11443e3](https://www.github.com/OpenCommissioning/OC_Assistant/commit/11443e33809bbd4fab780df644ad21812d703b85))
+* all COM objects from the DTE interface will get tracked and released after usage ([ed90d1e](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ed90d1eaaf7bc7463d64463673986cce3f435154))
+* code optimization, no bug fixes or features ([7270627](https://www.github.com/OpenCommissioning/OC_Assistant/commit/7270627929c56599202afd7857beabd58cbc5222))
+* upgrade Theme package reference ([e80a435](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e80a4352070f27d6174b6b135f690a7bccf6d158))
+
 <a name="1.14.0"></a>
 ## [1.14.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.14.0) (2025-06-20)
 
