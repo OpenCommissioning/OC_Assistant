@@ -8,6 +8,8 @@ namespace OC.Assistant;
 
 public partial class MainWindow
 {
+    private static event Action<double>? BlurChanged;
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -18,8 +20,16 @@ public partial class MainWindow
         Logger.Info += (sender, message) => LogViewer.Add(sender, message, MessageType.Info);
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
-    }
 
+        BlurChanged += radius =>
+        {
+            Dispatcher.Invoke(() =>
+            {
+                BlurEffect.Radius = radius;
+            });
+        };
+    }
+    
     private void ReadSettings()
     {
         var settings = new Settings().Read();
@@ -47,5 +57,21 @@ public partial class MainWindow
     private void MainWindowOnClosing(object sender, CancelEventArgs e)
     {
         WriteSettings();
+    }
+    
+    public static MessageBoxResult ShowMessageBox(string caption, UIElement content, MessageBoxButton button, MessageBoxImage image)
+    {
+        BlurChanged?.Invoke(10);
+        var result = Theme.MessageBox.Show(caption, content, button, image);
+        BlurChanged?.Invoke(0);
+        return result;
+    }
+    
+    public static MessageBoxResult ShowMessageBox(string caption, string text, MessageBoxButton button, MessageBoxImage image)
+    {
+        BlurChanged?.Invoke(10);
+        var result = Theme.MessageBox.Show(caption, text, button, image);
+        BlurChanged?.Invoke(0);
+        return result;
     }
 }

@@ -140,7 +140,7 @@ internal partial class Plugin
     private void RemoveButton_Click(object sender, RoutedEventArgs name)
     {
         if (PluginController?.IsRunning == true) return;
-        if (Theme.MessageBox.Show(
+        if (MainWindow.ShowMessageBox(
                 "Delete?",
                 Name, MessageBoxButton.OKCancel, MessageBoxImage.Warning)
             == MessageBoxResult.OK)

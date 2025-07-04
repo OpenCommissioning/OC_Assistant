@@ -52,8 +52,7 @@ public partial class Menu
     {
         var input = new TextBox { Height = 24, Text = "DeviceName" };
 
-        if (Theme.MessageBox
-                .Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
+        if (MainWindow.ShowMessageBox("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
             MessageBoxResult.OK)
         {
             return;
@@ -74,8 +73,7 @@ public partial class Menu
     {
         var settings = new Settings();
 
-        if (Theme.MessageBox
-                .Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
+        if (MainWindow.ShowMessageBox("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
             MessageBoxResult.OK)
         {
             settings.Save();
