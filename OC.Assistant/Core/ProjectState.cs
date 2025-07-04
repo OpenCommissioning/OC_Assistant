@@ -201,7 +201,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
         var port = 0;
         DteSingleThread.Run(tcSysManager =>
         {
-            if (tcSysManager.GetItem($"{TcShortcut.PLC}^{XmlFile.Instance.PlcProjectName}") is not {} 
+            if (tcSysManager.GetItem($"{TcShortcut.NODE_PLC_CONFIG}^{XmlFile.Instance.PlcProjectName}") is not {} 
                 plc) return;
             var value = XElement
                 .Parse(plc.ProduceXml()).Descendants("AdsPort").FirstOrDefault()?.Value;

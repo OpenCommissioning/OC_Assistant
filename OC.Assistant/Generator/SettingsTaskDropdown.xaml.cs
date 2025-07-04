@@ -22,7 +22,7 @@ public partial class SettingsTaskDropdown
             DteSingleThread.Run(tcSysManager =>
             {
                 tasks.AddRange(tcSysManager
-                    .GetItem(TcShortcut.TASK)
+                    .GetItem(TcShortcut.NODE_RT_TASKS)
                     .GetChildren()
                     .Where(item => item.ItemSubType == (int)TcSmTreeItemSubType.TaskWithImage)
                     .Select(item => item.Name));

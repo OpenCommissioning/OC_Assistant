@@ -22,7 +22,7 @@ public partial class SettingsPlcDropdown
             DteSingleThread.Run(tcSysManager =>
             {
                 projects.AddRange(tcSysManager
-                    .GetItem(TcShortcut.PLC)
+                    .GetItem(TcShortcut.NODE_PLC_CONFIG)
                     .GetChildren()
                     .Select(item => item.Name));
             }, 1000);

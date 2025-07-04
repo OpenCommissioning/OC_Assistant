@@ -43,7 +43,7 @@ public static class TcSysManagerExtension
     public static ITcSmTreeItem? GetPlcProject(this ITcSysManager15 sysManager)
     {
         return sysManager
-            .GetItem($"{TcShortcut.PLC}^{XmlFile.Instance.PlcProjectName}")?
+            .GetItem($"{TcShortcut.NODE_PLC_CONFIG}^{XmlFile.Instance.PlcProjectName}")?
             .GetChild(TREEITEMTYPES.TREEITEMTYPE_PLCAPP);
     }
         
@@ -54,7 +54,7 @@ public static class TcSysManagerExtension
     public static ITcSmTreeItem? GetPlcInstance(this ITcSysManager15 sysManager)
     {
         return sysManager
-            .GetItem($"{TcShortcut.PLC}^{XmlFile.Instance.PlcProjectName}")?
+            .GetItem($"{TcShortcut.NODE_PLC_CONFIG}^{XmlFile.Instance.PlcProjectName}")?
             .GetChild(TREEITEMTYPES.TREEITEMTYPE_TCOMPLCOBJECT);
     }
 
@@ -67,7 +67,7 @@ public static class TcSysManagerExtension
     /// <returns>The updated or created IoDevice as <see cref="ITcSmTreeItem"/>.</returns>
     public static ITcSmTreeItem? UpdateIoDevice(this ITcSysManager15 sysManager, string deviceName, string xtiFilePath)
     {
-        if (sysManager.GetItem(TcShortcut.IO_DEVICE) is not {} ioDevice) return null;
+        if (sysManager.GetItem(TcShortcut.NODE_IO_DEVICES) is not {} ioDevice) return null;
         
         if (ioDevice.GetChild(deviceName) is not null)
         {

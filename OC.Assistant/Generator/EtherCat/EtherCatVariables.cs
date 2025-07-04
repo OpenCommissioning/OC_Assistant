@@ -69,7 +69,7 @@ internal class EtherCatVariables : List<EtherCatVariable>
                 
                 var name = $"{boxName}_{uniquePdoName}_{cleanedName}";
                 var type = $"{inOut} : {entryNode.Element("Type")?.Value}";
-                var linkTo = $"{TcShortcut.BOX}({id})^{uniquePdoName}^{nativeName.Replace("__", "^")}";
+                var linkTo = $"{TcShortcut.BOX_BY_ID(id)}^{uniquePdoName}^{nativeName.Replace("__", "^")}";
 
                 Add(new EtherCatVariable(name, type, linkTo));
             }
