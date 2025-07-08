@@ -48,11 +48,11 @@ public partial class Menu
         });
     }
     
-    private void CreateTemplateOnClick(object sender, RoutedEventArgs e)
+    private async void CreateTemplateOnClick(object sender, RoutedEventArgs e)
     {
         var input = new TextBox { Height = 24, Text = "DeviceName" };
 
-        if (MainWindow.ShowMessageBox("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
+        if (await Controls.Modal.Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
             MessageBoxResult.OK)
         {
             return;
@@ -69,11 +69,11 @@ public partial class Menu
         });
     }
     
-    private void SettingsOnClick(object sender, RoutedEventArgs e)
+    private async void SettingsOnClick(object sender, RoutedEventArgs e)
     {
         var settings = new Settings();
 
-        if (MainWindow.ShowMessageBox("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
+        if (await Controls.Modal.Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
             MessageBoxResult.OK)
         {
             settings.Save();

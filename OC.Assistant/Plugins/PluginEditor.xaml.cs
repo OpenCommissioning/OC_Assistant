@@ -102,21 +102,21 @@ internal partial class PluginEditor
         set => ApplyButton.Content = value ? "Apply*" : "Apply";
     }
 
-    private void ApplyButton_Click(object sender, RoutedEventArgs e)
+    private async void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
         if (!PluginName.Text.IsPlcCompatible())
         {
-            MainWindow.ShowMessageBox(PluginName.Text, "Name is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
+            await Controls.Modal.Show(PluginName.Text, "Name is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         
         if (_plugins.Any(plugin => plugin.Name == PluginName.Text && plugin != _plugin))
         {
-            MainWindow.ShowMessageBox(PluginName.Text, "Name already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
+            await Controls.Modal.Show(PluginName.Text, "Name already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         
-        if (MainWindow.ShowMessageBox("Editor", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
+        if (await Controls.Modal.Show("Editor", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
                 MessageBoxImage.Question) == MessageBoxResult.Cancel)
         {
             return;

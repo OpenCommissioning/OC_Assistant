@@ -137,10 +137,10 @@ internal partial class Plugin
         OnEdit?.Invoke(this);
     }
 
-    private void RemoveButton_Click(object sender, RoutedEventArgs name)
+    private async void RemoveButton_Click(object sender, RoutedEventArgs name)
     {
         if (PluginController?.IsRunning == true) return;
-        if (MainWindow.ShowMessageBox(
+        if (await Controls.Modal.Show(
                 "Delete?",
                 Name, MessageBoxButton.OKCancel, MessageBoxImage.Warning)
             == MessageBoxResult.OK)
