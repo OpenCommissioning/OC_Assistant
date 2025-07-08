@@ -24,10 +24,17 @@ public partial class Menu
 
     private async void ScanOnClick(object sender, RoutedEventArgs e)
     {
-        var settingsView = new SettingsView();
-        var result = await Controls.Modal.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
-        if (result != MessageBoxResult.OK) return;
-        _control.StartCapture(settingsView.Settings);
+        try
+        {
+            var settingsView = new SettingsView();
+            var result = await Controls.Modal.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
+            if (result != MessageBoxResult.OK) return;
+            _control.StartCapture(settingsView.Settings);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(this, ex.Message);
+        }
     }
 
     private void MenuOnSubmenuOpened(object sender, RoutedEventArgs e)

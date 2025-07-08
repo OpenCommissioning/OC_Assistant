@@ -139,13 +139,20 @@ internal partial class Plugin
 
     private async void RemoveButton_Click(object sender, RoutedEventArgs name)
     {
-        if (PluginController?.IsRunning == true) return;
-        if (await Controls.Modal.Show(
-                "Delete?",
-                Name, MessageBoxButton.OKCancel, MessageBoxImage.Warning)
-            == MessageBoxResult.OK)
+        try
         {
-            OnRemove?.Invoke(this);
+            if (PluginController?.IsRunning == true) return;
+            if (await Controls.Modal.Show(
+                    "Plugins",
+                    $"Delete {Name}?", MessageBoxButton.OKCancel, MessageBoxImage.Warning)
+                == MessageBoxResult.OK)
+            {
+                OnRemove?.Invoke(this);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(this, e.Message);
         }
     }
 

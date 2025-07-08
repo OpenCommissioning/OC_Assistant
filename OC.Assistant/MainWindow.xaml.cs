@@ -13,10 +13,7 @@ public partial class MainWindow
         InitializeComponent();
         ReadSettings();
         
-        Modal.Shown += () => BlurEffect.Radius = 6;
-        Modal.Closed += () => BlurEffect.Radius = 0;
         BusyState.Changed += BusyOverlay.SetState;
-        LogViewer.LogFilePath = AppData.LogFilePath;
         Logger.Info += (sender, message) => LogViewer.Add(sender, message, MessageType.Info);
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
@@ -46,8 +43,5 @@ public partial class MainWindow
         }.Write();
     }
     
-    private void MainWindowOnClosing(object sender, CancelEventArgs e)
-    {
-        WriteSettings();
-    }
+    private void MainWindowOnClosing(object sender, CancelEventArgs e) => WriteSettings();
 }

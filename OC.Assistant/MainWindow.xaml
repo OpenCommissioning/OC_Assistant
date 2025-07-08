@@ -8,6 +8,7 @@
         xmlns:plugins="clr-namespace:OC.Assistant.Plugins"
         xmlns:pnGenerator="clr-namespace:OC.Assistant.PnGenerator"
         xmlns:generator="clr-namespace:OC.Assistant.Generator"
+        xmlns:core="clr-namespace:OC.Assistant.Core"
         theme:WindowStyle.UseTheme="True"
         mc:Ignorable="d"
         Title="Open Commissioning Assistant" Height="600" Width="800"
@@ -34,7 +35,7 @@
                         <RowDefinition Height="140" MinHeight="27" x:Name="ConsoleRow"/>
                     </Grid.RowDefinitions>
                     <plugins:PluginManager Grid.Row="0" Margin="0,0,0,-2"/>
-                    <theme:LogViewer x:Name="LogViewer" Grid.Row="2"/>
+                    <theme:LogViewer Grid.Row="2" x:Name="LogViewer" LogFilePath="{x:Static core:AppData.LogFilePath}" />
                     <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
                     <controls:NotConnectedOverlay Grid.Row="0" />
                 </Grid>
@@ -42,6 +43,6 @@
                 <theme:BusyOverlay x:Name="BusyOverlay"/>
             </Grid>
         </Border>
-        <controls:Modal x:Name="Modal"></controls:Modal>
+        <controls:Modal BlurEffect="{x:Reference BlurEffect}"/>
     </Grid>
 </Window>

@@ -1,36 +1,29 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 
 namespace OC.Assistant.Controls;
 
 /// <summary>
-/// Represents a custom message box with an appropriate theme style.
+/// Represents a modal.
 /// </summary>
 public partial class Modal
 {
     private static event Action<string, UIElement, MessageBoxButton, MessageBoxImage>? ModalShown;
     private static MessageBoxResult _result = MessageBoxResult.None;
-    private readonly Storyboard _fadeIn;
-    private readonly Storyboard _fadeOut;
-    
+    private readonly DoubleAnimation _fadeIn = new(0, 1, TimeSpan.FromMilliseconds(200));
+    private readonly DoubleAnimation _fadeOut = new(1, 0, TimeSpan.FromMilliseconds(200));
+    private static bool _isCreated;
+
     /// <summary>
-    /// Occurs when the <see cref="Modal"/> is displayed.
+    /// Shows the modal dialog with the specified parameters.
     /// </summary>
-    public event Action? Shown;
-    
-    /// <summary>
-    /// Occurs when the <see cref="Modal"/> is closed.
-    /// </summary>
-    public event Action? Closed;
-    
-    /// <summary>
-    /// Shows the modal with the given parameters. 
-    /// </summary>
-    /// <param name="caption">The caption of the modal.</param>
-    /// <param name="content">The content within the modal.</param>
-    /// <param name="button">The <see cref="MessageBoxButton"/> of the modal.</param>
-    /// <param name="image">The shown image on the left side.</param>
+    /// <param name="caption">The title of the modal.</param>
+    /// <param name="content">The content displayed within the modal, represented as a <see cref="UIElement"/>.</param>
+    /// <param name="button">The <see cref="MessageBoxButton"/> options available in the modal.</param>
+    /// <param name="image">The <see cref="MessageBoxImage"/> icon to display in the modal.</param>
+    /// <returns>A <see cref="MessageBoxResult"/> indicating the user's interaction with the modal.</returns>
     public static async Task<MessageBoxResult> Show(string caption, UIElement content, MessageBoxButton button, MessageBoxImage image)
     {
         _result = MessageBoxResult.None;
@@ -43,28 +36,44 @@ public partial class Modal
     }
     
     /// <summary>
-    /// Shows the modal with the given parameters. 
+    /// Shows the modal dialog with the specified parameters.
     /// </summary>
-    /// <param name="caption">The caption of the modal.</param>
-    /// <param name="text">The text within the modal.</param>
-    /// <param name="button">The <see cref="MessageBoxButton"/> of the modal.</param>
-    /// <param name="image">The shown image on the left side.</param>
+    /// <param name="caption">The title of the modal.</param>
+    /// <param name="text">The text displayed within the modal.</param>
+    /// <param name="button">The <see cref="MessageBoxButton"/> options available in the modal.</param>
+    /// <param name="image">The <see cref="MessageBoxImage"/> icon to display in the modal.</param>
+    /// <returns>A <see cref="MessageBoxResult"/> indicating the user's interaction with the modal.</returns>
     public static async Task<MessageBoxResult> Show(string caption, string text, MessageBoxButton button, MessageBoxImage image)
     {
-        var content = new Label { VerticalAlignment = VerticalAlignment.Center, Content = text};
+        var content = new TextBlock
+        {
+            VerticalAlignment = VerticalAlignment.Center, 
+            TextWrapping = TextWrapping.Wrap,
+            Text = text
+        };
         return await Show(caption, content, button, image);
     }
     
+    /// <summary>
+    /// Creates a new instance of the <see cref="Modal"/>.
+    /// </summary>
     public Modal()
     {
+        if (_isCreated)
+        {
+            throw new InvalidOperationException("Modal can only be created once");
+        }
+        _isCreated = true;
         InitializeComponent();
         Visibility = Visibility.Collapsed;
-        
-        _fadeIn = (Storyboard)FindResource("FadeInStoryboard");
-        _fadeOut = (Storyboard)FindResource("FadeOutStoryboard");
         _fadeOut.Completed += FadeOutOnCompleted;
         ModalShown += ModalShow;
     }
+
+    /// <summary>
+    /// Gets or sets the <see cref="BlurEffect"/> to be affected when the modal is shown.
+    /// </summary>
+    public BlurEffect? BlurEffect { get; set; }
 
     private void ModalShow(string caption, UIElement content, MessageBoxButton button, MessageBoxImage image)
     {
@@ -72,9 +81,7 @@ public partial class Modal
         ContentGrid.Children.Add(content);
         SetButtons(button);
         SetImage(image);
-        Visibility = Visibility.Visible;
-        _fadeIn.Begin(this);
-        Shown?.Invoke();
+        FadeIn();
     }
 
     private void SetButtons(MessageBoxButton button)
@@ -82,7 +89,6 @@ public partial class Modal
         ButtonOk.Visibility = Visibility.Visible;
         ButtonCancel.Visibility = button switch
         {
-            MessageBoxButton.OK => Visibility.Collapsed,
             MessageBoxButton.OKCancel => Visibility.Visible,
             _ => Visibility.Collapsed
         };
@@ -99,8 +105,22 @@ public partial class Modal
     private void ButtonOnClick(object sender, RoutedEventArgs e)
     {
         _result = sender.Equals(ButtonOk) ? MessageBoxResult.OK : MessageBoxResult.Cancel;
-        _fadeOut.Begin(this);
-        Closed?.Invoke();
+        FadeOut();
+    }
+    
+    private void FadeIn()
+    {
+        Visibility = Visibility.Visible;
+        BeginAnimation(OpacityProperty, _fadeIn);
+        if (BlurEffect is null) return;
+        BlurEffect.Radius = 6;
+    }
+    
+    private void FadeOut()
+    {
+        BeginAnimation(OpacityProperty, _fadeOut);
+        if (BlurEffect is null) return;
+        BlurEffect.Radius = 0;
     }
     
     private void FadeOutOnCompleted(object? sender, EventArgs e)

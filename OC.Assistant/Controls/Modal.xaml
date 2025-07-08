@@ -4,28 +4,13 @@
         Background="#01000000"
         VerticalAlignment="Stretch"
         HorizontalAlignment="Stretch">
-    <Grid.Resources>
-        <Storyboard x:Key="FadeInStoryboard">
-            <DoubleAnimation
-                Storyboard.TargetProperty="Opacity"
-                From="0" To="1"
-                Duration="0:0:0.1" />
-        </Storyboard>
-        <Storyboard x:Key="FadeOutStoryboard">
-            <DoubleAnimation
-                Storyboard.TargetProperty="Opacity"
-                From="1" To="0"
-                Duration="0:0:0.2" />
-        </Storyboard>
-    </Grid.Resources>
     <Grid.Effect>
         <DropShadowEffect Color="Black" BlurRadius="20" Direction="315" ShadowDepth="5" Opacity="0.5"/>
     </Grid.Effect>
     <Border Background="{DynamicResource BackgroundOverlayBrush}" 
             BorderBrush="{DynamicResource White5Brush}"
             CornerRadius="{DynamicResource ControlCornerRadius}"
-            BorderThickness="0" VerticalAlignment="Center" HorizontalAlignment="Center"
-            x:Name="Border">
+            BorderThickness="0" VerticalAlignment="Center" HorizontalAlignment="Center">
         <Grid Margin="3" MinWidth="360" MinHeight="160" MaxHeight="560">
             <Grid.RowDefinitions>
                 <RowDefinition Height="27" />
@@ -41,28 +26,28 @@
                     <TextBlock Name="TitleLabel"/>
                 </Label>
             </Grid>
-            <Label x:Name="SymbolWarning" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+            <Label x:Name="SymbolWarning" Margin="20 20 0 20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
                    Foreground="{DynamicResource WarningBrush}"
                    Visibility="Collapsed">
                 &#xE7BA;
             </Label>
-            <Label x:Name="SymbolError" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+            <Label x:Name="SymbolError" Margin="20 20 0 20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
                    Foreground="{DynamicResource DangerBrush}"
                    Visibility="Collapsed">
                 &#xE783;
             </Label>
-            <Label x:Name="SymbolQuestion" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+            <Label x:Name="SymbolQuestion" Margin="20 20 0 20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
                    Foreground="{DynamicResource InfoBrush}"
                    Visibility="Collapsed">
                 &#xF142;
             </Label>
-            <Label x:Name="SymbolInformation" Margin="20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
+            <Label x:Name="SymbolInformation" Margin="20 20 0 20" Grid.Row="1" Grid.Column="0" FontFamily="{DynamicResource SymbolThemeFontFamily}" FontSize="46" 
                    Foreground="{DynamicResource InfoBrush}"
                    Visibility="Collapsed">
                 &#xE946;
             </Label>
             <ScrollViewer Grid.Row="1" Grid.Column="1">
-                <Grid x:Name="ContentGrid" Margin="10,5,20,5" />
+                <Grid x:Name="ContentGrid" Margin="25,5,25,5" />
             </ScrollViewer>
             
             <Grid Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" >
