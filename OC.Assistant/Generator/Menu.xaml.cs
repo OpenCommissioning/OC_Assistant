@@ -54,7 +54,7 @@ public partial class Menu
         {
             var input = new TextBox { Height = 24, Text = "DeviceName" };
 
-            if (await Controls.Modal.Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
+            if (await Theme.Modal.Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
                 MessageBoxResult.OK)
             {
                 return;
@@ -82,7 +82,7 @@ public partial class Menu
         {
             var settings = new Settings();
 
-            if (await Controls.Modal.Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
+            if (await Theme.Modal.Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
                 MessageBoxResult.OK)
             {
                 settings.Save();

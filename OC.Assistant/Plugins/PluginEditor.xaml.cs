@@ -108,17 +108,17 @@ internal partial class PluginEditor
         {
             if (!PluginName.Text.IsPlcCompatible())
             {
-                await Controls.Modal.Show("Plugins", $"Name {PluginName.Text} is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
+                await Theme.Modal.Show("Plugins", $"Name {PluginName.Text} is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
         
             if (_plugins.Any(plugin => plugin.Name == PluginName.Text && plugin != _plugin))
             {
-                await Controls.Modal.Show("Plugins", $"Name {PluginName.Text} already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
+                await Theme.Modal.Show("Plugins", $"Name {PluginName.Text} already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
         
-            if (await Controls.Modal.Show("Plugins", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
+            if (await Theme.Modal.Show("Plugins", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
                     MessageBoxImage.Question) == MessageBoxResult.Cancel)
             {
                 return;

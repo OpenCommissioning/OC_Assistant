@@ -27,7 +27,7 @@ public partial class Menu
         try
         {
             var settingsView = new SettingsView();
-            var result = await Controls.Modal.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
+            var result = await Theme.Modal.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
             if (result != MessageBoxResult.OK) return;
             _control.StartCapture(settingsView.Settings);
         }

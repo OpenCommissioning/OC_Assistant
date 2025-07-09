@@ -142,7 +142,7 @@ internal partial class Plugin
         try
         {
             if (PluginController?.IsRunning == true) return;
-            if (await Controls.Modal.Show(
+            if (await Theme.Modal.Show(
                     "Plugins",
                     $"Delete {Name}?", MessageBoxButton.OKCancel, MessageBoxImage.Warning)
                 == MessageBoxResult.OK)

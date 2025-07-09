@@ -43,6 +43,6 @@
                 <theme:BusyOverlay x:Name="BusyOverlay"/>
             </Grid>
         </Border>
-        <controls:Modal BlurEffect="{x:Reference BlurEffect}"/>
+        <theme:Modal BlurEffect="{x:Reference BlurEffect}"/>
     </Grid>
 </Window>
