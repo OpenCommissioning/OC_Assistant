@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.15.0"></a>
+## [1.15.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.15.0) (2025-07-09)
+
+### Features
+
+* use new async modal instead of a blocking MessageBox ([e50179d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e50179dac4e59e3e9609dd5d26873fc591903bed))
+
+### Bug Fixes
+
+* **Generator:** use an underscore for hierarchical separation ([323b373](https://www.github.com/OpenCommissioning/OC_Assistant/commit/323b37307dc9f0dbb55e4157bd0f00e6e2a22970))
+
 <a name="1.14.1"></a>
 ## [1.14.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.14.1) (2025-07-04)
 
