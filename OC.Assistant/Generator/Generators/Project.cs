@@ -53,7 +53,7 @@ internal static partial class Project
                     continue;
                 case "Group":
                     var childName = child.Attribute("Name")?.Value;
-                    instances.Add(new PouInstance(childName, $"{fbName}{childName}"));
+                    instances.Add(new PouInstance(childName, $"{fbName}_{childName}"));
                     CreateGroup(folder, child, fbName);
                     continue;
             }
