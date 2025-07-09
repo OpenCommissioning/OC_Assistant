@@ -102,35 +102,42 @@ internal partial class PluginEditor
         set => ApplyButton.Content = value ? "Apply*" : "Apply";
     }
 
-    private void ApplyButton_Click(object sender, RoutedEventArgs e)
+    private async void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!PluginName.Text.IsPlcCompatible())
+        try
         {
-            MainWindow.ShowMessageBox(PluginName.Text, "Name is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
+            if (!PluginName.Text.IsPlcCompatible())
+            {
+                await Theme.Modal.Show("Plugins", $"Name {PluginName.Text} is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
         
-        if (_plugins.Any(plugin => plugin.Name == PluginName.Text && plugin != _plugin))
-        {
-            MainWindow.ShowMessageBox(PluginName.Text, "Name already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
+            if (_plugins.Any(plugin => plugin.Name == PluginName.Text && plugin != _plugin))
+            {
+                await Theme.Modal.Show("Plugins", $"Name {PluginName.Text} already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
         
-        if (MainWindow.ShowMessageBox("Editor", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
-                MessageBoxImage.Question) == MessageBoxResult.Cancel)
-        {
-            return;
-        }
+            if (await Theme.Modal.Show("Plugins", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
+                    MessageBoxImage.Question) == MessageBoxResult.Cancel)
+            {
+                return;
+            }
 
-        //Update parameters of selected plugin
-        _plugin?.PluginController?.Parameter.Update(ParameterPanel.Children.OfType<IParameter>());
+            //Update parameters of selected plugin
+            _plugin?.PluginController?.Parameter.Update(ParameterPanel.Children.OfType<IParameter>());
         
-        //Call the save method for the selected plugin
-        if (_plugin?.Save(PluginName.Text) != true) return;
+            //Call the save method for the selected plugin
+            if (_plugin?.Save(PluginName.Text) != true) return;
         
-        Logger.LogInfo(this, $"'{_plugin.Name}' saved");
-        OnConfirm?.Invoke(_plugin);
-        IndicateChanges = false;
+            Logger.LogInfo(this, $"'{_plugin.Name}' saved");
+            OnConfirm?.Invoke(_plugin);
+            IndicateChanges = false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(this, ex.Message);
+        }
     }
     
     private void CloseButton_Click(object sender, RoutedEventArgs e)

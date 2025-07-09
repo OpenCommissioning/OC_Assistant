@@ -48,35 +48,49 @@ public partial class Menu
         });
     }
     
-    private void CreateTemplateOnClick(object sender, RoutedEventArgs e)
+    private async void CreateTemplateOnClick(object sender, RoutedEventArgs e)
     {
-        var input = new TextBox { Height = 24, Text = "DeviceName" };
-
-        if (MainWindow.ShowMessageBox("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
-            MessageBoxResult.OK)
+        try
         {
-            return;
-        }
+            var input = new TextBox { Height = 24, Text = "DeviceName" };
 
-        var name = input.Text;
+            if (await Theme.Modal.Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
+                MessageBoxResult.OK)
+            {
+                return;
+            }
+
+            var name = input.Text;
         
-        DteSingleThread.Run(dte =>
+            DteSingleThread.Run(dte =>
+            {
+                if (GetPlcProject(dte) is not {} plcProjectItem) return;
+                if (plcProjectItem.GetOrCreateChild("_generated_templates_", 
+                        TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder) return;
+                Generators.DeviceTemplate.Create(folder, name);
+            });
+        }
+        catch (Exception ex)
         {
-            if (GetPlcProject(dte) is not {} plcProjectItem) return;
-            if (plcProjectItem.GetOrCreateChild("_generated_templates_", 
-                    TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder) return;
-            Generators.DeviceTemplate.Create(folder, name);
-        });
+            Logger.LogError(this, ex.Message);
+        }
     }
     
-    private void SettingsOnClick(object sender, RoutedEventArgs e)
+    private async void SettingsOnClick(object sender, RoutedEventArgs e)
     {
-        var settings = new Settings();
-
-        if (MainWindow.ShowMessageBox("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
-            MessageBoxResult.OK)
+        try
         {
-            settings.Save();
+            var settings = new Settings();
+
+            if (await Theme.Modal.Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
+                MessageBoxResult.OK)
+            {
+                settings.Save();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(this, ex.Message);
         }
     }
     

@@ -73,7 +73,7 @@ internal partial class HelpMenu
         AddThirdParty(stack);
         AddPlugins(stack);
         
-        MainWindow.ShowMessageBox($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
+        _ = Theme.Modal.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
     }
     
     private static void AddPlugins(UIElementCollection stack)
