@@ -40,7 +40,7 @@ internal static partial class Project
     {
         if (group is null) return;
         var name = group.Attribute("Name")?.Value;
-        var fbName = parentName is null ? name : $"{parentName}{name}";
+        var fbName = parentName is null ? name : $"{parentName}_{name}";
         var folder = parent?.GetOrCreateChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER);
         var instances = new List<PouInstance>();
         

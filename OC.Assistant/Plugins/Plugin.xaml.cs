@@ -137,15 +137,22 @@ internal partial class Plugin
         OnEdit?.Invoke(this);
     }
 
-    private void RemoveButton_Click(object sender, RoutedEventArgs name)
+    private async void RemoveButton_Click(object sender, RoutedEventArgs name)
     {
-        if (PluginController?.IsRunning == true) return;
-        if (MainWindow.ShowMessageBox(
-                "Delete?",
-                Name, MessageBoxButton.OKCancel, MessageBoxImage.Warning)
-            == MessageBoxResult.OK)
+        try
         {
-            OnRemove?.Invoke(this);
+            if (PluginController?.IsRunning == true) return;
+            if (await Theme.Modal.Show(
+                    "Plugins",
+                    $"Delete {Name}?", MessageBoxButton.OKCancel, MessageBoxImage.Warning)
+                == MessageBoxResult.OK)
+            {
+                OnRemove?.Invoke(this);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(this, e.Message);
         }
     }
 

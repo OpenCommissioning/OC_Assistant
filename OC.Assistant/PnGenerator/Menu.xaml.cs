@@ -22,12 +22,19 @@ public partial class Menu
         Task.Run(IsScannerInstalled);
     }
 
-    private void ScanOnClick(object sender, RoutedEventArgs e)
+    private async void ScanOnClick(object sender, RoutedEventArgs e)
     {
-        var settingsView = new SettingsView();
-        var result = MainWindow.ShowMessageBox("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
-        if (result != MessageBoxResult.OK) return;
-        _control.StartCapture(settingsView.Settings);
+        try
+        {
+            var settingsView = new SettingsView();
+            var result = await Theme.Modal.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
+            if (result != MessageBoxResult.OK) return;
+            _control.StartCapture(settingsView.Settings);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(this, ex.Message);
+        }
     }
 
     private void MenuOnSubmenuOpened(object sender, RoutedEventArgs e)
