@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.15.1"></a>
+## [1.15.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.15.1) (2025-07-09)
+
+### Bug Fixes
+
+* **Generator:** missing hierarchical underscore for instance call ([e3df652](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e3df6528e1ee1913ecc02ca6ad3bc3efbda119f7))
+
 <a name="1.15.0"></a>
 ## [1.15.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.15.0) (2025-07-09)
 
