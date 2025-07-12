@@ -64,7 +64,7 @@ internal partial class HelpMenu
             UrlName = "github"
         });
         
-        stack.Add(new DependencyInfo(typeof(Theme.WindowStyle))
+        stack.Add(new DependencyInfo(typeof(Theme.Window))
         {
             Url = "https://github.com/OpenCommissioning/OC_Assistant_Theme",
             UrlName = "github"
