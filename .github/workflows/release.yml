@@ -37,7 +37,7 @@ jobs:
         
     - name: Dotnet publish
       if: steps.versionize.outcome == 'success'
-      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 -p:PublishSingleFile=true -p:EnableWindowsTargeting=true --self-contained false --output ./
+      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 --self-contained false -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true --output ./
     
     - name: Push changes to GitHub
       if: steps.versionize.outcome == 'success'
