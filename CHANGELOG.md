@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.16.0"></a>
+## [1.16.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.16.0) (2025-07-12)
+
+### Features
+
+* implement new Theme package ([171c752](https://www.github.com/OpenCommissioning/OC_Assistant/commit/171c7529ca4aa50577d4274cc4f1f4490a223694))
+
 <a name="1.15.1"></a>
 ## [1.15.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.15.1) (2025-07-09)
 
