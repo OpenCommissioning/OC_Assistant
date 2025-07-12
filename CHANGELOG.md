@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.16.1"></a>
+## [1.16.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.16.1) (2025-07-12)
+
+### Bug Fixes
+
+* adjust the publish command to include the application icon ([4f01cf9](https://www.github.com/OpenCommissioning/OC_Assistant/commit/4f01cf9a6e30dfea23a344b6f4e70ffd1f86a51f))
+
 <a name="1.16.0"></a>
 ## [1.16.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.16.0) (2025-07-12)
 
