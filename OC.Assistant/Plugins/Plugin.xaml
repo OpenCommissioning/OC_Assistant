@@ -11,11 +11,29 @@
         <TextBlock x:Name="BtnEditText" Margin="10,0,0,0"></TextBlock>
     </Button>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button x:Name="StartStopButton" Click="StartStopButton_Click" Width="40" Margin="5" Padding="0" ToolTip="Start/Stop" VerticalAlignment="Stretch">
-            <TextBlock x:Name="StartStopButtonText" FontFamily="{DynamicResource SymbolThemeFontFamily}" Foreground="{DynamicResource SuccessBrush}" >&#xE768;</TextBlock>
+        <Button x:Name="StartStopButton" Click="StartStopButton_Click" 
+                Width="40" 
+                Margin="4" 
+                Padding="0" 
+                ToolTip="Start/Stop" 
+                VerticalAlignment="Stretch">
+            <Grid>
+                <ContentControl
+                    x:Name="StartIcon"
+                    Foreground="{DynamicResource SuccessBrush}"
+                    Template="{DynamicResource IconTemplate}"
+                    Content="{DynamicResource IconPlay}"/>
+                <ContentControl
+                    x:Name="StopIcon" 
+                    Foreground="{DynamicResource TransparentBrush}"
+                    Template="{DynamicResource IconTemplate}"
+                    Content="{DynamicResource IconStop}"/>
+            </Grid>
         </Button>
-        <Button x:Name="RemoveButton" Click="RemoveButton_Click" Width="40" Margin="5" Padding="0" ToolTip="Remove" VerticalAlignment="Stretch">
-            <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" Margin="0,0,0,0" >&#xE74D;</TextBlock>
+        <Button x:Name="RemoveButton" Click="RemoveButton_Click" Width="40" Margin="4" Padding="0" ToolTip="Remove" VerticalAlignment="Stretch">
+            <ContentControl
+                Template="{DynamicResource IconTemplate}"
+                Content="{DynamicResource IconDelete}"/>
         </Button>
     </StackPanel>
 </Grid>

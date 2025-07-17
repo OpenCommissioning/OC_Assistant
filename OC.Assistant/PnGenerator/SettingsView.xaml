@@ -18,7 +18,7 @@
             <ColumnDefinition Width="40"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" Background="{DynamicResource White6Brush}" HorizontalAlignment="Stretch" Click="SelectAmlFileOnClick">...</Button>
+        <Button Grid.Column="0" Style="{DynamicResource ButtonSecondary}" HorizontalAlignment="Stretch" Click="SelectAmlFileOnClick">...</Button>
         <Label Grid.Column="1" VerticalContentAlignment="Center" IsEnabled="False">
             <TextBlock x:Name="HwFileTextBlock" Margin="8 0 0 0">not specified</TextBlock>
         </Label>
@@ -29,7 +29,7 @@
             <ColumnDefinition Width="40"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" Background="{DynamicResource White6Brush}" HorizontalAlignment="Stretch" Click="SelectGsdFolderOnClick">...</Button>
+        <Button Grid.Column="0" Style="{DynamicResource ButtonSecondary}" HorizontalAlignment="Stretch" Click="SelectGsdFolderOnClick">...</Button>
         <Label Grid.Column="1" VerticalContentAlignment="Center" IsEnabled="False">
             <TextBlock x:Name="GsdFolderTextBlock" Margin="8 0 0 0">not specified</TextBlock>
         </Label>

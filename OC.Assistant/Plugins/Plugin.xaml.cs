@@ -74,8 +74,8 @@ internal partial class Plugin
         Dispatcher.Invoke(() =>
         {
             StartStopButton.IsEnabled = true;
-            StartStopButtonText.Text = "\xE768";
-            StartStopButtonText.Foreground = Application.Current.Resources["SuccessBrush"] as SolidColorBrush;
+            StartIcon.Foreground = Application.Current.Resources["SuccessBrush"] as SolidColorBrush;
+            StopIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
         });
     }
     
@@ -84,8 +84,8 @@ internal partial class Plugin
         Dispatcher.Invoke(() =>
         {
             StartStopButton.IsEnabled = false;
-            StartStopButtonText.Text = "\xE71A";
-            StartStopButtonText.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
+            StopIcon.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
+            StartIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
         });
     }
 
@@ -94,8 +94,8 @@ internal partial class Plugin
         Dispatcher.Invoke(() =>
         {
             StartStopButton.IsEnabled = true;
-            StartStopButtonText.Text = "\xE71A";
-            StartStopButtonText.Foreground = Application.Current.Resources["DangerBrush"] as SolidColorBrush;
+            StartIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
+            StopIcon.Foreground = Application.Current.Resources["DangerBrush"] as SolidColorBrush;
         });
     }
     
@@ -104,8 +104,8 @@ internal partial class Plugin
         Dispatcher.Invoke(() =>
         {
             StartStopButton.IsEnabled = false;
-            StartStopButtonText.Text = "\xE768";
-            StartStopButtonText.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
+            StartIcon.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
+            StopIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
         });
     }
 
@@ -142,7 +142,7 @@ internal partial class Plugin
         try
         {
             if (PluginController?.IsRunning == true) return;
-            if (await Theme.Modal.Show(
+            if (await Theme.MessageBox.Show(
                     "Plugins",
                     $"Delete {Name}?", MessageBoxButton.OKCancel, MessageBoxImage.Warning)
                 == MessageBoxResult.OK)

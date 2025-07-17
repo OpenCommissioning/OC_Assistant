@@ -185,7 +185,7 @@ public partial class PluginManager
     private void ShowEditor()
     {
         GridSplitter.Width = new GridLength(4);
-        if (EditorColumn.ActualWidth <= 0) EditorColumn.Width = new GridLength(400);
+        if (EditorColumn.ActualWidth <= 0) EditorColumn.Width = new GridLength(340);
     }
         
     private void HideEditor()
