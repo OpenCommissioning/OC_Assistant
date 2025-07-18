@@ -23,6 +23,6 @@
                  VerticalAlignment="Stretch"
                  TextChanged="ValueTextBox_OnTextChanged">
         </TextBox>
-        <Button x:Name="FileSelector" Grid.Column="2" Width="30" Background="{DynamicResource White6Brush}" Click="FileSelector_OnClick" Padding="0" Margin="0" VerticalAlignment="Stretch">...</Button>
+        <Button x:Name="FileSelector" Grid.Column="2" Width="30" Style="{DynamicResource ButtonSecondary}" Click="FileSelector_OnClick" Padding="0" Margin="0" VerticalAlignment="Stretch">...</Button>
     </Grid>
 </UserControl>
