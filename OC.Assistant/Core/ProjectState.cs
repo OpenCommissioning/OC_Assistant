@@ -91,11 +91,11 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
             FullName = null;
             Disconnected?.Invoke();
             Locked?.Invoke(true);
-            _lastRunState = AdsState.Idle;
             _cancellationTokenSource.Cancel();
             _adsClient.Disconnect();
             ComHelper.ReleaseObject(_tcSysManager);
             _tcSysManager = null;
+            _lastRunState = AdsState.Idle;
         });
     }
 
