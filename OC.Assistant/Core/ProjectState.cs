@@ -113,10 +113,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
                 ApiLocal.Interface.NetId = _amsNetId;
                 _adsClient.Disconnect();
                 _adsClient.Connect(_amsNetId, (int)AmsPort.R0_Realtime);
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    StoppedRunning?.Invoke();
-                });
+                TriggerStoppedRunning();
             }
 
             if (_adsClient.TryReadState(out var stateInfo) == AdsErrorCode.NoError)
@@ -223,22 +220,33 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
             case AdsState.Run:
                 ApiLocal.Interface.Port = GetPlcPort();
                 ApiLocal.Interface.TriggerTcRestart();
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    StartedRunning?.Invoke();
-                    Locked?.Invoke(true);
-                });
-                
+                TriggerStartedRunning();
                 break;
             default:
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    StoppedRunning?.Invoke();
-                    Locked?.Invoke(false);
-                });
+                TriggerStoppedRunning();
                 break;
         }
         
         return Task.CompletedTask;
+    }
+    
+    private void TriggerStartedRunning()
+    {
+        if (!IsProjectConnected) return;
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            StartedRunning?.Invoke();
+            Locked?.Invoke(true);
+        });
+    }
+
+    private void TriggerStoppedRunning()
+    {
+        if (!IsProjectConnected) return;
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            StoppedRunning?.Invoke();
+            Locked?.Invoke(false);
+        });
     }
 }
