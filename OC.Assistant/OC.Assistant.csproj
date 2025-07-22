@@ -23,11 +23,17 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
       <PackageReference Include="OC.Assistant.Sdk" Version="1.7.1" />
-      <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
     </ItemGroup>
     
     <ItemGroup>
       <ProjectReference Include="..\..\Theme\OC.Assistant.Theme\OC.Assistant.Theme.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Reference Include="TCatSysManagerLib">
+        <HintPath>TCatSysManagerLib.dll</HintPath>
+        <Private>false</Private>    
+      </Reference>
     </ItemGroup>
     
 </Project>

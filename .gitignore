@@ -198,3 +198,6 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
+# Exclude native dependency dlls
+*.dll

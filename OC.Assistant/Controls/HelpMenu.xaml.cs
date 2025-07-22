@@ -109,16 +109,10 @@ internal partial class HelpMenu
             UrlName = "nuget"
         });
         
-        stack.Add(new DependencyInfo(typeof(TCatSysManagerLib.TcSysManager))
-        {
-            Url = "https://www.nuget.org/packages/TCatSysManagerLib",
-            UrlName = "nuget"
-        });
-        
         stack.Add(new DependencyInfo("dsian.TcPnScanner.CLI", "")
         {
-            Url = "https://www.nuget.org/packages/dsian.TcPnScanner.CLI",
-            UrlName = "nuget"
+            Url = "https://github.com/TcHaxx/TcPnScanner",
+            UrlName = "github"
         });
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
@@ -10,6 +11,8 @@ public partial class MainWindow
 {
     public MainWindow()
     {
+        AssemblyHelper.AddDirectory(@"C:\Windows\assembly\GAC_MSIL\TCatSysManagerLib\3.3.0.0__180016cd49e5e8c3");
+        
         InitializeComponent();
         ReadSettings();
         
