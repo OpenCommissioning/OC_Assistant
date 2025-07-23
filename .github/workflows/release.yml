@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout
@@ -34,12 +34,18 @@ jobs:
 
     - name: Get current version
       if: steps.versionize.outcome == 'success'
-      run: echo "VERSION=v$(versionize inspect)" >> $GITHUB_ENV
+      run: |
+        $version = versionize inspect
+        echo "VERSION=v$version" >> $env:GITHUB_ENV
+      shell: pwsh
 
     - name: Get current changelog
       if: steps.versionize.outcome == 'success'
-      run: echo "$(versionize changelog)" > latest_changelog.md
-    
+      run: |
+        $changelog = versionize changelog
+        Set-Content -Path latest_changelog.md -Value $changelog
+      shell: pwsh
+
     - name: Push changes to GitHub
       if: steps.versionize.outcome == 'success'
       uses: ad-m/github-push-action@master
@@ -52,11 +58,31 @@ jobs:
       if: steps.versionize.outcome == 'success'
       run: dotnet publish OC.Assistant --configuration release --runtime win-x64 --self-contained false -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true --output ./
 
+    - name: Install AzureSignTool
+      run: dotnet tool install --global azuresigntool
+
+    - name: Sign executable
+      if: steps.versionize.outcome == 'success'
+      run: |
+        azuresigntool sign `
+          -kvu ${{secrets.AZURE_KEY_VAULT}} `
+          -kvc ${{secrets.AZURE_CERT_NAME}} `
+          -kvt ${{secrets.AZURE_TENANT_ID}} `
+          -kvi ${{secrets.AZURE_CLIENT_ID}} `
+          -kvs ${{secrets.AZURE_CLIENT_SECRET}} `
+          -tr http://timestamp.globalsign.com/tsa/advanced `
+          -td sha256 `
+          .\OC.Assistant.exe
+
+    - name: Zip signed executable
+      if: steps.versionize.outcome == 'success'
+      run: Compress-Archive -Path ./OC.Assistant.exe -DestinationPath ./OC.Assistant_${{env.VERSION}}.zip
+      shell: pwsh
+
     - name: Publish new release
       if: steps.versionize.outcome == 'success'
       run: |
         gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F latest_changelog.md
-        zip ./OC.Assistant_${{env.VERSION}}.zip ./OC.Assistant.exe
         gh release upload ${{env.VERSION}} ./OC.Assistant_${{env.VERSION}}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
