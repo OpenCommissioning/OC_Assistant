@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.0"></a>
+## [1.17.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.0) (2025-07-23)
+
+### Features
+
+* OC.Assistant.exe is now codesigned ([a91b3af](https://www.github.com/OpenCommissioning/OC_Assistant/commit/a91b3af52fa76d818cec8a536cd4f7041c79f2a2))
+* update theme package reference to v2.1.0 ([e22297c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e22297cd3c818c17370adf014865da0595c0be7d))
+
+### Bug Fixes
+
+* remove Microsoft-WindowsAPICodePack-Core dependency ([ffdb2cd](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ffdb2cdb9ae8e95ea5d81677ee301e8f31169b7c))
+* wrong ProjectStateView when closing TwinCAT ([8191fb2](https://www.github.com/OpenCommissioning/OC_Assistant/commit/8191fb24adeaba67d18d0d691e8c1518768f12a5))
+* wrong ProjectStateView when closing TwinCAT ([443abb0](https://www.github.com/OpenCommissioning/OC_Assistant/commit/443abb0361fe81c2533354051d49c946c756f91f))
+* **MainWindow:** GridSplitter behaviour ([30f6c1c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/30f6c1caf64309587458496945dfcda205a29669))
+
 <a name="1.16.2"></a>
 ## [1.16.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.16.2) (2025-07-15)
 
