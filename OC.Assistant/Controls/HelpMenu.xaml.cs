@@ -73,7 +73,7 @@ internal partial class HelpMenu
         AddThirdParty(stack);
         AddPlugins(stack);
         
-        _ = Theme.Modal.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
+        _ = Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
     }
     
     private static void AddPlugins(UIElementCollection stack)
@@ -100,12 +100,6 @@ internal partial class HelpMenu
         stack.Add(new DependencyInfo(typeof(EnvDTE.DTE))
         {
             Url = "https://www.nuget.org/packages/envdte",
-            UrlName = "nuget"
-        });
-        
-        stack.Add(new DependencyInfo(typeof(Microsoft.WindowsAPICodePack.Dialogs.DialogControl))
-        {
-            Url = "https://www.nuget.org/packages/Microsoft-WindowsAPICodePack-Core",
             UrlName = "nuget"
         });
         

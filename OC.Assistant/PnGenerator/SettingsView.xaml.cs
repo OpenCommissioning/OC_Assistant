@@ -1,8 +1,6 @@
 ﻿using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
-using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace OC.Assistant.PnGenerator;
 
@@ -36,7 +34,7 @@ public partial class SettingsView
        
     private void SelectAmlFileOnClick(object sender, RoutedEventArgs e)
     {
-        var openFileDialog = new OpenFileDialog
+        var openFileDialog = new Microsoft.Win32.OpenFileDialog
         {
             Filter = "TIA aml export (*.aml)|*.aml"
         };
@@ -48,15 +46,13 @@ public partial class SettingsView
     
     private void SelectGsdFolderOnClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new FolderBrowserDialog
+        var dialog = new Microsoft.Win32.OpenFolderDialog
         {
-            Description = "GSDML folder",
-            UseDescriptionForTitle = true,
-            ShowNewFolderButton = true
+            Title = "GSDML folder"
         };
 
-        if (dialog.ShowDialog() != DialogResult.OK) return;
-        _gsdFolderPath = dialog.SelectedPath;
+        if (dialog.ShowDialog() != true) return;
+        _gsdFolderPath = dialog.FolderName;
         GsdFolderTextBlock.Text = _gsdFolderPath;
     }
 }

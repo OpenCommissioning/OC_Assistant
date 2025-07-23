@@ -44,4 +44,13 @@ public partial class MainWindow
     }
     
     private void MainWindowOnClosing(object sender, CancelEventArgs e) => WriteSettings();
+
+    private void LogViewerOnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var maxHeight = Height - 60;
+        if (ConsoleRow.Height.Value > maxHeight)
+        {
+            ConsoleRow.Height = new GridLength(maxHeight);
+        }
+    }
 }

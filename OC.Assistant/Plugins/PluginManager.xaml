@@ -18,11 +18,12 @@
                 <Button Style="{DynamicResource SelectButton}"  
                         x:Name="BtnAdd" Visibility="Hidden" Click="BtnAdd_Click"
                         VerticalAlignment="Top"
-                        ToolTip="Add plugin instance"
-                        FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                        FontSize="12"
-                        FontWeight="Bold">
-                    &#xE710;
+                        ToolTip="Add plugin instance">
+                    <ContentControl
+                        Template="{DynamicResource IconTemplate}"
+                        FontSize="14"
+                        Foreground="{DynamicResource ForegroundBaseBrush}"
+                        Content="{DynamicResource IconCalculatorAddition}"/>
                 </Button>
             </StackPanel>
         </ScrollViewer>
