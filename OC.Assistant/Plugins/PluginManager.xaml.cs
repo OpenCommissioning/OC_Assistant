@@ -19,11 +19,6 @@ public partial class PluginManager
         ProjectState.Events.Locked += OnLocked;
     }
     
-    private void PluginManagerOnLoaded(object sender, RoutedEventArgs e)
-    {
-        PluginRegister.Initialize();
-    }
-    
     private void OnLocked(bool value)
     {
         var isEnabled = !value;
