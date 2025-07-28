@@ -1,29 +1,27 @@
 # Open Commissioning Assistant
-The Open Commissioning Assistant is an application designed to facilitate engineering processes based on the Open Commissioning Framework. It specializes in implementing various plugins for virtual commissioning and optimizing TwinCAT project workflows.
+The Open Commissioning Assistant is a portable Windows Desktop Application designed to
+* Connect to a TwinCAT3 solution
+* Automate project workflows for the Open Commissioning Framework
+* Implement plugins to connect 3rd party software for virtual commissioning
 
-The Assistant is designed to connect to a TwinCAT3 solution. Supported Visual Studio Versions:
-- ``TwinCAT Shell based on Visual Studio 2022`` (comes with TwinCAT v3.1.4026.x)
+## Download Pages
+* [Assistant](https://github.com/OpenCommissioning/OC_Assistant/releases/latest)
+* Plugin: [PlcSimAdvanced](https://github.com/OpenCommissioning/OC_Assistant_PlcSimAdvanced/releases/latest)
+* Plugin: [OfficeLite](https://github.com/OpenCommissioning/OC_Assistant_OfficeLite/releases/latest)
+* Plugin: [RobotStudio](https://github.com/OpenCommissioning/OC_Assistant_RobotStudio/releases/latest)
+* Plugin: [ProfiNET RecordData](https://github.com/OpenCommissioning/OC_Assistant_RecordData/releases/latest)
+
+## Requirements
+- ``Windows 10 x64`` or newer
+- ``.NET Desktop Runtime 8.0.x`` or newer
+- ``TwinCAT 3.1.4024.x`` or newer
+
+Supported Visual Studio Versions:
 - ``TwinCAT Shell based on Visual Studio 2017`` (comes with TwinCAT v3.1.4024.x)
-- ``Visual Studio 2022``
-- ``Visual Studio 2019``
+- ``TwinCAT Shell based on Visual Studio 2022`` (comes with TwinCAT v3.1.4026.x)
 - ``Visual Studio 2017``
-
-
-## Target framework
-- ``.NET 8.0``
-
-
-## Used packages:
-- ``OC.Assistant.Sdk``, see [nuget package](https://www.nuget.org/packages/OC.Assistant.Sdk)
-- ``OC.Assistant.Theme``, see [nuget package](https://www.nuget.org/packages/OC.Assistant.Theme)
-- ``Microsoft.VisualStudio.Shell.Interop``, see [nuget package](https://www.nuget.org/packages/Microsoft.VisualStudio.Shell.Interop)
-- ``TCatSysManagerLib``, see [nuget package](https://www.nuget.org/packages/TCatSysManagerLib)
-
-
-## Installation
-
-Download the _OC.Assistant.exe_ from the Release page and start it.
-``.NET 8.0`` is required to run the application.
+- ``Visual Studio 2019``
+- ``Visual Studio 2022``
 
 ## Core Functionality
 
@@ -42,24 +40,24 @@ The `File` menu contains functions regarding TwinCAT Solutions:
 - _Create Solution_: create an empty TwinCAT solution preconfigured with the plc task and an empty configuration
 
 ### Updating Projects
-The `Project` menu contains functions to update the connected TwinCAT Solution. **Note** that this menu is only active when the Assistant is 
+The `Project` menu contains functions to update the connected TwinCAT Solution. **Note** that this menu is only active when the Assistant is
 connected to a TwinCAT solution and this solution is in _Config Mode_.
 
 ![ProjectMenu.png](Documentation%2FImages%2FProjectMenu.png)
 
 
-- _Recreate Project_: Updates the connected TwinCAT project based on the current [configuration](#configuration-file). When the configuration includes _device_ entries, 
-this function automatically generates corresponding behavior models within the connected TwinCAT solution. __Note__ that this function is automatically called when
-using the _Update TwinCAT Project_ function of the `Client` component in the [Open Commissioning Unity package](https://github.com/OpenCommissioning/OC_Unity_Core), so in most cases this funcion does not need to be called via this menu.
+- _Recreate Project_: Updates the connected TwinCAT project based on the current [configuration](#configuration-file). When the configuration includes _device_ entries,
+  this function automatically generates corresponding behavior models within the connected TwinCAT solution. __Note__ that this function is automatically called when
+  using the _Update TwinCAT Project_ function of the `Client` component in the [Open Commissioning Unity package](https://github.com/OpenCommissioning/OC_Unity_Core), so in most cases this funcion does not need to be called via this menu.
 
 ![DeviceGeneration.gif](Documentation%2FImages%2FDeviceGeneration.gif)
 
 
-- _Recreate Plugins_: Reads the plugin configurations from the current [configuration](#configuration-file) and creates the correspondig [GVLs](#plugin-system) in the connected TwinCAT project and creates their configuration interface in the Assistant application. 
+- _Recreate Plugins_: Reads the plugin configurations from the current [configuration](#configuration-file) and creates the correspondig [GVLs](#plugin-system) in the connected TwinCAT project and creates their configuration interface in the Assistant application.
 
 - _Update Task_: Generates Input and Output variables based on the _Devices_ of the _PLC Project_ in the _Task_ of the connected TwinCAT solution
-and links those to the corresponding variables in the _PLC Project_.
-*Note* that the _PLC Project_ needs to be build successfully before updating the task.
+  and links those to the corresponding variables in the _PLC Project_.
+  *Note* that the _PLC Project_ needs to be build successfully before updating the task.
 
 ![TaskGeneration.gif](Documentation%2FImages%2FTaskGeneration.gif)
 
@@ -68,13 +66,13 @@ and links those to the corresponding variables in the _PLC Project_.
 
 ![ProjetctSettings.png](Documentation%2FImages%2FProjectSettings.png)
 
-  - _PlcName_: specifies the name of the PLC project in the connected solution in which the device models should be generated in when using _Recreate Project_
+- _PlcName_: specifies the name of the PLC project in the connected solution in which the device models should be generated in when using _Recreate Project_
 
-  - _PlcTaskName_: specifies the name of the Task in which the input and output variables should be generated in when using _Update Task_
+- _PlcTaskName_: specifies the name of the Task in which the input and output variables should be generated in when using _Update Task_
 
 
 
-### Profinet 
+### Profinet
 
 The `Profinet` menu provides the function to automatically scan for Profinet devices on a selected network interface and create corresponding
 Profinet device nodes in the connected TwinCAT solution.
@@ -103,10 +101,10 @@ Plugins enable the Assistant to connect to external systems such as PLCs, robot 
 ![OS_System](Documentation%2FImages%2FAssistant_Plugins_light.png#gh-light-mode-only)
 
 Plugin use cases:
-  - Cyclic communication with various virtual PLCs
-  - Cyclic communication with various virtual Robot controllers
-  - Acyclic data handling (RecordData)
-  - Modbus Server and Client communication
+- Cyclic communication with various virtual PLCs
+- Cyclic communication with various virtual Robot controllers
+- Acyclic data handling (RecordData)
+- Modbus Server and Client communication
 
 ### Installation
 1. Create a folder named `Plugins` in the directory of the `OC.Assistant.exe`.
@@ -136,75 +134,75 @@ This is an example configuration file containing a Plugin configuration and _Dev
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Config>
-  <Settings>
-    <PlcProjectName>OC</PlcProjectName>
-    <PlcTaskName>PlcTask</PlcTaskName>
-  </Settings>
-  <Plugins>
-    <Plugin Name="PLC1" Type="PlcSimAdvanced" IoType="Address">
-      <Parameter>
-        <AutoStart>true</AutoStart>
-        <PlcName>PLC_1</PlcName>
-        <Identifier>1</Identifier>
-        <CycleTime>10</CycleTime>
-        <InputAddress>0-1023</InputAddress>
-        <OutputAddress>0-1023</OutputAddress>
-      </Parameter>
-      <InputStructure />
-      <OutputStructure />
-    </Plugin>
-  </Plugins>
-  <Project>
-    <Hil />
-    <Main>
-      <Group Name="Devices">
-        <Group Name="Cylinders">
-            
-          <!-- This is a device with direct assignment -->
-          <Device Name="Cylinder_1" Type="FB_Cylinder" >
-              <Label>++ST001+FG001-CYL001</Label>
-              <Control Name="bRetract" Assignment="PLC1.Q0.0" />
-              <Control Name="bExtend" Assignment="PLC1.Q0.1" />
-              <Status Name="bRetracted" Assignment="PLC1.I0.0" />
-              <Status Name="bExtended" Assignment="PLC1.I0.1" />
-          </Device>
-            
-          <Device Name="Cylinder_2" Type="FB_Cylinder" />
-          <Device Name="Cylinder_3" Type="FB_Cylinder" />
-          <Device Name="Cylinder_4" Type="FB_Cylinder" />
-        </Group>
-        <Group Name="Drives">
-            
-          <!-- This is a device with address assignment -->
-          <Device Name="Drive_Position" Type="FB_Drive" >
-              <Label>++ST001+FG001-DRV001</Label>
-              <Address Name="pControl" Assignment="PLC1.Q2" />
-              <Address Name="pStatus" Assignment="PLC1.I2" />
-          </Device>
-            
-          <Device Name="Drive_Simple" Type="FB_Drive" />
-          <Device Name="Drive_Speed" Type="FB_Drive" />
-        </Group>
-        <Group Name="Interactions">
-          <Device Name="Button" Type="FB_Button" />
-          <Device Name="Lamp" Type="FB_Lamp" />
-          <Device Name="Lock" Type="FB_Lock" />
-          <Device Name="Panel_1" Type="FB_Panel" />
-          <Device Name="Toggle" Type="FB_Button" />
-        </Group>
-        <Group Name="SensorsAnalog">
-          <Device Name="SensorAnalog_1" Type="FB_SensorAnalog" />
-          <Device Name="SensorAnalog_2" Type="FB_SensorAnalog" />
-          <Device Name="SensorAnalog_3" Type="FB_SensorAnalog" />
-        </Group>
-        <Group Name="SensorsBinary">
-          <Device Name="SensorBinary_1" Type="FB_SensorBinary" />
-          <Device Name="SensorBinary_2" Type="FB_SensorBinary" />
-          <Device Name="SensorBinary_3" Type="FB_SensorBinary" />
-        </Group>
-      </Group>
-    </Main>
-  </Project>
+    <Settings>
+        <PlcProjectName>OC</PlcProjectName>
+        <PlcTaskName>PlcTask</PlcTaskName>
+    </Settings>
+    <Plugins>
+        <Plugin Name="PLC1" Type="PlcSimAdvanced" IoType="Address">
+            <Parameter>
+                <AutoStart>true</AutoStart>
+                <PlcName>PLC_1</PlcName>
+                <Identifier>1</Identifier>
+                <CycleTime>10</CycleTime>
+                <InputAddress>0-1023</InputAddress>
+                <OutputAddress>0-1023</OutputAddress>
+            </Parameter>
+            <InputStructure />
+            <OutputStructure />
+        </Plugin>
+    </Plugins>
+    <Project>
+        <Hil />
+        <Main>
+            <Group Name="Devices">
+                <Group Name="Cylinders">
+
+                    <!-- This is a device with direct assignment -->
+                    <Device Name="Cylinder_1" Type="FB_Cylinder" >
+                        <Label>++ST001+FG001-CYL001</Label>
+                        <Control Name="bRetract" Assignment="PLC1.Q0.0" />
+                        <Control Name="bExtend" Assignment="PLC1.Q0.1" />
+                        <Status Name="bRetracted" Assignment="PLC1.I0.0" />
+                        <Status Name="bExtended" Assignment="PLC1.I0.1" />
+                    </Device>
+
+                    <Device Name="Cylinder_2" Type="FB_Cylinder" />
+                    <Device Name="Cylinder_3" Type="FB_Cylinder" />
+                    <Device Name="Cylinder_4" Type="FB_Cylinder" />
+                </Group>
+                <Group Name="Drives">
+
+                    <!-- This is a device with address assignment -->
+                    <Device Name="Drive_Position" Type="FB_Drive" >
+                        <Label>++ST001+FG001-DRV001</Label>
+                        <Address Name="pControl" Assignment="PLC1.Q2" />
+                        <Address Name="pStatus" Assignment="PLC1.I2" />
+                    </Device>
+
+                    <Device Name="Drive_Simple" Type="FB_Drive" />
+                    <Device Name="Drive_Speed" Type="FB_Drive" />
+                </Group>
+                <Group Name="Interactions">
+                    <Device Name="Button" Type="FB_Button" />
+                    <Device Name="Lamp" Type="FB_Lamp" />
+                    <Device Name="Lock" Type="FB_Lock" />
+                    <Device Name="Panel_1" Type="FB_Panel" />
+                    <Device Name="Toggle" Type="FB_Button" />
+                </Group>
+                <Group Name="SensorsAnalog">
+                    <Device Name="SensorAnalog_1" Type="FB_SensorAnalog" />
+                    <Device Name="SensorAnalog_2" Type="FB_SensorAnalog" />
+                    <Device Name="SensorAnalog_3" Type="FB_SensorAnalog" />
+                </Group>
+                <Group Name="SensorsBinary">
+                    <Device Name="SensorBinary_1" Type="FB_SensorBinary" />
+                    <Device Name="SensorBinary_2" Type="FB_SensorBinary" />
+                    <Device Name="SensorBinary_3" Type="FB_SensorBinary" />
+                </Group>
+            </Group>
+        </Main>
+    </Project>
 </Config>
 ```
 

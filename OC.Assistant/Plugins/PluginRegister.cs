@@ -9,23 +9,45 @@ namespace OC.Assistant.Plugins;
 /// <summary>
 /// Available plugins.
 /// </summary>
-internal static class PluginRegister
+internal class PluginRegister : List<PluginInfo>
 {
     /// <summary>
     /// The list of available plugins.
     /// </summary>
-    public static List<PluginInfo> Plugins { get; } = [];
-
+    public static IReadOnlyCollection<PluginInfo> Plugins => LazyInstance.Value;
+    
     /// <summary>
     /// The full path of the plugins search directory. 
     /// </summary>
-    public static string SearchPath { get; } = Path.GetFullPath(@".\Plugins"); 
+    public static string SearchPath { get; } = Path.GetFullPath(@".\Plugins");
+    
+    /// <summary>
+    /// Gets the plugin by the given type name.
+    /// </summary>
+    /// <param name="typeName">The type name of the plugin.</param>
+    /// <returns>The <see cref="PluginInfo"/> of the plugin if any, otherwise <c>null</c>.</returns>
+    public static PluginInfo? GetByTypeName(string? typeName)
+    {
+        return Plugins.FirstOrDefault(x => x.Type.Name == typeName);
+    }
+    
+    private static readonly Lazy<PluginRegister> LazyInstance = new(() => []);
 
     /// <summary>
-    /// Tries to load available plugins depending on the current environment (debug or executable). 
+    /// The private constructor.
     /// </summary>
-    public static void Initialize()
+    private PluginRegister()
     {
+        Initialize();
+    }
+
+    /// <summary>
+    /// Tries to load available plugins depending on the current environment (debug or release). 
+    /// </summary>
+    private void Initialize()
+    {
+        Clear();
+        
         if (Directory.Exists(SearchPath))
         {
             Directory
@@ -53,10 +75,10 @@ internal static class PluginRegister
     }
     
     /// <summary>
-    /// Loads the plugin by the given plugin file.
+    /// Loads the plugin from the given plugin file.
     /// </summary>
     /// <param name="pluginFile">The path to the plugin file.</param>
-    private static void Load(string pluginFile)
+    private void Load(string pluginFile)
     {
         try
         {
@@ -83,23 +105,13 @@ internal static class PluginRegister
                 
             foreach (var type in assembly.ExportedTypes.Where(x => x.BaseType == typeof(PluginBase)))
             {
-                if (Plugins.Any(x => x.Type.FullName == type.FullName)) continue;
-                Plugins.Add(new PluginInfo(type, repositoryUrl, repositoryType));
+                if (this.Any(x => x.Type.FullName == type.FullName)) continue;
+                Add(new PluginInfo(type, repositoryUrl, repositoryType));
             }
         }
         catch (Exception e)
         {
             Logger.LogError(typeof(PluginRegister), e.Message);
         }
-    }
-        
-    /// <summary>
-    /// Gets the plugin by the given type name.
-    /// </summary>
-    /// <param name="typeName">The type name of the plugin.</param>
-    /// <returns>The <see cref="PluginInfo"/> of the plugin if any, otherwise <c>null</c>.</returns>
-    public static PluginInfo? GetByTypeName(string? typeName)
-    {
-        return Plugins.FirstOrDefault(x => x.Type.Name == typeName);
     }
 }
