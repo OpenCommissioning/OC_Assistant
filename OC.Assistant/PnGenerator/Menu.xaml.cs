@@ -11,6 +11,7 @@ namespace OC.Assistant.PnGenerator;
 public partial class Menu
 {
     private const string SCANNER_TOOL = "OC.TcPnScanner.CLI";
+    private static readonly string OutputPath = $"{Path.GetTempPath()}{SCANNER_TOOL}";
     private bool _isScannerInstalled;
 
     private readonly Control _control = new (SCANNER_TOOL);
@@ -27,9 +28,14 @@ public partial class Menu
         try
         {
             var settingsView = new SettingsView();
-            var result = await Theme.MessageBox.Show("Scan Profinet", settingsView, MessageBoxButton.OKCancel, MessageBoxImage.None);
+            var result = await Theme.MessageBox.Show(
+                "Scan Profinet",
+                settingsView,
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.None, 
+                settingsView.IsValid);
             if (result != MessageBoxResult.OK) return;
-            _control.StartCapture(settingsView.Settings);
+            _control.StartCapture(settingsView.GetSettings());
         }
         catch (Exception ex)
         {
@@ -53,6 +59,16 @@ public partial class Menu
         var scan = new MenuItem {Header = "Scan Profinet"};
         scan.Click += ScanOnClick;
         menu.Items.Add(scan);
+        
+        var path = new MenuItem
+        {
+            Header = "Show output files",
+            IsEnabled = Directory.Exists(OutputPath)
+        };
+        path.Click += PathOnClick;
+        menu.Items.Add(path);
+        
+        menu.Items.Add(new Separator());
         
         var update = new MenuItem {Header = $"Update {SCANNER_TOOL}"};
         update.Click += UpdateOnClick;
@@ -131,5 +147,10 @@ public partial class Menu
         if (logOutput) Logger.LogInfo(this, output);
         BusyState.Reset(this);
         return output;
+    }
+    
+    private static void PathOnClick(object sender, RoutedEventArgs e)
+    {
+        Process.Start("explorer" , OutputPath);
     }
 }
