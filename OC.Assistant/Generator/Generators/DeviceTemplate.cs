@@ -7,33 +7,62 @@ namespace OC.Assistant.Generator.Generators;
 /// <summary>
 /// Generator for device templates.
 /// </summary>
-public static class DeviceTemplate
+public class DeviceTemplate(System.Windows.Controls.TextBox input)
 {
-	/// <summary>
-	/// Creates a device template.
-	/// </summary>
-	/// <param name="parent">The parent <see cref="ITcSmTreeItem"/>. Usually the plc project or a plc folder.</param>
-	/// <param name="name">The name of the device.</param>
-	public static void Create(ITcSmTreeItem parent, string name)
+	private const string TEMPLATE_FOLDER = "_generated_templates_";
+	
+	public bool CheckName()
 	{
-		if (string.IsNullOrWhiteSpace(name))
-		{
-			Logger.LogWarning(typeof(DeviceTemplate), "Name must not be empty");
-			return;
-		}
+		var result = false;
+		var name = input.Text;
 		
-		if (!name.IsPlcCompatible())
+		DteSingleThread.Run(tcSysManager =>
 		{
-			Logger.LogWarning(typeof(DeviceTemplate), $"{name} is not a valid name. Allowed characters are a-z A-Z 0-9 and underscore");
-			return;
-		}
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				Logger.LogWarning(this, "Name must not be empty");
+				return;
+			}
 		
-		if (parent.GetChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
+			if (!name.IsPlcCompatible())
+			{
+				Logger.LogWarning(this, 
+					$"{name} is not a valid name. Allowed characters are a-z A-Z 0-9 and underscore");
+				return;
+			}
+
+			if (tcSysManager.GetPlcProject().GetOrCreateChild(TEMPLATE_FOLDER, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) 
+			    is not {} parent) return;
+		
+			if (parent.GetChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
+			{
+				Logger.LogWarning(this, $"{name} already exists");
+				return;
+			}
+			
+			result = true;
+		}, 100);
+		
+		return result;
+	}
+
+	/// <summary>
+	/// Creates the device template.
+	/// </summary>
+	public void Create()
+	{		
+		var name = input.Text;
+		DteSingleThread.Run(tcSysManager =>
 		{
-			Logger.LogWarning(typeof(DeviceTemplate), $"{name} already exists");
-			return;
-		}
-		
+			Create(tcSysManager
+				.GetPlcProject()
+				.GetOrCreateChild(TEMPLATE_FOLDER, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER), 
+				name);
+		});
+	}
+
+	private void Create(ITcSmTreeItem? parent, string name)
+	{
 		//Create folder
 		if (parent.GetOrCreateChild(name, 
 			    TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder) return;
@@ -61,20 +90,20 @@ public static class DeviceTemplate
 			    TREEITEMTYPES.TREEITEMTYPE_PLCMETHOD) is not {} setStatus) return;
 		
 		//Fill with content
-		fb.SetContent(DECLARATION.Replace(Tags.NAME, name), IMPLEMENTATION);
-		control.SetContent(CONTROL_STRUCT.Replace(Tags.NAME, name));
-		status.SetContent(STATUS_STRUCT.Replace(Tags.NAME, name));
-		config.SetContent(CONFIG_STRUCT.Replace(Tags.NAME, name));
-		initRun.SetContent(INIT_RUN_DECLARATION, INIT_RUN_IMPLEMENTATION);
-		cycle.SetContent(CYCLE_DECLARATION, CYCLE_IMPLEMENTATION);
-		getControl.SetContent(GET_CONTROL_DATA_DECLARATION, GET_CONTROL_DATA_IMPLEMENTATION);
-		setStatus.SetContent(SET_STATUS_DATA_DECLARATION, SET_STATUS_DATA_IMPLEMENTATION);
+		SetContent(fb, DECLARATION.Replace(Tags.NAME, name), IMPLEMENTATION);
+		SetContent(control, CONTROL_STRUCT.Replace(Tags.NAME, name));
+		SetContent(status, STATUS_STRUCT.Replace(Tags.NAME, name));
+		SetContent(config, CONFIG_STRUCT.Replace(Tags.NAME, name));
+		SetContent(initRun, INIT_RUN_DECLARATION, INIT_RUN_IMPLEMENTATION);
+		SetContent(cycle, CYCLE_DECLARATION, CYCLE_IMPLEMENTATION);
+		SetContent(getControl, GET_CONTROL_DATA_DECLARATION, GET_CONTROL_DATA_IMPLEMENTATION);
+		SetContent(setStatus, SET_STATUS_DATA_DECLARATION, SET_STATUS_DATA_IMPLEMENTATION);
 		
-		Logger.LogInfo(typeof(DeviceTemplate), 
-			$"Device template {name} created. See folder {parent.Name} in TwinCAT project");
+		Logger.LogInfo(this, 
+			$"Device template {name} created. See folder {parent?.Name} in TwinCAT project");
 	}
 	
-	private static void SetContent(this ITcSmTreeItem parent, string declText, string? implText = null)
+	private static void SetContent(ITcSmTreeItem parent, string declText, string? implText = null)
 	{
 		if (parent.CastTo<ITcPlcDeclaration>() is not {} decl) return;
 		decl.DeclarationText = declText;

@@ -1,6 +1,7 @@
 ﻿using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
+using OC.Assistant.Sdk;
 
 namespace OC.Assistant.PnGenerator;
 
@@ -13,8 +14,31 @@ public partial class SettingsView
     {
         InitializeComponent();
     }
+
+    public bool IsValid()
+    {
+        if (string.IsNullOrEmpty(PnName.Text))
+        {
+            Logger.LogError(this, "Profinet name is empty");
+            return false;
+        }
+            
+        if (SelectedAdapter is null)
+        {
+            Logger.LogError(this, "No adapter selected");
+            return false;
+        }
+        
+        if (_hwFilePath is null)
+        {
+            Logger.LogError(this, "TIA aml file not specified");
+            return false;
+        }
+        
+        return true;
+    }
     
-    public Settings Settings => new()
+    public Settings GetSettings() => new()
     {
         PnName = PnName.Text,
         Adapter = SelectedAdapter,

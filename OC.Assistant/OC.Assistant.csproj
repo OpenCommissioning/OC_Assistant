@@ -23,7 +23,7 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
       <PackageReference Include="OC.Assistant.Sdk" Version="1.7.1" />
-      <PackageReference Include="OC.Assistant.Theme" Version="2.1.0" />
+      <PackageReference Include="OC.Assistant.Theme" Version="2.1.1" />
       <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
     </ItemGroup>
     

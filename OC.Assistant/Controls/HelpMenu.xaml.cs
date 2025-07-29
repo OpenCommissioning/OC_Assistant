@@ -115,9 +115,9 @@ internal partial class HelpMenu
             UrlName = "nuget"
         });
         
-        stack.Add(new DependencyInfo("dsian.TcPnScanner.CLI", "")
+        stack.Add(new DependencyInfo("OC.TcPnScanner.CLI", "")
         {
-            Url = "https://www.nuget.org/packages/dsian.TcPnScanner.CLI",
+            Url = "https://www.nuget.org/packages/OC.TcPnScanner.CLI",
             UrlName = "nuget"
         });
     }
