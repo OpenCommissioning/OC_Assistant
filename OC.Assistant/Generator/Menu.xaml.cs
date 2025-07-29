@@ -53,22 +53,20 @@ public partial class Menu
         try
         {
             var input = new TextBox { Height = 24, Text = "DeviceName" };
+            var generator = new Generators.DeviceTemplate(input);
 
-            if (await Theme.MessageBox.Show("Create device template", input, MessageBoxButton.OKCancel, MessageBoxImage.None) !=
+            if (await Theme.MessageBox.Show(
+                    "Create device template", 
+                    input, 
+                    MessageBoxButton.OKCancel, 
+                    MessageBoxImage.None,
+                    generator.CheckName) !=
                 MessageBoxResult.OK)
             {
                 return;
             }
-
-            var name = input.Text;
-        
-            DteSingleThread.Run(dte =>
-            {
-                if (GetPlcProject(dte) is not {} plcProjectItem) return;
-                if (plcProjectItem.GetOrCreateChild("_generated_templates_", 
-                        TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not {} folder) return;
-                Generators.DeviceTemplate.Create(folder, name);
-            });
+            
+            generator.Create();
         }
         catch (Exception ex)
         {
