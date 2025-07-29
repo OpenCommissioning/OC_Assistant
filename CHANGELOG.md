@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.1"></a>
+## [1.17.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.1) (2025-07-29)
+
+### Bug Fixes
+
+* update Theme package reference ([430f6b4](https://www.github.com/OpenCommissioning/OC_Assistant/commit/430f6b48eb2b7fd4ecfd2118e2159b08191fbf60))
+* **DeviceTemplate:** don't close MessageBox with invalid input ([6aad0be](https://www.github.com/OpenCommissioning/OC_Assistant/commit/6aad0bece7f1fe675a49771aa950c43764486573))
+* **PnGenerator:** add a feature to show the output files ([522ec43](https://www.github.com/OpenCommissioning/OC_Assistant/commit/522ec43691314e0d855c2655162f059f4335d573))
+* **PnGenerator:** don't close the Scan Profinet Window with missing settings ([495dd2b](https://www.github.com/OpenCommissioning/OC_Assistant/commit/495dd2bcbd7a1cde45168c35edf9a772f3114535))
+
 <a name="1.17.0"></a>
 ## [1.17.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.0) (2025-07-23)
 
