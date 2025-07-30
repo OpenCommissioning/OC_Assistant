@@ -203,7 +203,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
             var value = XElement
                 .Parse(plc.ProduceXml()).Descendants("AdsPort").FirstOrDefault()?.Value;
             port = int.Parse(value ?? "851");
-        }, 100);
+        }, 1000);
         return port;
     }
 

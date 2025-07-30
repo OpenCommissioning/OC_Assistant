@@ -7,14 +7,25 @@ namespace OC.Assistant.Generator.Generators;
 /// <summary>
 /// Generator for device templates.
 /// </summary>
-public class DeviceTemplate(System.Windows.Controls.TextBox input)
+public class DeviceTemplate
 {
 	private const string TEMPLATE_FOLDER = "_generated_templates_";
 	
+	/// <summary>
+	/// Gets the <see cref="System.Windows.Controls.TextBox"/> for the name.
+	/// </summary>
+	public System.Windows.Controls.TextBox InputField { get; } = new (){ Height = 24, Text = "DeviceName" };
+
+	/// <summary>
+	/// Validates the input name for non-empty, PLC compatibility and uniqueness.
+	/// </summary>
+	/// <returns>
+	/// true if the name is valid, otherwise, false.
+	/// </returns>
 	public bool CheckName()
 	{
 		var result = false;
-		var name = input.Text;
+		var name = InputField.Text;
 		
 		DteSingleThread.Run(tcSysManager =>
 		{
@@ -30,18 +41,17 @@ public class DeviceTemplate(System.Windows.Controls.TextBox input)
 					$"{name} is not a valid name. Allowed characters are a-z A-Z 0-9 and underscore");
 				return;
 			}
-
-			if (tcSysManager.GetPlcProject().GetOrCreateChild(TEMPLATE_FOLDER, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) 
-			    is not {} parent) return;
 		
-			if (parent.GetChild(name, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
+			if (tcSysManager
+				    .GetPlcProject()
+				    .GetChild($"{TEMPLATE_FOLDER}^{name}",TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER) is not null)
 			{
 				Logger.LogWarning(this, $"{name} already exists");
 				return;
 			}
 			
 			result = true;
-		}, 100);
+		}, 1000);
 		
 		return result;
 	}
@@ -51,7 +61,7 @@ public class DeviceTemplate(System.Windows.Controls.TextBox input)
 	/// </summary>
 	public void Create()
 	{		
-		var name = input.Text;
+		var name = InputField.Text;
 		DteSingleThread.Run(tcSysManager =>
 		{
 			Create(tcSysManager

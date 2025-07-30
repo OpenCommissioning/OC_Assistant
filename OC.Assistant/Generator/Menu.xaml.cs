@@ -52,12 +52,11 @@ public partial class Menu
     {
         try
         {
-            var input = new TextBox { Height = 24, Text = "DeviceName" };
-            var generator = new Generators.DeviceTemplate(input);
+            var generator = new Generators.DeviceTemplate();
 
             if (await Theme.MessageBox.Show(
                     "Create device template", 
-                    input, 
+                    generator.InputField, 
                     MessageBoxButton.OKCancel, 
                     MessageBoxImage.None,
                     generator.CheckName) !=
