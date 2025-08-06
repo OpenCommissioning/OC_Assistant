@@ -34,7 +34,7 @@ internal partial class HelpMenu
             Style = Application.Current.FindResource("LinkButton") as Style;
             Margin = new Thickness(0, 10, 0, 20);
             Cursor = Cursors.Hand;
-            Content = url;
+            Content = "Assistant github page";
             Click += (_, _) => Process.Start(new ProcessStartInfo {FileName = url, UseShellExecute = true});
         }
     }
