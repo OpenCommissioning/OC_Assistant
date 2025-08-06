@@ -21,19 +21,16 @@ public partial class PluginManager
     
     private void OnLocked(bool value)
     {
-        var isEnabled = !value;
-        BtnAdd.Visibility = isEnabled ? Visibility.Visible : Visibility.Hidden;
-        Editor.IsEnabled = isEnabled;
+        BtnAdd.Visibility = value ? Visibility.Hidden : Visibility.Visible;
+        Editor.IsEnabled = !value;
         foreach (var plugin in _plugins)
         {
-            plugin.IsEnabled = isEnabled;
+            plugin.IsEnabled = !value;
         }
     }
     
-    private void XmlOnReloaded()
-    {
-        Dispatcher.Invoke(Initialize);
-    }
+    private void XmlOnReloaded() => Dispatcher.Invoke(Initialize);
+
 
     private void Initialize()
     {
@@ -59,7 +56,6 @@ public partial class PluginManager
         }
         
         BtnAdd.Visibility = Visibility.Hidden;
-        DeselectAll();
         HideEditor();
         _plugins.Clear();
     }
@@ -92,8 +88,8 @@ public partial class PluginManager
         
     private void AddPlugin(Plugin plugin)
     {
-        plugin.OnRemove += Plugin_OnRemove;
-        plugin.OnEdit += Plugin_OnEdit;
+        plugin.OnRemove += PluginOnRemove;
+        plugin.OnEdit += ShowEditor;
 
         Dispatcher.Invoke(() =>
         {
@@ -105,47 +101,28 @@ public partial class PluginManager
     private void RemovePlugin(Plugin plugin)
     {
         plugin.PluginController?.Stop();
-        plugin.OnRemove -= Plugin_OnRemove;
-        plugin.OnEdit -= Plugin_OnEdit;
+        plugin.OnRemove -= PluginOnRemove;
+        plugin.OnEdit -= ShowEditor;
 
         Dispatcher.Invoke(() =>
         {
             ControlPanel.Children.Remove(plugin);
         });
     }
-
-    private void BtnAdd_Click(object sender, RoutedEventArgs? e)
-    {
-        if (BusyState.IsSet) return;
-            
-        var plugin = new Plugin();
-        if (!Editor.Show(plugin, _plugins)) return;
-        DeselectAll();
-        BtnAddIsSelected = true;
-        ShowEditor();
-    }
-    
-    private void Plugin_OnEdit(Plugin plugin)
-    {
-        if (!Editor.Show(plugin, _plugins)) return;
-        ShowEditor();
-        DeselectAll();
-        plugin.IsSelected = true;
-    }
         
-    private void Plugin_OnRemove(Plugin plugin)
+    private void PluginOnRemove(Plugin plugin)
     {
         BusyState.Set(this);
         RemovePlugin(plugin);
         XmlFile.Instance.RemovePlugin(plugin.Name);
         _plugins.Remove(plugin);
+        HideEditor();
         BusyState.Reset(this);
-        BtnAdd_Click(this, null);
         if (plugin.PluginController?.IoType == IoType.None) return;
         UpdateProject(plugin.Name, true);
     }
 
-    private void Editor_OnConfirm(Plugin plugin)
+    private void EditorOnSaved(Plugin plugin)
     {
         BusyState.Set(this);
         ControlPanel.Children.Remove(BtnAdd);
@@ -165,43 +142,46 @@ public partial class PluginManager
         ControlPanel.Children.Add(BtnAdd);
         ScrollView.ScrollToEnd();
         BusyState.Reset(this);
-        Plugin_OnEdit(plugin);
         if (plugin.PluginController is null) return;
         if (!plugin.PluginController.IoChanged) return;
         UpdateProject(plugin.Name, false);
     }
-        
-    private void Editor_OnCancel()
+    
+    private async void ShowEditor(Plugin plugin)
     {
-        DeselectAll();
-        HideEditor();
-    }
-
-    private void ShowEditor()
-    {
+        if (!await Editor.Show(plugin, _plugins)) return;
         GridSplitter.Width = new GridLength(4);
-        if (EditorColumn.ActualWidth <= 0) EditorColumn.Width = new GridLength(340);
+        EditorColumn.Width = new GridLength(_editorWidth);
     }
         
     private void HideEditor()
     {
+        Editor.Hide();
         GridSplitter.Width = new GridLength(0);
         EditorColumn.Width = new GridLength(0);
-        Editor.Visibility = Visibility.Collapsed;
     }
     
-    private bool BtnAddIsSelected
+    private async void BtnAddOnClick(object? sender = null, RoutedEventArgs? e = null)
     {
-        set => BtnAdd.Tag = value ? "Selected" : null;
-    }
-
-    private void DeselectAll()
-    {
-        BtnAddIsSelected = false; 
-        foreach (var plugin in _plugins)
+        if (PluginRegister.Plugins.Count == 0)
         {
-            plugin.IsSelected = false;
+            await Theme.MessageBox.Show(
+                "No plugins found", 
+                new NoPluginMessage(), 
+                MessageBoxButton.OK, 
+                MessageBoxImage.Warning);
+            return;
         }
+        var editor = new EditorWindow
+        {
+            Height = 400,
+            Width = 400,
+            Plugins = _plugins
+        };
+        editor.Saved += EditorOnSaved;
+        
+        await Theme.MessageBox
+            .Show("Add plugin", editor, MessageBoxButton.OKCancel, MessageBoxImage.None, editor.Apply);
     }
     
     private void UpdateProject(string name, bool delete)
@@ -216,5 +196,25 @@ public partial class PluginManager
             }
             Generator.Generators.Sil.Update(plcProjectItem, name, delete);
         });
+    }
+
+    private double _editorWidth = 340;
+
+    private void EditorOnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        const int limit = 200; 
+        
+        if (EditorColumn.Width.Value < limit)
+        {
+            EditorColumn.Width = new GridLength(limit);
+        } 
+       
+        var maxWidth = ActualWidth - limit;
+        if (EditorColumn.Width.Value > maxWidth)
+        {
+            EditorColumn.Width = new GridLength(maxWidth);
+        }
+
+        _editorWidth = EditorColumn.Width.Value;
     }
 }

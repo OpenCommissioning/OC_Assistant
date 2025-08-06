@@ -1,8 +1,5 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
-using OC.Assistant.Core;
 using OC.Assistant.Sdk;
-using OC.Assistant.Sdk.Plugin;
 
 namespace OC.Assistant.Plugins;
 
@@ -11,14 +8,12 @@ namespace OC.Assistant.Plugins;
 /// </summary>
 internal partial class PluginEditor
 {
-    private Plugin? _plugin;
-    private IReadOnlyCollection<Plugin> _plugins = [];
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PluginEditor"/> class.
     /// </summary>
     public PluginEditor()
     {
+        Visibility = Visibility.Collapsed;
         InitializeComponent();
     }
 
@@ -29,16 +24,13 @@ internal partial class PluginEditor
     {
         set => ApplyButton.IsEnabled = EditorWindow.IsEnabled = value;
     }
-
-    /// <summary>
-    /// The selected plugin has been saved.
-    /// </summary>
-    public event Action<Plugin>? OnConfirm;
+    
+    public event Action<Plugin>? Saved;
     
     /// <summary>
     /// The editor has been closed.
     /// </summary>
-    public event Action? OnCancel;
+    public event Action? Closed;
     
     /// <summary>
     /// Show the editor.
@@ -46,103 +38,76 @@ internal partial class PluginEditor
     /// <param name="plugin">The selected plugin to show.</param>
     /// <param name="plugins">All currently available plugins in the project.</param>
     /// <returns></returns>
-    public bool Show(Plugin plugin, IReadOnlyCollection<Plugin> plugins)
+    public async Task<bool> Show(Plugin plugin, IReadOnlyCollection<Plugin> plugins)
     {
-        var selection = (ComboBoxItem)TypeDropdown.SelectedItem;
-        if (selection is null)
-        {
-            Logger.LogWarning(this, "No Plugins found");
-            return false;
-        }
-        
-        _plugins = plugins;
-        _plugin = plugin;
+        if (!await CheckAndConfirmChanges()) return false;
+        EditorWindow.Show(plugins, plugin);
         Visibility = Visibility.Visible;
-
-        ShowParameter();
-        PluginName.Text = _plugin.Name;
-        selection.Content = _plugin?.Type?.Name ?? "";
         
-        //Disable the name input and the type dropdown if the plugin has been saved already
-        var isNew = plugins.All(x => x != plugin);
-        PluginName.IsEnabled = isNew;
-        TypeDropdown.IsEnabled = isNew;
+        plugin.IsSelected = true;
+        foreach (var item in plugins.Where(p => p != plugin))
+        {
+            item.IsSelected = false;
+        }
         
         return true;
     }
-    
-    private void TypeSelectorOnSelected(Type e)
-    {
-        if (e == _plugin?.Type) return;
-        if (_plugin?.InitType(e) != true) return;
-        ShowParameter();
-    }
-        
-    private void ShowParameter()
-    {
-        IndicateChanges = false;
-        if (_plugin is null) return;
-        
-        if (!_plugin.IsValid)
-        {
-            if (!_plugin.InitType(TypeDropdown.SelectedType)) return;
-        }
 
-        ParameterPanel.Children.Clear();
-        foreach (var parameter in _plugin.PluginController.Parameter.ToList())
-        {
-            var param = new PluginParameter(parameter);
-            param.Changed += () => IndicateChanges = true;
-            ParameterPanel.Children.Add(param);
-        }
-    }
-    
-    private bool IndicateChanges
+    public void Hide()
     {
-        set => ApplyButton.Content = value ? "Apply*" : "Apply";
+        EditorWindow.ResetUnsavedChanges();
+        foreach (var plugin in EditorWindow.Plugins)
+        {
+            plugin.IsSelected = false;
+        }
+        Visibility = Visibility.Collapsed;
     }
 
-    private async void ApplyButton_Click(object sender, RoutedEventArgs e)
+    private async Task<bool> CheckAndConfirmChanges()
+    {
+        if (!EditorWindow.UnsavedChanges) return true;
+
+        var result = await Theme.MessageBox.Show(
+            "Plugins", 
+            """
+            Changes have not been saved.
+            Save now?
+            """,
+            MessageBoxButton.YesNoCancel, 
+            MessageBoxImage.Warning);
+
+        if (result != MessageBoxResult.Yes)
+        {
+            return result == MessageBoxResult.No;
+        }
+        
+        EditorWindow.Apply();
+        return true;
+    }
+
+    private void EditorWindowOnChanged(bool isUnsavedChanges) =>
+        ApplyButton.Visibility = isUnsavedChanges ? Visibility.Visible : Visibility.Collapsed;
+    
+    private void EditorWindowOnSaved(Plugin plugin) => 
+        Saved?.Invoke(plugin);
+    
+    private void ApplyButtonClick(object sender, RoutedEventArgs e) => 
+        EditorWindow.Apply();
+    
+    private void DiscardOnClick(object sender, RoutedEventArgs e) => 
+        EditorWindow.Reload();
+    
+    private async void CloseButtonClick(object sender, RoutedEventArgs e)
     {
         try
         {
-            if (!PluginName.Text.IsPlcCompatible())
-            {
-                await Theme.MessageBox.Show("Plugins", $"Name {PluginName.Text} is not TwinCAT PLC compatible", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-        
-            if (_plugins.Any(plugin => plugin.Name == PluginName.Text && plugin != _plugin))
-            {
-                await Theme.MessageBox.Show("Plugins", $"Name {PluginName.Text} already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-        
-            if (await Theme.MessageBox.Show("Plugins", $"Save {PluginName.Text}?", MessageBoxButton.OKCancel,
-                    MessageBoxImage.Question) != MessageBoxResult.OK)
-            {
-                return;
-            }
-
-            //Update parameters of selected plugin
-            _plugin?.PluginController?.Parameter.Update(ParameterPanel.Children.OfType<IParameter>());
-        
-            //Call the save method for the selected plugin
-            if (_plugin?.Save(PluginName.Text) != true) return;
-        
-            Logger.LogInfo(this, $"'{_plugin.Name}' saved");
-            OnConfirm?.Invoke(_plugin);
-            IndicateChanges = false;
+            if (!await CheckAndConfirmChanges()) return;
+            Hide();
+            Closed?.Invoke();
         }
         catch (Exception ex)
         {
             Logger.LogError(this, ex.Message);
         }
-    }
-    
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
-    {
-        Visibility = Visibility.Hidden;
-        OnCancel?.Invoke();
     }
 }

@@ -14,9 +14,10 @@
         </Grid.ColumnDefinitions>
         <ScrollViewer Grid.Column="0" x:Name="ScrollView">
             <StackPanel x:Name="ControlPanel">
-                <Button Style="{DynamicResource SelectButton}"  
-                        x:Name="BtnAdd" Visibility="Hidden" Click="BtnAdd_Click"
+                <Button Style="{DynamicResource ButtonSecondary}"  
+                        x:Name="BtnAdd" Visibility="Hidden" Click="BtnAddOnClick"
                         VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch"
                         ToolTip="Add plugin instance">
                     <ContentControl
                         Template="{DynamicResource IconTemplate}"
@@ -28,9 +29,9 @@
         </ScrollViewer>
         <plugins:PluginEditor Grid.Column="2" x:Name="Editor" 
                             Margin="-3,2,0,0" 
-                            OnCancel="Editor_OnCancel" 
-                            OnConfirm="Editor_OnConfirm" 
-                            Visibility="Hidden"/>
+                            Saved="EditorOnSaved"
+                            Closed="HideEditor"
+                            SizeChanged="EditorOnSizeChanged"/>
         <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Transparent"/>
     </Grid>
 </UserControl>
