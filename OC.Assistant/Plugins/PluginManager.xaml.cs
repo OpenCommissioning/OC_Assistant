@@ -35,16 +35,13 @@ public partial class PluginManager
     private void Initialize()
     {
         OnDisconnect();
-        ControlPanel.Children.Remove(BtnAdd);
         _plugins = XmlFile.Instance.LoadPlugins();
 
         foreach (var plugin in _plugins)
         {
             AddPlugin(plugin);
         }
-            
-        ControlPanel.Children.Add(BtnAdd);
-        ScrollView.ScrollToEnd();
+        
         BtnAdd.Visibility = Visibility.Visible;
     }
 
@@ -90,11 +87,14 @@ public partial class PluginManager
     {
         plugin.OnRemove += PluginOnRemove;
         plugin.OnEdit += ShowEditor;
-
+        
         Dispatcher.Invoke(() =>
         {
+            ControlPanel.Children.Remove(BtnAdd);
             ControlPanel.Children.Add(plugin);
             DockPanel.SetDock(plugin, Dock.Top);
+            ControlPanel.Children.Add(BtnAdd);
+            ScrollView.ScrollToEnd();
         });
     }
         
@@ -103,7 +103,7 @@ public partial class PluginManager
         plugin.PluginController?.Stop();
         plugin.OnRemove -= PluginOnRemove;
         plugin.OnEdit -= ShowEditor;
-
+        
         Dispatcher.Invoke(() =>
         {
             ControlPanel.Children.Remove(plugin);
@@ -112,39 +112,33 @@ public partial class PluginManager
         
     private void PluginOnRemove(Plugin plugin)
     {
-        BusyState.Set(this);
-        RemovePlugin(plugin);
         XmlFile.Instance.RemovePlugin(plugin.Name);
         _plugins.Remove(plugin);
+        RemovePlugin(plugin);
         HideEditor();
-        BusyState.Reset(this);
         if (plugin.PluginController?.IoType == IoType.None) return;
-        UpdateProject(plugin.Name, true);
+        UpdateProject(null, plugin.Name);
     }
 
-    private void EditorOnSaved(Plugin plugin)
+    private void EditorOnSaved(Plugin plugin, string? oldName)
     {
-        BusyState.Set(this);
-        ControlPanel.Children.Remove(BtnAdd);
-            
         XmlFile.Instance.UpdatePlugin(plugin);
 
-        if (_plugins.FirstOrDefault(x => x.Name == plugin.Name) is null)
+        if (_plugins.FirstOrDefault(x => x == plugin) is null)
         {
             _plugins.Add(plugin);
             AddPlugin(plugin);
+            oldName = null;
         }
         else
         {
+            XmlFile.Instance.RemovePlugin(oldName);
             plugin.PluginController?.Stop();
         }
-            
-        ControlPanel.Children.Add(BtnAdd);
-        ScrollView.ScrollToEnd();
-        BusyState.Reset(this);
+        
         if (plugin.PluginController is null) return;
-        if (!plugin.PluginController.IoChanged) return;
-        UpdateProject(plugin.Name, false);
+        if (!plugin.PluginController.IoChanged && oldName is null) return;
+        UpdateProject(plugin.Name, oldName);
     }
     
     private async void ShowEditor(Plugin plugin)
@@ -184,7 +178,7 @@ public partial class PluginManager
             .Show("Add plugin", editor, MessageBoxButton.OKCancel, MessageBoxImage.None, editor.Apply);
     }
     
-    private void UpdateProject(string name, bool delete)
+    private void UpdateProject(string? add, string? del)
     {
         DteSingleThread.Run(tcSysManager =>
         {
@@ -194,7 +188,8 @@ public partial class PluginManager
                 Sdk.Logger.LogError(this, "No Plc project found");
                 return;
             }
-            Generator.Generators.Sil.Update(plcProjectItem, name, delete);
+            if (del is not null) Generator.Generators.Sil.Update(plcProjectItem, del, true);
+            if (add is not null) Generator.Generators.Sil.Update(plcProjectItem, add, false);
         });
     }
 

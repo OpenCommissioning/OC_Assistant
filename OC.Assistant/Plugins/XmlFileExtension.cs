@@ -24,8 +24,10 @@ internal static class XmlFileExtension
     /// <summary>
     /// Removes all <see cref="XPlugin"/> elements by the given name.
     /// </summary>
-    public static void RemovePlugin(this XmlFile xmlFile, string name)
+    public static void RemovePlugin(this XmlFile xmlFile, string? name)
     {
+        if (name is null) return;
+        
         foreach (var xPlugin in xmlFile.PluginElements().Where(x => x.Name == name))
         {
             xPlugin.Element?.Remove();

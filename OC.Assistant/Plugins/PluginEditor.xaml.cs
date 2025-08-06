@@ -25,7 +25,10 @@ internal partial class PluginEditor
         set => ApplyButton.IsEnabled = EditorWindow.IsEnabled = value;
     }
     
-    public event Action<Plugin>? Saved;
+    /// <summary>
+    /// The plugin has been added or saved.
+    /// </summary>
+    public event Action<Plugin, string?>? Saved;
     
     /// <summary>
     /// The editor has been closed.
@@ -53,6 +56,9 @@ internal partial class PluginEditor
         return true;
     }
 
+    /// <summary>
+    /// Hides the editor.
+    /// </summary>
     public void Hide()
     {
         EditorWindow.ResetUnsavedChanges();
@@ -88,8 +94,8 @@ internal partial class PluginEditor
     private void EditorWindowOnChanged(bool isUnsavedChanges) =>
         ApplyButton.Visibility = isUnsavedChanges ? Visibility.Visible : Visibility.Collapsed;
     
-    private void EditorWindowOnSaved(Plugin plugin) => 
-        Saved?.Invoke(plugin);
+    private void EditorWindowOnSaved(Plugin plugin, string? oldName) => 
+        Saved?.Invoke(plugin, oldName);
     
     private void ApplyButtonClick(object sender, RoutedEventArgs e) => 
         EditorWindow.Apply();

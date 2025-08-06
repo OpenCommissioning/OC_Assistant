@@ -72,7 +72,7 @@ internal partial class EditorWindow
     
     public bool UnsavedChanges { get; private set; }
     public event Action<bool>? Changed;
-    public event Action<Plugin>? Saved;
+    public event Action<Plugin, string?>? Saved;
 
     public bool Apply()
     {
@@ -90,10 +90,7 @@ internal partial class EditorWindow
                 return false;
             }
 
-            if (Plugin.Name != PluginName.Text)
-            {
-                XmlFile.Instance.RemovePlugin(Plugin.Name);
-            }
+            var oldName = Plugin.Name != PluginName.Text ? Plugin.Name : null;
 
             //Update parameters of the selected plugin
             Plugin.PluginController?.Parameter.Update(ParameterPanel.Children.OfType<IParameter>());
@@ -107,7 +104,7 @@ internal partial class EditorWindow
         
             Logger.LogInfo(this, $"Plugin '{Plugin.Name}' saved");
             ResetUnsavedChanges();
-            Saved?.Invoke(Plugin);
+            Saved?.Invoke(Plugin, oldName);
             return true;
 
         }
