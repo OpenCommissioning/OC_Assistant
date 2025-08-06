@@ -26,6 +26,6 @@ public static partial class TcStringExtension
     /// <returns>Returns <c>true</c> if the input string is PLC compatible; otherwise, <c>false</c>.</returns>
     public static bool IsPlcCompatible(this string input)
     {
-        return !InvalidCharacters().IsMatch(input);
+        return !string.IsNullOrEmpty(input) && !InvalidCharacters().IsMatch(input);
     }
 }
