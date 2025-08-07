@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.3"></a>
+## [1.17.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.3) (2025-08-07)
+
+### Bug Fixes
+
+* hotfix for wrong behavior when saving plugins to the project XML file ([1a6f479](https://www.github.com/OpenCommissioning/OC_Assistant/commit/1a6f479472444a653439efd4a1c9a1c20fe46b5b))
+
 <a name="1.17.2"></a>
 ## [1.17.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.2) (2025-08-07)
 
