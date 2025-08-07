@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.2"></a>
+## [1.17.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.2) (2025-08-07)
+
+### Bug Fixes
+
+* exclude empty string as valid plc variable name ([9dfbb5c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/9dfbb5cc4ebf096b236614f7bf95fdc2897bc4f4))
+* fix an issue where the DeviceTemplate MessageBox rejects valid inputs ([87bd1cc](https://www.github.com/OpenCommissioning/OC_Assistant/commit/87bd1cce9edf1fe73a90a54561aa992796d7e1b1))
+* modify the github link name on the About page ([5178931](https://www.github.com/OpenCommissioning/OC_Assistant/commit/517893146e8e75760a9d1a8de6f411b02d001327))
+* **PluginEditor:** the name of an existing plugin instance can now be changed ([eaa768b](https://www.github.com/OpenCommissioning/OC_Assistant/commit/eaa768b35a26776a47bfe1f02152aa5c5514231e))
+* **PluginManager:** UI and behaviour rework ([fc92bd6](https://www.github.com/OpenCommissioning/OC_Assistant/commit/fc92bd66113910a5f6484d10fdb68016ffd5036d))
+
 <a name="1.17.1"></a>
 ## [1.17.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.1) (2025-07-29)
 
