@@ -1,29 +1,53 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk.Plugin;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace OC.Assistant.Plugins;
 
 public partial class PluginManager
 {
-    private List<Plugin> _plugins = [];
+    private ObservableCollection<Plugin> Plugins { get; } = [];
     
     public PluginManager()
     {
         InitializeComponent();
+        ItemsControl.ItemsSource = Plugins;
+        Plugins.CollectionChanged += PluginsOnCollectionChanged;
         XmlFile.Instance.Reloaded += XmlOnReloaded;
         ProjectState.Events.Disconnected += OnDisconnect;
         ProjectState.Events.StartedRunning += OnStartedRunning;
         ProjectState.Events.StoppedRunning += OnStoppedRunning;
         ProjectState.Events.Locked += OnLocked;
     }
-    
+
+    private void PluginsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (var plugin in e.NewItems.OfType<Plugin>())
+            {
+                RegisterPlugin(plugin);
+            }
+        }
+        
+        if (e.OldItems is not null)
+        {
+            foreach (var plugin in e.OldItems.OfType<Plugin>())
+            {
+                UnregisterPlugin(plugin);
+            }
+        }
+        
+        ScrollView.ScrollToEnd();
+    }
+
     private void OnLocked(bool value)
     {
         BtnAdd.Visibility = value ? Visibility.Hidden : Visibility.Visible;
         Editor.IsEnabled = !value;
-        foreach (var plugin in _plugins)
+        foreach (var plugin in Plugins)
         {
             plugin.IsEnabled = !value;
         }
@@ -35,26 +59,15 @@ public partial class PluginManager
     private void Initialize()
     {
         OnDisconnect();
-        _plugins = XmlFile.Instance.LoadPlugins();
-
-        foreach (var plugin in _plugins)
-        {
-            AddPlugin(plugin);
-        }
-        
+        XmlFile.Instance.LoadPlugins().ForEach(Plugins.Add);
         BtnAdd.Visibility = Visibility.Visible;
     }
 
     private void OnDisconnect()
     {
-        foreach (var plugin in _plugins)
-        {
-            RemovePlugin(plugin);
-        }
-        
+        Plugins.ToList().ForEach(x => Plugins.Remove(x));
         BtnAdd.Visibility = Visibility.Hidden;
         HideEditor();
-        _plugins.Clear();
     }
 
     private void OnStoppedRunning()
@@ -62,7 +75,7 @@ public partial class PluginManager
         if (BusyState.IsSet) return;
         Task.Run(async () =>
         {
-            foreach (var plugin in _plugins)
+            foreach (var plugin in Plugins)
             {
                 plugin.Stop();
                 await Task.Delay(100);
@@ -75,7 +88,7 @@ public partial class PluginManager
         if (BusyState.IsSet) return;
         Task.Run(async () =>
         {
-            foreach (var plugin in _plugins.Where(x => x.PluginController?.AutoStart == true))
+            foreach (var plugin in Plugins.Where(x => x.PluginController?.AutoStart == true))
             {
                 plugin.Start();
                 await Task.Delay(plugin.PluginController?.DelayAfterStart ?? 0);
@@ -83,38 +96,23 @@ public partial class PluginManager
         });
     }
         
-    private void AddPlugin(Plugin plugin)
+    private void RegisterPlugin(Plugin plugin)
     {
         plugin.OnRemove += PluginOnRemove;
         plugin.OnEdit += ShowEditor;
-        
-        Dispatcher.Invoke(() =>
-        {
-            ControlPanel.Children.Remove(BtnAdd);
-            ControlPanel.Children.Add(plugin);
-            DockPanel.SetDock(plugin, Dock.Top);
-            ControlPanel.Children.Add(BtnAdd);
-            ScrollView.ScrollToEnd();
-        });
     }
         
-    private void RemovePlugin(Plugin plugin)
+    private void UnregisterPlugin(Plugin plugin)
     {
         plugin.PluginController?.Stop();
         plugin.OnRemove -= PluginOnRemove;
         plugin.OnEdit -= ShowEditor;
-        
-        Dispatcher.Invoke(() =>
-        {
-            ControlPanel.Children.Remove(plugin);
-        });
     }
         
     private void PluginOnRemove(Plugin plugin)
     {
         XmlFile.Instance.RemovePlugin(plugin.Name);
-        _plugins.Remove(plugin);
-        RemovePlugin(plugin);
+        Plugins.Remove(plugin);
         HideEditor();
         if (plugin.PluginController?.IoType == IoType.None) return;
         UpdateProject(null, plugin.Name);
@@ -122,28 +120,24 @@ public partial class PluginManager
 
     private void EditorOnSaved(Plugin plugin, string? oldName)
     {
-        XmlFile.Instance.UpdatePlugin(plugin);
+        XmlFile.Instance.UpdatePlugin(plugin, oldName);
 
-        if (_plugins.FirstOrDefault(x => x == plugin) is null)
+        if (Plugins.FirstOrDefault(x => x == plugin) is null)
         {
-            _plugins.Add(plugin);
-            AddPlugin(plugin);
+            Plugins.Add(plugin);
             oldName = null;
-        }
-        else
-        {
-            XmlFile.Instance.RemovePlugin(oldName);
-            plugin.PluginController?.Stop();
         }
         
         if (plugin.PluginController is null) return;
         if (!plugin.PluginController.IoChanged && oldName is null) return;
+        plugin.PluginController?.Stop();
         UpdateProject(plugin.Name, oldName);
+        if (Editor.Visibility == Visibility.Visible) ShowEditor(plugin);
     }
     
     private async void ShowEditor(Plugin plugin)
     {
-        if (!await Editor.Show(plugin, _plugins)) return;
+        if (!await Editor.Show(plugin, Plugins)) return;
         GridSplitter.Width = new GridLength(4);
         EditorColumn.Width = new GridLength(_editorWidth);
     }
@@ -168,9 +162,9 @@ public partial class PluginManager
         }
         var editor = new EditorWindow
         {
-            Height = 400,
+            Height = 400, 
             Width = 400,
-            Plugins = _plugins
+            Plugins = Plugins
         };
         editor.Saved += EditorOnSaved;
         

@@ -13,10 +13,10 @@
             <ColumnDefinition x:Name="EditorColumn" Width="0"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <ScrollViewer Grid.Column="0" x:Name="ScrollView">
-            <StackPanel x:Name="ControlPanel">
+            <StackPanel>
+                <ItemsControl x:Name="ItemsControl"/>
                 <Button Style="{DynamicResource ButtonSecondary}"  
                         x:Name="BtnAdd" Visibility="Hidden" Click="BtnAddOnClick"
-                        VerticalAlignment="Top"
                         HorizontalAlignment="Stretch"
                         ToolTip="Add plugin instance">
                     <ContentControl

@@ -39,9 +39,9 @@ internal static class XmlFileExtension
     /// <summary>
     /// Updates or adds the given <see cref="Plugin"/> to the <see cref="XmlFile"/>.
     /// </summary>
-    public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin)
+    public static void UpdatePlugin(this XmlFile xmlFile, Plugin plugin, string? oldName = null)
     {
-        xmlFile.RemovePlugin(plugin.Name);
+        xmlFile.RemovePlugin(oldName ?? plugin.Name);
         xmlFile.Plugins.Add(new XPlugin(plugin).Element);
         xmlFile.Save();
     }

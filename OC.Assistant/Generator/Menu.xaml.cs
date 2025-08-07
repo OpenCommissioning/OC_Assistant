@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Xml.Linq;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
