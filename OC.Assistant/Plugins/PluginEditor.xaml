@@ -8,11 +8,16 @@
              d:DesignHeight="450" d:DesignWidth="800" x:ClassModifier="internal">
     <Border Background="{DynamicResource White6Brush}" CornerRadius="{DynamicResource ControlCornerRadius}">
         <Grid>
-            <Grid Height="30" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
                 <Label Margin="6,0,0,0" VerticalAlignment="Stretch" VerticalContentAlignment="Center">Properties</Label>
                 <Button Width="36" ToolTip="Hide Properties"
                         HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                        Click="CloseButton_Click">
+                        Click="CloseButtonClick">
                     <ContentControl
                         Template="{DynamicResource IconTemplate}"
                         Margin="0 -2 0 2"
@@ -21,31 +26,32 @@
                         Content="{DynamicResource IconChromeMinimize}"/>
                 </Button>
             </Grid>
-            <Grid Margin="0,34,0,54" x:Name="EditorWindow">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="100"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
-                </Grid.RowDefinitions>
-                <TextBox x:Name="PluginName" Grid.Row="0" VerticalAlignment="Top" Margin="20,20,20,0" BorderThickness="0">MyPlugin</TextBox>
-                <plugins:PluginDropdown x:Name="TypeDropdown" Grid.Row="0" 
-                                   VerticalAlignment="Top" 
-                                   Margin="20,50,20,0" 
-                                   HorizontalAlignment="Stretch"
-                                   TypeSelected="TypeSelectorOnSelected">
-                </plugins:PluginDropdown>
-                <ScrollViewer Grid.Row="1">
-                    <DockPanel x:Name="ParameterPanel" Margin="20,0,20,0"></DockPanel>
-                </ScrollViewer>
-            </Grid>
-            <Grid Height="54" VerticalAlignment="Bottom">
-                <Button ToolTip="Save changes"
-                        HorizontalAlignment="Stretch"
-                        Click="ApplyButton_Click"
-                        x:Name="ApplyButton"
-                        Style="{DynamicResource ButtonPrimary}"
-                        Margin="20,10,20,10">
-                    Apply
-                </Button>
+            <plugins:EditorWindow 
+                Grid.Row="1"
+                Margin="20,0,20,0" x:Name="EditorWindow" 
+                Changed="EditorWindowOnChanged"
+                Saved="EditorWindowOnSaved"/>
+            <Grid Grid.Row="2" Height="54" x:Name="ApplyButton">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            ToolTip="Save changes"
+                            HorizontalAlignment="Stretch"
+                            Click="ApplyButtonClick"
+                            Style="{DynamicResource ButtonPrimary}"
+                            Margin="20 0 5 0">
+                        Apply
+                    </Button>
+                    <Button Grid.Column="1" 
+                            ToolTip="Save changes"
+                            HorizontalAlignment="Stretch"
+                            Click="DiscardOnClick"
+                            Style="{DynamicResource ButtonSecondary}"
+                            Margin="5 0 20 0">
+                        Discard
+                    </Button>
             </Grid>
         </Grid>
     </Border>
