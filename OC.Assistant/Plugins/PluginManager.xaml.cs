@@ -120,13 +120,13 @@ public partial class PluginManager
 
     private void EditorOnSaved(Plugin plugin, string? oldName)
     {
-        XmlFile.Instance.UpdatePlugin(plugin, oldName);
-
         if (Plugins.FirstOrDefault(x => x == plugin) is null)
         {
             Plugins.Add(plugin);
             oldName = null;
         }
+        
+        XmlFile.Instance.UpdatePlugin(plugin, oldName);
         
         if (plugin.PluginController is null) return;
         if (!plugin.PluginController.IoChanged && oldName is null) return;
