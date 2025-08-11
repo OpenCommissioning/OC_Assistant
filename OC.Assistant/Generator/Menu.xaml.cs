@@ -12,7 +12,7 @@ public partial class Menu
     {
         InitializeComponent();
         ProjectState.Events.Locked += isLocked => IsEnabled = !isLocked;
-        ApiLocal.Interface.ConfigReceived += ApiOnConfigReceived;
+        Api.Interface.ConfigReceived += ApiOnConfigReceived;
     }
 
     private void CreateProjectOnClick(object sender, RoutedEventArgs e)
