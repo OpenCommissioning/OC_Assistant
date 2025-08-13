@@ -83,28 +83,14 @@ internal class Api : IDisposable
         switch (type)
         {
             case "cfg":
+                if (BusyState.IsSet || ProjectState.IsRunning) return;
                 ConfigReceived?.Invoke(XElement.Load(msg));
                 break;
             case "tsc":
-                //Sdk.ApiLocal.Interface.TimeScaling = double.TryParse(msg, out var value) ? value : 1.0;
+                Sdk.ApiLocal.Interface.TimeScaling = double.TryParse(msg, out var value) ? value : 1.0;
                 break;
         }
     }
-    
-    /*
-    private static byte[] BuildMessage(byte[] payload)
-    {
-        var header = new[]
-        {
-            (byte)(payload.Length >> 8),
-            (byte)payload.Length,
-            (byte)0x01,
-            (byte)(payload.Length + (payload[0] ^ payload[1]))
-        };
-
-        return header.Concat(payload).ToArray();
-    }
-    */
     
     public void Dispose()
     {
