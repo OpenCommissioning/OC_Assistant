@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.4"></a>
+## [1.17.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.4) (2025-08-13)
+
+### Bug Fixes
+
+* ignore reveived config via API when busy or running ([f074516](https://www.github.com/OpenCommissioning/OC_Assistant/commit/f0745163c126ad1a1ed5848e3e329984daed38ce))
+* move named pipe api to Assistant Core ([44bd710](https://www.github.com/OpenCommissioning/OC_Assistant/commit/44bd710f3bd2febc26b460106c8b72feaef462c1))
+* upgrade sdk package reference for new API implementation ([7db5c7b](https://www.github.com/OpenCommissioning/OC_Assistant/commit/7db5c7bdff9aed503eb42957d979ceddbcc39b5b))
+
 <a name="1.17.3"></a>
 ## [1.17.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.3) (2025-08-07)
 
