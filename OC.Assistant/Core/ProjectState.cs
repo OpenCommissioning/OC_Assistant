@@ -15,7 +15,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
     private static readonly Lazy<ProjectState> LazyInstance = new(() => new ProjectState());
     private readonly AdsClient _adsClient = new();
     private CancellationTokenSource _cancellationTokenSource = new();
-    private AdsState _lastRunState = AdsState.Idle;
+    private AdsState _adsState = AdsState.Idle;
     private AmsNetId _amsNetId = AmsNetId.Local;
     private ITcSysManager15? _tcSysManager;
     private bool _adsNotOk;
@@ -30,6 +30,11 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
     /// Gets the <see cref="IProjectStateEvents"/> interface.
     /// </summary>
     public static IProjectStateEvents Events => LazyInstance.Value;
+    
+    /// <summary>
+    /// Gets a value indicating whether the connected project is currently running.
+    /// </summary>
+    public static bool IsRunning => LazyInstance.Value._adsState == AdsState.Run;
     
     public event Action<string>? Connected;
     public event Action? Disconnected;
@@ -95,7 +100,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
             _adsClient.Disconnect();
             ComHelper.ReleaseObject(_tcSysManager);
             _tcSysManager = null;
-            _lastRunState = AdsState.Idle;
+            _adsState = AdsState.Idle;
         });
     }
 
@@ -212,8 +217,8 @@ public class ProjectState : IProjectStateEvents, IProjectStateSolution
         if (!IsProjectConnected) return Task.CompletedTask;
         
         var adsState = GetAdsState();
-        if (adsState == _lastRunState) return Task.CompletedTask;
-        _lastRunState = adsState;
+        if (adsState == _adsState) return Task.CompletedTask;
+        _adsState = adsState;
 
         switch (adsState)
         {
