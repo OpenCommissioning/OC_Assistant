@@ -59,16 +59,16 @@ public class DeviceTemplate
 	/// <summary>
 	/// Creates the device template.
 	/// </summary>
-	public void Create()
+	public Thread Create(bool throwExceptions = false)
 	{		
 		var name = InputField.Text;
-		DteSingleThread.Run(tcSysManager =>
+		return DteSingleThread.Run(tcSysManager =>
 		{
 			Create(tcSysManager
 				.GetPlcProject()
 				.GetOrCreateChild(TEMPLATE_FOLDER, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER), 
 				name);
-		});
+		}, throwExceptions: throwExceptions);
 	}
 
 	private void Create(ITcSmTreeItem? parent, string name)

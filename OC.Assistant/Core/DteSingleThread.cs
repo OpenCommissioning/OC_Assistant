@@ -8,16 +8,16 @@ namespace OC.Assistant.Core;
 /// </summary>
 public static class DteSingleThread
 {
-    /// <inheritdoc cref="Run(System.Action,int)"/><br/>
+    /// <inheritdoc cref="Run(System.Action,int,bool)"/><br/>
     /// This overload automatically gets the <see cref="EnvDTE.DTE"/> interface of the currently connected solution.
-    public static System.Threading.Thread Run(Action<ITcSysManager15> action, int millisecondsTimeout = 0)
+    public static System.Threading.Thread Run(Action<ITcSysManager15> action, int millisecondsTimeout = 0, bool throwExceptions = false)
     {
         return Run(() =>
         {
             if (ProjectState.Solution.FullName is null)
             {
                 Sdk.Logger.LogError(typeof(DteSingleThread), "No Solution selected");
-                return;
+                throw new InvalidOperationException("No Solution selected");
             }
 
             try
@@ -27,15 +27,11 @@ public static class DteSingleThread
                 if (tcSysManager is null) return;
                 action(tcSysManager);
             }
-            catch (Exception e)
-            {
-                Sdk.Logger.LogError(typeof(DteSingleThread), e.Message);
-            }
             finally
             {
                 ComHelper.ReleaseTrackedObjects();
             }
-        }, millisecondsTimeout);
+        }, millisecondsTimeout, throwExceptions);
     }
 
     /// <summary>
@@ -47,8 +43,9 @@ public static class DteSingleThread
     /// <param name="millisecondsTimeout">Blocks the calling thread until this thread terminates or the timeout is reached.
     /// Value 0 disables blocking and activates the busy state.
     /// </param>
+    /// <param name="throwExceptions">Throw exceptions if true.</param>
     /// <returns>The instance of this <see cref="System.Threading.Thread"/>.</returns>
-    public static System.Threading.Thread Run(Action action, int millisecondsTimeout = 0)
+    public static System.Threading.Thread Run(Action action, int millisecondsTimeout = 0, bool throwExceptions = false)
     {
         var thread = new System.Threading.Thread(() =>
         {
@@ -61,6 +58,7 @@ public static class DteSingleThread
             catch (Exception e)
             {
                 Sdk.Logger.LogError(typeof(DteSingleThread), e.Message);
+                if (!throwExceptions) throw;
             }
             finally
             {
