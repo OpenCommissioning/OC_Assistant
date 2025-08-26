@@ -14,6 +14,7 @@ public partial class MainWindow
         ReadSettings();
         
         BusyState.Changed += BusyOverlay.SetState;
+        LogFileWriter.Create();
         Logger.Info += (sender, message) => LogViewer.Add(sender, message, MessageType.Info);
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
