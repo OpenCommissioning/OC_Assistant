@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using OC.Assistant.Sdk;
-using OC.Assistant.Theme;
 
 namespace OC.Assistant.Core;
 
@@ -30,10 +29,10 @@ public static class WebApi
 
         Task.Run(async () =>
         {
-            Logger.Info += (sender, message) => EnqueueMessage(sender, message, MessageType.Info);
-            Logger.Warning += (sender, message) => EnqueueMessage(sender, message, MessageType.Warning);
-            Logger.Error += (sender, message) => EnqueueMessage(sender, message, MessageType.Error);
-         
+            Logger.Info += Info;
+            Logger.Warning += Warning;
+            Logger.Error += Error;
+            
             var builder = WebApplication.CreateBuilder();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddControllers().AddXmlSerializerFormatters();
@@ -59,10 +58,15 @@ public static class WebApi
         public DateTime TimeStamp { get; } = DateTime.Now;
     }
 
-    private static void EnqueueMessage(object sender, string content, MessageType type)
-    {
-        MessageQueue.Enqueue(new Message(sender.ToString()?.Split(':')[0], content, type.ToString()));
-    }
+    private static void Info(object sender, string content)
+        => MessageQueue.Enqueue(new Message(sender.ToString()?.Split(':')[0], content, nameof(Info)));
+    
+    private static void Warning(object sender, string content)
+        => MessageQueue.Enqueue(new Message(sender.ToString()?.Split(':')[0], content, nameof(Warning)));
+    
+    private static void Error(object sender, string content)
+        => MessageQueue.Enqueue(new Message(sender.ToString()?.Split(':')[0], content, nameof(Error)));
+    
 
     private static IResult HandleMessages(bool reset = false)
     {
