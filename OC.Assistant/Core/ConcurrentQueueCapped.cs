@@ -21,16 +21,20 @@ public class ConcurrentQueueCapped<T>(int capacity) : ConcurrentQueue<T>
     }
 
     /// <summary>
-    /// <inheritdoc cref="ConcurrentQueue{T}.ToArray"/>
-    /// <inheritdoc cref="ConcurrentQueue{T}.Clear"/>
+    /// Dequeues and returns all objects of the concurrent queue.
     /// </summary>
     /// <returns>
-    /// <inheritdoc cref="ConcurrentQueue{T}.ToArray"/>
+    /// A list of all dequeued objects.
     /// </returns>
-    public IEnumerable<T> GetAndReset()
+    public IEnumerable<T> DequeueAll()
     {
-        var array = ToArray();
-        Clear();
-        return array;
+        var list = new List<T>();
+        
+        while (TryDequeue(out var item))
+        {
+            list.Add(item);
+        }
+        
+        return list;
     }
 }

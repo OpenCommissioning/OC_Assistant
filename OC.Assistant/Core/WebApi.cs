@@ -70,7 +70,7 @@ public static class WebApi
 
     private static IResult HandleMessages(bool reset = false)
     {
-        return Results.Ok(reset ? MessageQueue.GetAndReset() : MessageQueue.ToArray());
+        return Results.Ok(reset ? MessageQueue.DequeueAll() : MessageQueue);
     }
       
     private static IResult HandleTimeScaling(double timeScaling)
