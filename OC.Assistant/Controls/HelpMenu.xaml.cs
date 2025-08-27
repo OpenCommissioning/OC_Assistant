@@ -103,9 +103,21 @@ internal partial class HelpMenu
             UrlName = "nuget"
         });
         
+        stack.Add(new DependencyInfo(typeof(Microsoft.AspNetCore.Builder.WebApplication))
+        {
+            Url = "https://www.nuget.org/packages/Microsoft.AspNetCore.OpenApi",
+            UrlName = "nuget"
+        });
+        
         stack.Add(new DependencyInfo(typeof(TwinCAT.Ads.AdsClient))
         {
             Url = "https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads",
+            UrlName = "nuget"
+        });
+        
+        stack.Add(new DependencyInfo(typeof(Serilog.ILogger))
+        {
+            Url = "https://www.nuget.org/packages/Serilog.Sinks.File",
             UrlName = "nuget"
         });
         
