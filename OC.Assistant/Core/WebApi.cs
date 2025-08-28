@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using OC.Assistant.Sdk;
+using OC.Assistant.Twincat;
 
 namespace OC.Assistant.Core;
 
@@ -36,11 +37,11 @@ public static class WebApi
             var builder = WebApplication.CreateBuilder();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddControllers().AddXmlSerializerFormatters();
-            builder.Services.AddScoped<Generator.Service>();
+            builder.Services.AddScoped<Service>();
         
             var app = builder.Build();
          
-            app.MapPost("/api/config", async (HttpRequest request, Generator.Service service) 
+            app.MapPost("/api/config", async (HttpRequest request, Service service) 
                     => await HandleConfig(request, service))
                 .Accepts<XElement>("application/xml");
          
@@ -86,7 +87,7 @@ public static class WebApi
         }
     }
     
-    private static async Task<IResult> HandleConfig(HttpRequest request, Generator.Service service)
+    private static async Task<IResult> HandleConfig(HttpRequest request, Service service)
     {
         try
         {

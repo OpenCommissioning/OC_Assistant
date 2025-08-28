@@ -6,7 +6,7 @@
         xmlns:theme="http://schemas.open-commissioning-assistant.com/2024"
         xmlns:controls="clr-namespace:OC.Assistant.Controls"
         xmlns:plugins="clr-namespace:OC.Assistant.Plugins"
-        xmlns:generator="clr-namespace:OC.Assistant.Generator"
+        xmlns:twincat="clr-namespace:OC.Assistant.Twincat"
         mc:Ignorable="d"
         Title="Open Commissioning Assistant"
         Width="800" Height="600"
@@ -17,7 +17,7 @@
         <Grid>
             <Menu HorizontalAlignment="Left">
                 <controls:FileMenu />
-                <generator:Menu />
+                <twincat:Menu />
                 <controls:HelpMenu/>
             </Menu>
             <controls:VersionCheck HorizontalAlignment="Right"/>
