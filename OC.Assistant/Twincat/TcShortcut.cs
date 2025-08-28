@@ -1,4 +1,4 @@
-﻿namespace OC.Assistant.Core;
+﻿namespace OC.Assistant.Twincat;
 
 /// <summary>
 /// Table of available TwinCAT shortcuts.

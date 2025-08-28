@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Twincat;
 
 /// <summary>
 /// Represents a static class to manage COM objects.

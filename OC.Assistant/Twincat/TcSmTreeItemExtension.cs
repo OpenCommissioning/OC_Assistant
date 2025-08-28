@@ -1,6 +1,6 @@
 ﻿using TCatSysManagerLib;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Twincat;
 
 public static class TcSmTreeItemExtension
 {

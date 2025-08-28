@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Twincat;
 
 /// <summary>
 /// Provides extension methods for string manipulation tailored for PLC (Programmable Logic Controller) compatibility.

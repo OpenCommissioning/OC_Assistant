@@ -1,5 +1,4 @@
-﻿using OC.Assistant.Core;
-using OC.Assistant.Sdk;
+﻿using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Twincat.Generators;

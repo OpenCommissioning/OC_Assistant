@@ -1,8 +1,8 @@
 ﻿using EnvDTE;
-using OC.Assistant.Twincat;
+using OC.Assistant.Core;
 using TCatSysManagerLib;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Twincat;
 
 /// <summary>
 /// <see cref="DTE"/> single-threaded invoker.

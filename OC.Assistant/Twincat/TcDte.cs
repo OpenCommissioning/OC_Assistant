@@ -5,7 +5,7 @@ using EnvDTE;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Twincat;
 
 /// <summary>
 /// Represents a static class with methods to extend the <see cref="EnvDTE.DTE"/> interface for TwinCAT specific usings.

@@ -1,6 +1,4 @@
-﻿using OC.Assistant.Core;
-
-namespace OC.Assistant.Twincat.Profinet;
+﻿namespace OC.Assistant.Twincat.Profinet;
 
 internal class SafetyProgram
 {

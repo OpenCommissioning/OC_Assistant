@@ -1,8 +1,9 @@
 ﻿using EnvDTE;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Twincat;
 
 /// <summary>
 /// Extension for the <see cref="ITcSysManager15"/> interface.
