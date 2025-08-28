@@ -17,7 +17,7 @@
         <Grid>
             <Menu HorizontalAlignment="Left">
                 <controls:FileMenu />
-                <twincat:Menu />
+                <twincat:MainMenu />
                 <controls:HelpMenu/>
             </Menu>
             <controls:VersionCheck HorizontalAlignment="Right"/>

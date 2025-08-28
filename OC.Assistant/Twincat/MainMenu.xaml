@@ -1,4 +1,4 @@
-﻿<MenuItem x:Class="OC.Assistant.Twincat.Menu"
+﻿<MenuItem x:Class="OC.Assistant.Twincat.MainMenu"
           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
           xmlns:pnScanner="clr-namespace:OC.Assistant.Twincat.PnScanner"

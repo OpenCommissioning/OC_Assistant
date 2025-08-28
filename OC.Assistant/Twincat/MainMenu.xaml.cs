@@ -7,9 +7,9 @@ using TCatSysManagerLib;
 
 namespace OC.Assistant.Twincat;
 
-public partial class Menu
+public partial class MainMenu
 {
-    public Menu()
+    public MainMenu()
     {
         Visibility = Visibility.Collapsed;
         InitializeComponent();
