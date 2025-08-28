@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.PnGenerator;
+namespace OC.Assistant.Generator.PnScanner;
 
 public partial class SettingsView
 {

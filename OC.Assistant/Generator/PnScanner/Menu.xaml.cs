@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.PnGenerator;
+namespace OC.Assistant.Generator.PnScanner;
 
 public partial class Menu
 {
@@ -29,7 +29,7 @@ public partial class Menu
         {
             var settingsView = new SettingsView();
             var result = await Theme.MessageBox.Show(
-                "Scan Profinet",
+                "Profinet Scanner",
                 settingsView,
                 MessageBoxButton.OKCancel,
                 MessageBoxImage.None, 
@@ -50,19 +50,19 @@ public partial class Menu
 
         if (!_isScannerInstalled)
         {
-            var install = new MenuItem {Header = $"Install {SCANNER_TOOL}"};
+            var install = new MenuItem {Header = "Install"};
             install.Click += InstallOnClick;
             menu.Items.Add(install);
             return;
         }
         
-        var scan = new MenuItem {Header = "Scan Profinet"};
+        var scan = new MenuItem {Header = "Run"};
         scan.Click += ScanOnClick;
         menu.Items.Add(scan);
         
         var path = new MenuItem
         {
-            Header = "Show output files",
+            Header = "Logfiles",
             IsEnabled = Directory.Exists(OutputPath)
         };
         path.Click += PathOnClick;
@@ -70,11 +70,11 @@ public partial class Menu
         
         menu.Items.Add(new Separator());
         
-        var update = new MenuItem {Header = $"Update {SCANNER_TOOL}"};
+        var update = new MenuItem {Header = "Update"};
         update.Click += UpdateOnClick;
         menu.Items.Add(update);
         
-        var uninstall = new MenuItem {Header = $"Uninstall {SCANNER_TOOL}"};
+        var uninstall = new MenuItem {Header = "Uninstall"};
         uninstall.Click += UninstallOnClick;
         menu.Items.Add(uninstall);
     }

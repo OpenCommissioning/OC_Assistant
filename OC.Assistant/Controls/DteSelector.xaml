@@ -7,5 +7,5 @@
              d:DesignHeight="32" d:DesignWidth="150"
              Style="{DynamicResource DefaultMenuItemStyle}"
              Header="Connect...">
-    <MenuItem/>
+    <MenuItem Header="No open TwinCAT project"/>
 </MenuItem>

@@ -1,8 +1,8 @@
-﻿using System.Windows.Controls;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
+using System.Windows.Controls;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.PnGenerator;
+namespace OC.Assistant.Generator.PnScanner;
 
 public partial class AdapterDropdown
 {

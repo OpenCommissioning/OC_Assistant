@@ -115,7 +115,7 @@ public partial class PluginManager
         Plugins.Remove(plugin);
         HideEditor();
         if (plugin.PluginController?.IoType == IoType.None) return;
-        UpdateProject(null, plugin.Name);
+        PluginUpdated?.Invoke(null, plugin.Name);
     }
 
     private void EditorOnSaved(Plugin plugin, string? oldName)
@@ -131,7 +131,7 @@ public partial class PluginManager
         if (plugin.PluginController is null) return;
         if (!plugin.PluginController.IoChanged && oldName is null) return;
         plugin.PluginController?.Stop();
-        UpdateProject(plugin.Name, oldName);
+        PluginUpdated?.Invoke(plugin.Name, oldName);
         if (Editor.Visibility == Visibility.Visible) ShowEditor(plugin);
     }
     
@@ -171,21 +171,8 @@ public partial class PluginManager
         await Theme.MessageBox
             .Show("Add plugin", editor, MessageBoxButton.OKCancel, MessageBoxImage.None, editor.Apply);
     }
-    
-    private void UpdateProject(string? add, string? del)
-    {
-        DteSingleThread.Run(tcSysManager =>
-        {
-            tcSysManager.SaveProject();
-            if (tcSysManager.GetPlcProject() is not { } plcProjectItem)
-            {
-                Sdk.Logger.LogError(this, "No Plc project found");
-                return;
-            }
-            if (del is not null) Generator.Generators.Sil.Update(plcProjectItem, del, true);
-            if (add is not null) Generator.Generators.Sil.Update(plcProjectItem, add, false);
-        });
-    }
+
+    public static event Action<string?, string?>? PluginUpdated;
 
     private double _editorWidth = 340;
 

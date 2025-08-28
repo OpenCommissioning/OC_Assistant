@@ -24,9 +24,24 @@
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19" />
       <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
       <PackageReference Include="OC.Assistant.Sdk" Version="1.7.2" />
-      <PackageReference Include="OC.Assistant.Theme" Version="2.1.1" />
       <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
       <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Page Update="Generator\PnGenerator\AdapterDropdown.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Generator\PnGenerator\Menu.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Generator\PnGenerator\SettingsView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\..\Theme\OC.Assistant.Theme\OC.Assistant.Theme.csproj" />
     </ItemGroup>
     
 </Project>

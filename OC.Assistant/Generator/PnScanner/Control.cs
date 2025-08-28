@@ -7,7 +7,7 @@ using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 using Process = System.Diagnostics.Process;
 
-namespace OC.Assistant.PnGenerator;
+namespace OC.Assistant.Generator.PnScanner;
 
 public class Control(string scannerTool)
 {
@@ -133,7 +133,7 @@ public class Control(string scannerTool)
         if (tcSysManager.GetPlcProject() is {} plcProjectItem)
         {
             Logger.LogInfo(this, "Create HiL structure...");
-            Generator.Generators.Hil.Update(tcSysManager, plcProjectItem);
+            Generators.Hil.Update(tcSysManager, plcProjectItem);
         }
 
         Logger.LogInfo(this, "Finished");

@@ -1,6 +1,6 @@
 ﻿using System.Net.NetworkInformation;
 
-namespace OC.Assistant.PnGenerator;
+namespace OC.Assistant.Generator.PnScanner;
 
 public struct Settings
 {

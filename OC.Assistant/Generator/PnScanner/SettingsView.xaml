@@ -1,17 +1,17 @@
-﻿<StackPanel x:Class="OC.Assistant.PnGenerator.SettingsView"
+﻿<StackPanel x:Class="OC.Assistant.Generator.PnScanner.SettingsView"
             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-            xmlns:local="clr-namespace:OC.Assistant.PnGenerator"
+            xmlns:pnScanner="clr-namespace:OC.Assistant.Generator.PnScanner"
             mc:Ignorable="d">
     <Label>Name</Label>
     <TextBox x:Name="PnName" VerticalAlignment="Top" Margin="0 4 0 0">PNIO</TextBox>
     <Label Margin="0 10 0 0">Adapter</Label>
-    <local:AdapterDropdown 
+    <pnScanner:AdapterDropdown 
         x:Name="AdapterDropdown" 
         Margin="0 4 0 0">
-    </local:AdapterDropdown>
+    </pnScanner:AdapterDropdown>
     <Label Margin="0 10 0 0">TIA aml file</Label>
     <Grid Margin="0 4 0 0">
         <Grid.ColumnDefinitions>

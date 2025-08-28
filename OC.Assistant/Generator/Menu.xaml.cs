@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Xml.Linq;
 using OC.Assistant.Core;
+using OC.Assistant.Plugins;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
 
@@ -13,6 +14,7 @@ public partial class Menu
         InitializeComponent();
         ProjectState.Events.Locked += isLocked => IsEnabled = !isLocked;
         Api.Interface.ConfigReceived += ApiOnConfigReceived;
+        PluginManager.PluginUpdated += PluginManagerOnPluginUpdate;
     }
 
     private void CreateProjectOnClick(object sender, RoutedEventArgs e)
@@ -88,6 +90,21 @@ public partial class Menu
         {
             Logger.LogError(this, ex.Message);
         }
+    }
+    
+    private void PluginManagerOnPluginUpdate(string? add, string? del)
+    {
+        DteSingleThread.Run(tcSysManager =>
+        {
+            tcSysManager.SaveProject();
+            if (tcSysManager.GetPlcProject() is not { } plcProjectItem)
+            {
+                Logger.LogError(this, "No Plc project found");
+                return;
+            }
+            if (del is not null) Generators.Sil.Update(plcProjectItem, del, true);
+            if (add is not null) Generators.Sil.Update(plcProjectItem, add, false);
+        });
     }
     
     private void ApiOnConfigReceived(XElement config)

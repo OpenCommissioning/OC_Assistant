@@ -1,0 +1,8 @@
+﻿<MenuItem x:Class="OC.Assistant.Generator.PnScanner.Menu"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          Header="Profinet Scanner"
+          SubmenuOpened="MenuOnSubmenuOpened"
+          Style="{DynamicResource DefaultMenuItemStyle}">
+    <MenuItem/>
+</MenuItem>
