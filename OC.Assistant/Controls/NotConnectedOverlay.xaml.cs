@@ -10,25 +10,23 @@ public partial class NotConnectedOverlay
         InitializeComponent();
         ProjectState.Events.Connected += OnConnect;
         ProjectState.Events.Disconnected += OnDisconnect;
+        ContentAdded += uiElement =>
+        {
+            Dispatcher.Invoke(() =>
+            {
+                StackPanel.Children.Add(uiElement);
+            });
+        };
     }
 
-    private void OnConnect(string solutionFullName)
-    {
-        Visibility = Visibility.Hidden;
-    }
-
-    private void OnDisconnect()
-    {
-        Visibility = Visibility.Visible;
-    }
-
-    private void OpenOnClick(object sender, RoutedEventArgs e)
-    {
-        FileMenu.OpenSolution(sender, e);
-    }
+    private void OnConnect(string solutionFullName) => Visibility = Visibility.Hidden;
     
-    private void CreateOnClick(object sender, RoutedEventArgs e)
+    private void OnDisconnect() => Visibility = Visibility.Visible;
+
+    private static event Action<UIElement>? ContentAdded;
+    
+    public static void AddContent(UIElement uiElement)
     {
-        FileMenu.CreateSolution(sender, e);
+        ContentAdded?.Invoke(uiElement);
     }
 }

@@ -11,10 +11,19 @@ public partial class Menu
 {
     public Menu()
     {
+        Visibility = Visibility.Collapsed;
         InitializeComponent();
+        TcState.Instance.Validated += TcStateOnValidated;
+    }
+
+    private void TcStateOnValidated()
+    {
+        Visibility = Visibility.Visible;
         ProjectState.Events.Locked += isLocked => IsEnabled = !isLocked;
         Api.Interface.ConfigReceived += ApiOnConfigReceived;
         PluginManager.PluginUpdated += PluginManagerOnPluginUpdate;
+        Controls.FileMenu.AddContent(new FileMenu());
+        Controls.NotConnectedOverlay.AddContent(new NotConnectedOverlay());
     }
 
     private void CreateProjectOnClick(object sender, RoutedEventArgs e)

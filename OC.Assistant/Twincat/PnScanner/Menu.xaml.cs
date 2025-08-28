@@ -19,7 +19,6 @@ public partial class Menu
     public Menu()
     {
         InitializeComponent();
-        ProjectState.Events.Locked += e => IsEnabled = !e;
         Task.Run(IsScannerInstalled);
     }
 

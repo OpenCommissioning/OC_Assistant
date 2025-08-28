@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 using OC.Assistant.Core;
 
-namespace OC.Assistant.Controls;
+namespace OC.Assistant.Twincat;
 
 /// <summary>
 /// Dropdown for available solutions.
@@ -58,7 +58,7 @@ public partial class DteSelector
             {
                 if (((MenuItem) obj).Tag is not Solution tag) return;
                 if (string.IsNullOrEmpty(tag.SolutionFullName) || string.IsNullOrEmpty(tag.ProjectFolder)) return;
-                ProjectState.Solution.Connect(tag.SolutionFullName, tag.ProjectFolder);
+                ProjectState.Control.Connect(tag.SolutionFullName, tag.ProjectFolder);
             };
                 
             Items.Add(subMenuItem);

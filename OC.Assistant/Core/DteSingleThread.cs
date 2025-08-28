@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using OC.Assistant.Twincat;
 using TCatSysManagerLib;
 
 namespace OC.Assistant.Core;
@@ -14,7 +15,7 @@ public static class DteSingleThread
     {
         return Run(() =>
         {
-            if (ProjectState.Solution.FullName is null)
+            if (TcState.Instance.SolutionFullName is null)
             {
                 Sdk.Logger.LogError(typeof(DteSingleThread), "No Solution selected");
                 throw new InvalidOperationException("No Solution selected");
@@ -22,7 +23,7 @@ public static class DteSingleThread
 
             try
             {
-                var tcSysManager = TcDte.GetTcSysManager(ProjectState.Solution.FullName);
+                var tcSysManager = TcDte.GetTcSysManager(TcState.Instance.SolutionFullName);
                 ComHelper.TrackObject(tcSysManager);
                 if (tcSysManager is null) return;
                 action(tcSysManager);
