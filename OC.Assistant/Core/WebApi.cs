@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using OC.Assistant.Sdk;
-using OC.Assistant.Twincat;
 
 namespace OC.Assistant.Core;
 
@@ -18,6 +17,8 @@ public static class WebApi
 {
     private static readonly ConcurrentQueueCapped<Message> MessageQueue = new(1000);
     private static bool _isRunning;
+    
+    public static event Action<XElement>? ConfigReceived;
     
     public static void BuildAndRun()
     {
@@ -37,12 +38,11 @@ public static class WebApi
             var builder = WebApplication.CreateBuilder();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddControllers().AddXmlSerializerFormatters();
-            builder.Services.AddScoped<Service>();
         
             var app = builder.Build();
          
-            app.MapPost("/api/config", async (HttpRequest request, Service service) 
-                    => await HandleConfig(request, service))
+            app.MapPost("/api/config", async (HttpRequest request) 
+                    => await HandleConfig(request))
                 .Accepts<XElement>("application/xml");
          
             app.MapPost("/api/timescaling", ([FromBody] double timeScaling) 
@@ -87,7 +87,7 @@ public static class WebApi
         }
     }
     
-    private static async Task<IResult> HandleConfig(HttpRequest request, Service service)
+    private static async Task<IResult> HandleConfig(HttpRequest request)
     {
         try
         {
@@ -96,7 +96,12 @@ public static class WebApi
                 return Results.Problem(detail: "Assistant is busy or running.", statusCode: 400, title: "Busy");
             }
             var config = await XElement.LoadAsync(request.Body, LoadOptions.PreserveWhitespace, CancellationToken.None);
-            await service.GenerateFromConfig(config);
+
+            await Task.Run(() =>
+            {
+                ConfigReceived?.Invoke(config);
+            });
+            
             return Results.Accepted();
         }
         catch (Exception e)

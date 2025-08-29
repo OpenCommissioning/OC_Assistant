@@ -22,7 +22,7 @@ public partial class MainMenu
     {
         Visibility = Visibility.Visible;
         ProjectState.Events.Locked += ProjectStateOnLocked;
-        Api.Interface.ConfigReceived += ApiOnConfigReceived;
+        WebApi.ConfigReceived += ApiOnConfigReceived;
         PluginManager.PluginUpdated += PluginManagerOnPluginUpdate;
         Controls.WelcomePage.AddContent(new WelcomePage());
     }
@@ -127,16 +127,18 @@ public partial class MainMenu
     
     private void ApiOnConfigReceived(XElement config)
     {
-        if (!IsSolutionConnected) return;
         XmlFile.Instance.Main = config;
         XmlFile.Instance.Save();
         
         DteSingleThread.Run(tcSysManager =>
         {
-            if (GetPlcProject(tcSysManager) is not {} plcProjectItem) return;
+            if (GetPlcProject(tcSysManager) is not { } plcProjectItem)
+            {
+                throw new Exception("No Plc project found");
+            }
             Generators.Project.Update(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
-        });
+        }, throwExceptions: true);
     }
     
     private ITcSmTreeItem? GetPlcProject(ITcSysManager15? tcSysManager)
