@@ -18,6 +18,7 @@ public partial class MainWindow
         Logger.Info += (sender, message) => LogViewer.Add(sender, message, MessageType.Info);
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
+        WebApi.BuildAndRun();
     }
 
     private void ReadSettings()
