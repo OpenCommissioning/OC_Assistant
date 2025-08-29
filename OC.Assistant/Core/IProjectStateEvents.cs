@@ -6,9 +6,9 @@
 public interface IProjectStateEvents
 {
     /// <summary>
-    /// Is raised with the solution full name when a project gets connected.
+    /// Is raised with the project file and folder when a project gets connected.
     /// </summary>
-    public event Action<string>? Connected;
+    public event Action<string, string?>? Connected;
     
     /// <summary>
     /// Is raised when the project gets disconnected.
@@ -16,12 +16,12 @@ public interface IProjectStateEvents
     public event Action? Disconnected;
     
     /// <summary>
-    /// Is raised a project is connected and TwinCAT started running.
+    /// Is raised when a project is connected and TwinCAT started running.
     /// </summary>
     public event Action? StartedRunning;
     
     /// <summary>
-    /// Is raised a project is connected and TwinCAT stopped running.
+    /// Is raised when a project is connected and TwinCAT stopped running.
     /// </summary>
     public event Action? StoppedRunning;
     

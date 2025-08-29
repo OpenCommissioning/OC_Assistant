@@ -33,7 +33,7 @@
             <plugins:PluginManager Grid.Row="0" Margin="0,0,0,-2"/>
             <theme:LogViewer Grid.Row="2" x:Name="LogViewer" SizeChanged="LogViewerOnSizeChanged"/>
             <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
-            <controls:NotConnectedOverlay Grid.Row="0" />
+            <controls:WelcomePage Grid.Row="0" />
         </Grid>
         <Grid Background="{DynamicResource White6Brush}" VerticalAlignment="Bottom">
             <controls:ProjectStateView Height="24" />

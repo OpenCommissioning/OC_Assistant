@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using OC.Assistant.Core;
 
 namespace OC.Assistant.Controls;
 
@@ -7,21 +8,11 @@ internal partial class FileMenu
     public FileMenu()
     {
         InitializeComponent();
-        ContentAdded += uiElement =>
-        {
-            Dispatcher.Invoke(() =>
-            {
-                Items.Insert(0, uiElement);
-            });
-        };
+        ProjectState.Events.Connected += (_, _) => DisconnectItem.IsEnabled = true;
+        ProjectState.Events.Disconnected += () => DisconnectItem.IsEnabled = false;
     }
+
+    private void CloseProjectOnClick(object sender, RoutedEventArgs e) => ProjectState.Control.Disconnect();
     
     private void ExitOnClick(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
-    
-    private static event Action<UIElement>? ContentAdded;
-    
-    public static void AddContent(UIElement uiElement)
-    {
-        ContentAdded?.Invoke(uiElement);
-    }
 }

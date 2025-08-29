@@ -10,7 +10,7 @@ namespace OC.Assistant.Core;
 public class ProjectState : IProjectStateEvents, IProjectStateControl
 {
     private static readonly Lazy<ProjectState> LazyInstance = new(() => new ProjectState());
-    private string? _fullName;
+    private string? _projectFile;
     
     /// <summary>
     /// Gets the <see cref="IProjectStateEvents"/> interface.
@@ -27,7 +27,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
     /// </summary>
     public static bool IsRunning { get; private set; }
     
-    public event Action<string>? Connected;
+    public event Action<string, string?>? Connected;
     public event Action? Disconnected;
     public event Action? StartedRunning;
     public event Action? StoppedRunning;
@@ -36,29 +36,38 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
     private ProjectState()
     {
     }
-    
-    public void Connect(string solutionFullName, string projectFolder)
+
+    public void Connect(string projectFile, string? projectFolder = null)
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            if (_fullName is not null) Disconnect();
-            
-            _fullName = solutionFullName;
+            if (_projectFile is not null) Disconnect();
+            _projectFile = projectFile;
+
+            if (projectFolder is null)
+            {
+                XmlFile.Instance.Path = projectFile;
+                Connected?.Invoke(projectFile, null);
+                Logger.LogInfo(this, $"{_projectFile} connected");
+                Stop();
+                return;
+            }
             
             var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
             XmlFile.Instance.Path = System.IO.Path.Combine(projectFolder, $"{assemblyName}.xml");
-            Connected?.Invoke(solutionFullName);
-            Logger.LogInfo(this, $"{_fullName} connected");
+            Connected?.Invoke(projectFile, projectFolder);
+            Logger.LogInfo(this, $"{_projectFile} connected");
         });
     }
     
     public void Disconnect()
     {
+        if (_projectFile is null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
-            Logger.LogWarning(this, $"{_fullName} disconnected");
+            Logger.LogWarning(this, $"{_projectFile} disconnected");
             IsRunning = false;
-            _fullName = null;
+            _projectFile = null;
             Disconnected?.Invoke();
             Locked?.Invoke(true);
         });
@@ -66,7 +75,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
     
     public void Start()
     {
-        if (_fullName is null) return;
+        if (_projectFile is null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
             IsRunning = true;
@@ -77,7 +86,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
 
     public void Stop()
     {
-        if (_fullName is null) return;
+        if (_projectFile is null) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
             IsRunning = false;

@@ -35,11 +35,10 @@ public class TcState
                 {
                     Validated?.Invoke();
                 });
-                return true;
             }
             catch
             {
-                return false;
+                // Could not connect to TwinCAT
             }
         });
     }
@@ -47,9 +46,10 @@ public class TcState
     public string? SolutionFullName { get; private set; }
     public event Action? Validated;
     
-    private void Connect(string solutionFullName)
+    private void Connect(string projectFile, string? projectFolder)
     {
-        SolutionFullName = solutionFullName;
+        if (projectFolder is null) return;
+        SolutionFullName = projectFile;
         _cancellationTokenSource = new CancellationTokenSource();
         _amsNetId = GetCurrentNetId();
         ApiLocal.Interface.NetId = _amsNetId;

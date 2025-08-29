@@ -1,0 +1,24 @@
+<Grid x:Class="OC.Assistant.Controls.WelcomePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="600"
+             Background="{DynamicResource BackgroundBaseBrush}">
+    <StackPanel VerticalAlignment="Center" x:Name="StackPanel">
+        <Label HorizontalAlignment="Center" FontSize="24" Foreground="{DynamicResource White3Brush}">
+            No project connected
+        </Label>
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0 16">
+                <Button Style="{DynamicResource ButtonSecondary}" Click="OpenOnClick" Margin="4 0">open</Button>
+                <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
+                    or
+                </Label>
+                <Button Style="{DynamicResource ButtonSecondary}" Click="CreateOnClick" Margin="4 0">create</Button>
+                <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
+                    a project file
+                </Label>
+            </StackPanel>
+    </StackPanel>
+</Grid>

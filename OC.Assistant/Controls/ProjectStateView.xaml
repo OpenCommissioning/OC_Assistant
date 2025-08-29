@@ -12,8 +12,8 @@
             CornerRadius="{DynamicResource ControlCornerRadius}" 
             Background="{DynamicResource White4Brush}"
             Margin="0 0 3 0"
-            Padding="5 0 5 0">
-        <Label x:Name="SolutionLabel"
+            Padding="5 0">
+        <Label x:Name="ProjectLabel"
                VerticalAlignment="Center" 
                HorizontalAlignment="Center"
                Foreground="{DynamicResource ForegroundBaseBrush}">
@@ -23,15 +23,16 @@
             CornerRadius="{DynamicResource ControlCornerRadius}" 
             Background="{DynamicResource White4Brush}"
             Margin="0 0 3 0"
-            Padding="5 0 5 0">
-        <Label x:Name="NedIdLabel"
+            Padding="5 0">
+        <Label x:Name="HostLabel"
                VerticalAlignment="Center" 
                HorizontalAlignment="Center"
                Foreground="{DynamicResource ForegroundBaseBrush}">
         </Label>
     </Border>
     <Border x:Name="StateBorder" 
-            Width="50" 
+            MinWidth="50" 
+            Padding="5 0"
             VerticalAlignment="Center" 
             CornerRadius="{DynamicResource ControlCornerRadius}">
         <Label x:Name="StateLabel" 

@@ -9,6 +9,8 @@ namespace OC.Assistant.Twincat;
 
 public partial class MainMenu
 {
+    private static bool IsSolutionConnected => TcState.Instance.SolutionFullName is not null;
+    
     public MainMenu()
     {
         Visibility = Visibility.Collapsed;
@@ -19,15 +21,17 @@ public partial class MainMenu
     private void TcStateOnValidated()
     {
         Visibility = Visibility.Visible;
-        ProjectState.Events.Locked += isLocked => IsEnabled = !isLocked;
+        ProjectState.Events.Locked += ProjectStateOnLocked;
         Api.Interface.ConfigReceived += ApiOnConfigReceived;
         PluginManager.PluginUpdated += PluginManagerOnPluginUpdate;
-        Controls.FileMenu.AddContent(new FileMenu());
-        Controls.NotConnectedOverlay.AddContent(new NotConnectedOverlay());
+        Controls.WelcomePage.AddContent(new WelcomePage());
     }
+
+    private void ProjectStateOnLocked(bool isLocked) => IsEnabled = !isLocked && IsSolutionConnected;
 
     private void CreateProjectOnClick(object sender, RoutedEventArgs e)
     {
+        if (!IsSolutionConnected) return;
         DteSingleThread.Run(tcSysManager =>
         {
             if (GetPlcProject(tcSysManager) is not {} plcProjectItem) return;
@@ -40,6 +44,7 @@ public partial class MainMenu
     
     private void CreatePluginsOnClick(object sender, RoutedEventArgs e)
     {
+        if (!IsSolutionConnected) return;
         DteSingleThread.Run(dte =>
         {
             if (GetPlcProject(dte) is not {} plcProjectItem) return;
@@ -51,6 +56,7 @@ public partial class MainMenu
     
     private void CreateTaskOnClick(object sender, RoutedEventArgs e)
     {
+        if (!IsSolutionConnected) return;
         DteSingleThread.Run(tcSysManager =>
         {
             Generators.Task.CreateVariables(tcSysManager);
@@ -62,6 +68,7 @@ public partial class MainMenu
     {
         try
         {
+            if (!IsSolutionConnected) return;
             var generator = new Generators.DeviceTemplate();
 
             if (await Theme.MessageBox.Show(
@@ -87,6 +94,7 @@ public partial class MainMenu
     {
         try
         {
+            if (!IsSolutionConnected) return;
             var settings = new Settings();
 
             if (await Theme.MessageBox.Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
@@ -103,6 +111,7 @@ public partial class MainMenu
     
     private void PluginManagerOnPluginUpdate(string? add, string? del)
     {
+        if (!IsSolutionConnected) return;
         DteSingleThread.Run(tcSysManager =>
         {
             tcSysManager.SaveProject();
@@ -118,6 +127,7 @@ public partial class MainMenu
     
     private void ApiOnConfigReceived(XElement config)
     {
+        if (!IsSolutionConnected) return;
         XmlFile.Instance.Main = config;
         XmlFile.Instance.Save();
         

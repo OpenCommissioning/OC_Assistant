@@ -8,29 +8,12 @@ using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Twincat;
 
-internal partial class FileMenu
+public partial class WelcomePage
 {
-    private static event RoutedEventHandler? OnOpenSolution;
-    private static event RoutedEventHandler? OnCreateSolution;
+    public WelcomePage()
+        => InitializeComponent();
     
-    public FileMenu()
-    {
-        InitializeComponent();
-        OnOpenSolution += OpenSlnOnClick;
-        OnCreateSolution += CreateSlnOnClick;
-    }
-
-    public static void OpenSolution(object sender, RoutedEventArgs e)
-    {
-        OnOpenSolution?.Invoke(sender, e);
-    }
-    
-    public static void CreateSolution(object sender, RoutedEventArgs e)
-    {
-        OnCreateSolution?.Invoke(sender, e);
-    }
-    
-    private void OpenSlnOnClick(object sender, RoutedEventArgs e)
+    private void OpenOnClick(object sender, RoutedEventArgs e)
     {
         var openFileDialog = new OpenFileDialog
         {
@@ -44,7 +27,7 @@ internal partial class FileMenu
         }
     }
     
-    private void CreateSlnOnClick(object? sender = null, RoutedEventArgs? e = null)
+    private void CreateOnClick(object? sender = null, RoutedEventArgs? e = null)
     {
         var saveFileDialog = new SaveFileDialog
         {
@@ -119,7 +102,7 @@ internal partial class FileMenu
                 }
 
                 //Get zip file from resource
-                var assembly = typeof(FileMenu).Assembly;
+                var assembly = typeof(WelcomePage).Assembly;
                 var resourceName = $"{assembly.GetName().Name}.Resources.{templateName}.zip";
                 var resourceStream = assembly.GetManifestResourceStream(resourceName);
                 if (resourceStream is null)

@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using OC.Assistant.Core;
 
 namespace OC.Assistant.Twincat;
@@ -19,12 +20,13 @@ public partial class DteSelector
     public DteSelector()
     {
         InitializeComponent();
-        SubmenuOpened += OnSubmenuOpened;
     }
+    
+    private void ConnectOnClick(object sender, RoutedEventArgs e) => Menu.IsSubmenuOpen = true;
 
     private void OnSubmenuOpened(object sender, EventArgs e)
     {
-        Items.Clear();
+        Menu.Items.Clear();
         _solutions.Clear();
         
         DteSingleThread.Run(() =>
@@ -61,12 +63,12 @@ public partial class DteSelector
                 ProjectState.Control.Connect(tag.SolutionFullName, tag.ProjectFolder);
             };
                 
-            Items.Add(subMenuItem);
+            Menu.Items.Add(subMenuItem);
         }
 
-        if (Items.Count == 0)
+        if (Menu.Items.Count == 0)
         {
-            Items.Add(new MenuItem {Header = "no open TwinCAT solution", IsEnabled = false});
+            Menu.Items.Add(new MenuItem {Header = "no open TwinCAT solution", IsEnabled = false});
         }
     }
 }
