@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
-using OC.Assistant.Twincat;
 
 namespace OC.Assistant.Plugins;
 
@@ -80,7 +80,7 @@ internal partial class EditorWindow
         {
             if (!PluginName.Text.IsPlcCompatible())
             {
-                Logger.LogWarning(this, $"Name {PluginName.Text} is not TwinCAT PLC compatible");
+                Logger.LogWarning(this, $"Name {PluginName.Text} is not PLC compatible");
                 return false;
             }
         

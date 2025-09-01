@@ -1,12 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace OC.Assistant.Twincat;
+namespace OC.Assistant.Core;
 
 /// <summary>
-/// Provides extension methods for string manipulation tailored for PLC (Programmable Logic Controller) compatibility.
+/// Provides extension methods for string manipulation tailored for PLC compatibility.
 /// This static class contains helper methods to validate and modify strings to comply with specific PLC requirements.
 /// </summary>
-public static partial class TcStringExtension
+public static partial class StringExtension
 {
     [GeneratedRegex("[^a-zA-Z0-9_]+")]
     private static partial Regex InvalidCharacters();
