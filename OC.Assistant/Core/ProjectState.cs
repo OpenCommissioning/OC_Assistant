@@ -47,6 +47,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
             if (projectFolder is null)
             {
                 XmlFile.Instance.Path = projectFile;
+                ApiLocal.Interface.CommunicationType = CommunicationType.TcpIp;
                 Connected?.Invoke(projectFile, null);
                 Logger.LogInfo(this, $"{_projectFile} connected");
                 Stop();
@@ -55,6 +56,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
             
             var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
             XmlFile.Instance.Path = System.IO.Path.Combine(projectFolder, $"{assemblyName}.xml");
+            ApiLocal.Interface.CommunicationType = CommunicationType.Twincat;
             Connected?.Invoke(projectFile, projectFolder);
             Logger.LogInfo(this, $"{_projectFile} connected");
         });
