@@ -6,11 +6,11 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="600"
              Background="{DynamicResource BackgroundBaseBrush}">
-    <StackPanel VerticalAlignment="Center" x:Name="StackPanel">
-        <Label HorizontalAlignment="Center" FontSize="24" Foreground="{DynamicResource White3Brush}">
+    <StackPanel VerticalAlignment="Center" x:Name="StackPanel" HorizontalAlignment="Center">
+        <Label HorizontalAlignment="Left" FontSize="24" Margin="4 0 0 0" Foreground="{DynamicResource White3Brush}">
             No project connected
         </Label>
-            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0 16">
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="0 16">
                 <Button Style="{DynamicResource ButtonSecondary}" Click="OpenOnClick" Margin="4 0">open</Button>
                 <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
                     or

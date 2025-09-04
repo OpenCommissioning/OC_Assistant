@@ -4,24 +4,48 @@ using System.Text;
 
 namespace OC.Assistant.Core;
 
-public class TcpServer
+public class TcpIpServer
 {
     private CancellationTokenSource? _cts;
-    
-    public async Task RunAsync(IPAddress ipAddress, int port)
+    private readonly List<Task> _tasks = [];
+
+    public void RunDetached(string ipAddress, int port)
+    {
+        _tasks.Add(RunAsync(ipAddress, port)); 
+    }
+
+    private async Task RunAsync(string ipAddress, int port)
     {
         if (_cts is not null) await CloseAsync();
         _cts = new CancellationTokenSource();
-        
-        var token = _cts.Token;
-        var listener = new TcpListener(ipAddress, port);
-        listener.Start();
-        Sdk.Logger.LogInfo(this, $"TcpServer listening on {ipAddress}:{port}");
 
-        while (!token.IsCancellationRequested)
+        var token = _cts.Token;
+        var listener = new TcpListener(IPAddress.TryParse(ipAddress, out var address) ? address : IPAddress.Any, port);
+        listener.Start();
+        Sdk.Logger.LogInfo(this, $"TcpIpServer listening on {ipAddress}:{port}");
+        
+        try
         {
-            var client = await listener.AcceptTcpClientAsync(token);
-            _ = HandleClientAsync(client, token);
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    var client = await listener.AcceptTcpClientAsync(token);
+                    _tasks.Add(HandleClientAsync(client, token));
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            listener.Stop();
         }
     }
     
@@ -29,6 +53,8 @@ public class TcpServer
     {
         if (_cts is null) return;
         await _cts.CancelAsync();
+        await Task.WhenAll(_tasks);
+        _tasks.Clear();
         _cts.Dispose();
         _cts = null;
     }
@@ -72,7 +98,7 @@ public class TcpServer
         }
         catch (Exception e)
         {
-            Sdk.Logger.LogError(this, e.Message);
+            Sdk.Logger.LogWarning(this, e.Message);
         }
         finally
         {

@@ -6,17 +6,16 @@
              xmlns:local="clr-namespace:OC.Assistant.Twincat"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
-             HorizontalAlignment="Center" Orientation="Horizontal">
-    
-    <local:DteSelector Margin="4 0"></local:DteSelector>
-    <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
-        ,
-    </Label>
+             HorizontalAlignment="Left" Orientation="Horizontal">
     <Button Style="{DynamicResource ButtonSecondary}" Margin="4 0" Click="OpenOnClick">open</Button>
     <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
         or
     </Label>
     <Button Style="{DynamicResource ButtonSecondary}" Margin="4 0" Click="CreateOnClick">create</Button>
+    <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
+        or
+    </Label>
+    <local:DteSelector Margin="2 0 4 0"></local:DteSelector>
     <Label HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource White3Brush}">
         a TwinCAT solution
     </Label>

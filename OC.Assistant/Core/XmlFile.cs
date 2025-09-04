@@ -60,6 +60,8 @@ public class XmlFile
         _doc = new XDocument(
             new XElement("Config",
                 new XElement(nameof(Settings),
+                    new XElement(nameof(TcpIpServerAddress), "127.0.0.1"),
+                    new XElement(nameof(TcpIpServerPort), "50100"),
                     new XElement(nameof(PlcProjectName), "OC"),
                     new XElement(nameof(PlcTaskName), "PlcTask")),
                 new XElement(nameof(Plugins)),
@@ -135,6 +137,32 @@ public class XmlFile
         set
         {
             Settings.GetOrCreateChild(nameof(PlcTaskName)).Value = value;
+            Save();
+        }
+    }
+    
+    /// <summary>
+    /// Gets or sets the TcpIpServerAddress value.
+    /// </summary>
+    public string TcpIpServerAddress
+    {
+        get => Settings.GetOrCreateChild(nameof(TcpIpServerAddress)).Value;
+        set
+        {
+            Settings.GetOrCreateChild(nameof(TcpIpServerAddress)).Value = value;
+            Save();
+        }
+    }
+    
+    /// <summary>
+    /// Gets or sets the TcpIpServerPort value.
+    /// </summary>
+    public int TcpIpServerPort
+    {
+        get => int.TryParse(Settings.GetOrCreateChild(nameof(TcpIpServerPort)).Value, out var result) ? result : 0;
+        set
+        {
+            Settings.GetOrCreateChild(nameof(TcpIpServerPort)).Value = value.ToString();
             Save();
         }
     }

@@ -16,10 +16,25 @@ public partial class PluginManager
         ItemsControl.ItemsSource = Plugins;
         Plugins.CollectionChanged += PluginsOnCollectionChanged;
         XmlFile.Instance.Reloaded += XmlOnReloaded;
+        ProjectState.Events.Connected += OnConnected;
         ProjectState.Events.Disconnected += OnDisconnect;
         ProjectState.Events.StartedRunning += OnStartedRunning;
         ProjectState.Events.StoppedRunning += OnStoppedRunning;
         ProjectState.Events.Locked += OnLocked;
+    }
+    
+    private void OnConnected(string projectFile, string? projectFolder = null)
+    {
+        if (projectFolder is not null) return;
+        TcpServer.Activate();
+    }
+    
+    private void OnDisconnect()
+    {
+        TcpServer.Deactivate();
+        Plugins.ToList().ForEach(x => Plugins.Remove(x));
+        BtnAdd.Visibility = Visibility.Hidden;
+        HideEditor();
     }
 
     private void PluginsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -61,13 +76,6 @@ public partial class PluginManager
         OnDisconnect();
         XmlFile.Instance.LoadPlugins().ForEach(Plugins.Add);
         BtnAdd.Visibility = Visibility.Visible;
-    }
-
-    private void OnDisconnect()
-    {
-        Plugins.ToList().ForEach(x => Plugins.Remove(x));
-        BtnAdd.Visibility = Visibility.Hidden;
-        HideEditor();
     }
 
     private void OnStoppedRunning()
