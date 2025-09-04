@@ -95,7 +95,7 @@ public partial class MainMenu
         try
         {
             if (!IsSolutionConnected) return;
-            var settings = new Plugins.TcpIpServerSettings();
+            var settings = new Settings();
 
             if (await Theme.MessageBox.Show("Project Settings", settings, MessageBoxButton.OKCancel, MessageBoxImage.None) ==
                 MessageBoxResult.OK)
