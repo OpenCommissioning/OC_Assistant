@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant;
@@ -36,6 +35,8 @@ public class Settings
 /// </summary>
 public static class SettingsExtension
 {
+    private static string Path => $"{AppData.Path}\\settings.json";
+    
     /// <summary>
     /// Reads and deserializes the <see cref="Settings"/> from a specific path.
     /// </summary>
@@ -44,7 +45,7 @@ public static class SettingsExtension
         try
         {
             settings = JsonSerializer
-                .Deserialize<Settings>(System.IO.File.ReadAllText(AppData.SettingsFilePath)) ?? 
+                .Deserialize<Settings>(System.IO.File.ReadAllText(Path)) ?? 
                        settings;
         }
         catch (Exception e)
@@ -63,7 +64,7 @@ public static class SettingsExtension
         try
         {
             var contents = JsonSerializer.Serialize(settings);
-            System.IO.File.WriteAllText(AppData.SettingsFilePath, contents);
+            System.IO.File.WriteAllText(Path, contents);
         }
         catch (Exception e)
         {

@@ -22,14 +22,13 @@
     
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19" />
-      <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
       <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-      <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
     </ItemGroup>
     
     <ItemGroup>
       <ProjectReference Include="..\..\Sdk\OC.Assistant.Sdk\OC.Assistant.Sdk.csproj" />
       <ProjectReference Include="..\..\Theme\OC.Assistant.Theme\OC.Assistant.Theme.csproj" />
+      <ProjectReference Include="..\..\Twincat\OC.Assistant.Twincat\OC.Assistant.Twincat.csproj" />
     </ItemGroup>
     
 </Project>

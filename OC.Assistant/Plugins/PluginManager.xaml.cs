@@ -3,6 +3,7 @@ using OC.Assistant.Core;
 using OC.Assistant.Sdk.Plugin;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Plugins;
 
@@ -16,11 +17,11 @@ public partial class PluginManager
         ItemsControl.ItemsSource = Plugins;
         Plugins.CollectionChanged += PluginsOnCollectionChanged;
         XmlFile.Instance.Reloaded += XmlOnReloaded;
-        ProjectState.Events.Connected += OnConnected;
-        ProjectState.Events.Disconnected += OnDisconnect;
-        ProjectState.Events.StartedRunning += OnStartedRunning;
-        ProjectState.Events.StoppedRunning += OnStoppedRunning;
-        ProjectState.Events.Locked += OnLocked;
+        AppInterface.Instance.Connected += OnConnected;
+        AppInterface.Instance.Disconnected += OnDisconnect;
+        AppInterface.Instance.StartedRunning += OnStartedRunning;
+        AppInterface.Instance.StoppedRunning += OnStoppedRunning;
+        AppInterface.Instance.Locked += OnLocked;
     }
     
     private void OnConnected(string projectFile, string? projectFolder = null)

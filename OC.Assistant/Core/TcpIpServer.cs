@@ -80,12 +80,12 @@ public class TcpIpServer
                 var payload = new byte[payloadLength];
                 if (!await ReadExactAsync(stream, payload, payloadLength, token)) break;
                 
-                if (Sdk.MemoryClient.ReadBuffers.TryGetValue(channel, out var readBuffer) && readBuffer.Length == payload.Length)
+                if (MemoryClient.ReadBuffers.TryGetValue(channel, out var readBuffer) && readBuffer.Length == payload.Length)
                 {
                     Array.Copy(payload, readBuffer, payload.Length);
                 }
                 
-                if (!Sdk.MemoryClient.WriteBuffers.TryGetValue(channel, out var writeBuffer))
+                if (!MemoryClient.WriteBuffers.TryGetValue(channel, out var writeBuffer))
                 {
                     await stream.WriteAsync(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(0)), token);
                     continue;

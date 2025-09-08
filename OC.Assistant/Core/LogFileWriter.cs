@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using OC.Assistant.Sdk;
+using Serilog;
 
 namespace OC.Assistant.Core;
 
@@ -8,7 +9,7 @@ public static class LogFileWriter
     {
         Log.Logger = new LoggerConfiguration()
             .WriteTo.File(
-                path: AppData.LogFilePath,
+                path: $"{AppData.Path}\\log.txt",
                 rollingInterval: RollingInterval.Day,
                 fileSizeLimitBytes: 10_240_000, // ~10 MB
                 rollOnFileSizeLimit: true,
@@ -17,9 +18,9 @@ public static class LogFileWriter
             )
             .CreateLogger();
         
-        Sdk.Logger.Info += LogInfo;
-        Sdk.Logger.Warning += LogWarning;
-        Sdk.Logger.Error += LogError;
+        Logger.Info += LogInfo;
+        Logger.Warning += LogWarning;
+        Logger.Error += LogError;
     }
 
     private static void LogInfo(object sender, string message) =>

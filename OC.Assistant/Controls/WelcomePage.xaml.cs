@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using Microsoft.Win32;
 using OC.Assistant.Core;
 using OC.Assistant.Sdk;
@@ -11,22 +12,26 @@ public partial class WelcomePage
     public WelcomePage()
     {
         InitializeComponent();
-        ProjectState.Events.Connected += (_, _) => Visibility = Visibility.Hidden;
-        ProjectState.Events.Disconnected += () => Visibility = Visibility.Visible;
-        ContentAdded += uiElement =>
+        AppInterface.Instance.Connected += (_, _) => Visibility = Visibility.Hidden;
+        AppInterface.Instance.Disconnected += () => Visibility = Visibility.Visible;
+        ContentAdded += content =>
         {
             Dispatcher.Invoke(() =>
             {
-                StackPanel.Children.Add(uiElement);
+                var contentControl = new ContentControl
+                {
+                    Content = content
+                };
+                StackPanel.Children.Add(contentControl);
             });
         };
     }
 
-    private static event Action<UIElement>? ContentAdded;
+    private static event Action<object>? ContentAdded;
     
-    public static void AddContent(UIElement uiElement)
+    public static void AddContent(object content)
     {
-        ContentAdded?.Invoke(uiElement);
+        ContentAdded?.Invoke(content);
     }
 
     private void OpenOnClick(object sender, RoutedEventArgs e)
@@ -39,7 +44,7 @@ public partial class WelcomePage
         
         if (openFileDialog.ShowDialog() == true)
         {
-            ProjectState.Control.Connect(openFileDialog.FileName);
+            AppInterface.Instance.Connect(openFileDialog.FileName);
         }
     }
 
@@ -66,6 +71,6 @@ public partial class WelcomePage
             Logger.LogError(this, ex.Message);
         }
 
-        ProjectState.Control.Connect(safeFileDialog.FileName);
+        AppInterface.Instance.Connect(safeFileDialog.FileName);
     }
 }

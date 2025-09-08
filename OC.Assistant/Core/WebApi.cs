@@ -91,7 +91,7 @@ public static class WebApi
     {
         try
         {
-            if (BusyState.IsSet || ProjectState.IsRunning)
+            if (BusyState.IsSet || AppInterface.Instance.IsRunning)
             {
                 return Results.Problem(detail: "Assistant is busy or running.", statusCode: 400, title: "Busy");
             }

@@ -1,40 +1,42 @@
 ﻿using System.Reflection;
 using System.Windows;
+using System.Xml.Linq;
+using OC.Assistant.Controls;
+using OC.Assistant.Plugins;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Core;
 
 /// <summary>
-/// Singleton class for the project state.
+/// Singleton class to interact with the application.
 /// </summary>
-public class ProjectState : IProjectStateEvents, IProjectStateControl
+internal class AppInterface : IAppControl
 {
-    private static readonly Lazy<ProjectState> LazyInstance = new(() => new ProjectState());
+    private static readonly Lazy<AppInterface> LazyInstance = new(() => new AppInterface());
     private string? _projectFile;
     
-    /// <summary>
-    /// Gets the <see cref="IProjectStateEvents"/> interface.
-    /// </summary>
-    public static IProjectStateEvents Events => LazyInstance.Value;
+    public static AppInterface Instance => LazyInstance.Value;
     
-    /// <summary>
-    /// Gets the <see cref="IProjectStateControl"/> interface.
-    /// </summary>
-    public static IProjectStateControl Control => LazyInstance.Value;
-    
-    /// <summary>
-    /// Gets a value indicating whether the connected project is currently running.
-    /// </summary>
-    public static bool IsRunning { get; private set; }
+    public IClient? PluginOnStart(int writeSize, int readSize)
+    {
+        return PluginStarted?.Invoke(writeSize, readSize);
+    }
     
     public event Action<string, string?>? Connected;
     public event Action? Disconnected;
     public event Action? StartedRunning;
     public event Action? StoppedRunning;
     public event Action<bool>? Locked;
+    public event Action<XElement>? ConfigReceived;
+    public event Action<string?, string?>? PluginUpdated;
+    public event Func<int, int, IClient>? PluginStarted;
+    public bool IsRunning { get; private set; }
 
-    private ProjectState()
+    private AppInterface()
     {
+        if (LazyInstance.IsValueCreated) return;
+        WebApi.ConfigReceived += ConfigReceived;
+        PluginManager.PluginUpdated += PluginUpdated;
     }
 
     public void Connect(string projectFile, string? projectFolder = null)
@@ -48,6 +50,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
             {
                 XmlFile.Instance.Path = projectFile;
                 ApiLocal.Interface.CommunicationType = CommunicationType.TcpIp;
+                Instance.PluginStarted += OnPluginStarted;
                 Connected?.Invoke(projectFile, null);
                 Logger.LogInfo(this, $"{_projectFile} connected");
                 Stop();
@@ -61,7 +64,9 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
             Logger.LogInfo(this, $"{_projectFile} connected");
         });
     }
-    
+
+    private static MemoryClient OnPluginStarted(int writeSize, int readSize) => new (writeSize, readSize);
+
     public void Disconnect()
     {
         if (_projectFile is null) return;
@@ -70,6 +75,7 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
             Logger.LogWarning(this, $"{_projectFile} disconnected");
             IsRunning = false;
             _projectFile = null;
+            Instance.PluginStarted -= OnPluginStarted;
             Disconnected?.Invoke();
             Locked?.Invoke(true);
         });
@@ -95,5 +101,10 @@ public class ProjectState : IProjectStateEvents, IProjectStateControl
             StoppedRunning?.Invoke();
             Locked?.Invoke(false);
         });
+    }
+
+    public void AddWelcomePageContent(object content)
+    {
+        WelcomePage.AddContent(content);
     }
 }

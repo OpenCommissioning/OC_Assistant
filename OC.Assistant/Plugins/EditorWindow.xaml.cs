@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 

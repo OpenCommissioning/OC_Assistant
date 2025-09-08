@@ -13,10 +13,10 @@ public partial class ProjectStateView
         InitializeComponent();
         IndicateDisconnected();
         
-        ProjectState.Events.Connected += SetSolutionPath;
-        ProjectState.Events.Disconnected += IndicateDisconnected;
-        ProjectState.Events.StartedRunning += IndicateRunMode;
-        ProjectState.Events.StoppedRunning += IndicateConfigMode;
+        AppInterface.Instance.Connected += SetSolutionPath;
+        AppInterface.Instance.Disconnected += IndicateDisconnected;
+        AppInterface.Instance.StartedRunning += IndicateRunMode;
+        AppInterface.Instance.StoppedRunning += IndicateConfigMode;
     }
 
     private void SetSolutionPath(string projectFile, string? projectFolder)

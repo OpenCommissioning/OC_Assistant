@@ -8,11 +8,11 @@ internal partial class FileMenu
     public FileMenu()
     {
         InitializeComponent();
-        ProjectState.Events.Connected += (_, _) => DisconnectItem.IsEnabled = true;
-        ProjectState.Events.Disconnected += () => DisconnectItem.IsEnabled = false;
+        AppInterface.Instance.Connected += (_, _) => DisconnectItem.IsEnabled = true;
+        AppInterface.Instance.Disconnected += () => DisconnectItem.IsEnabled = false;
     }
 
-    private void CloseProjectOnClick(object sender, RoutedEventArgs e) => ProjectState.Control.Disconnect();
+    private void CloseProjectOnClick(object sender, RoutedEventArgs e) => AppInterface.Instance.Disconnect();
     
     private void ExitOnClick(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
 }

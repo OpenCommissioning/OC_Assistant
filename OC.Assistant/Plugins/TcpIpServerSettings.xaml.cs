@@ -8,14 +8,14 @@ public partial class TcpIpServerSettings
     public TcpIpServerSettings()
     {
         InitializeComponent();
-        if (Core.XmlFile.Instance.Path is null) return;
-        Address.Text = Core.XmlFile.Instance.TcpIpServerAddress;
-        Port.Text = Core.XmlFile.Instance.TcpIpServerPort.ToString();
+        if (XmlFile.Instance.Path is null) return;
+        Address.Text = XmlFile.Instance.TcpIpServerAddress;
+        Port.Text = XmlFile.Instance.TcpIpServerPort.ToString();
     }
 
     public bool Save()
     {
-        if (Core.XmlFile.Instance.Path is null) return true;
+        if (XmlFile.Instance.Path is null) return true;
         return Dispatcher.Invoke(() =>
         {
             if (!IPAddress.TryParse(Address.Text, out _))
@@ -30,8 +30,8 @@ public partial class TcpIpServerSettings
                 return false;
             }
             
-            Core.XmlFile.Instance.TcpIpServerAddress = Address.Text;
-            Core.XmlFile.Instance.TcpIpServerPort = number;
+            XmlFile.Instance.TcpIpServerAddress = Address.Text;
+            XmlFile.Instance.TcpIpServerPort = number;
             return true;
         });
     }

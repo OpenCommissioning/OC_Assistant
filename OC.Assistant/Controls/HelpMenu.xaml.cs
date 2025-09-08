@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;
 
@@ -41,12 +42,12 @@ internal partial class HelpMenu
     
     private void AppDataOnClick(object sender, RoutedEventArgs e)
     {
-        Process.Start("explorer.exe" , Core.AppData.Path);
+        Process.Start("explorer.exe" , AppData.Path);
     }
 
     private void VerboseOnClick(object sender, RoutedEventArgs e)
     {
-        Sdk.Logger.Verbose = ((CheckBox) sender).IsChecked == true;
+        Logger.Verbose = ((CheckBox) sender).IsChecked == true;
     }
     
     private void AboutOnClick(object sender, RoutedEventArgs e)
@@ -58,7 +59,7 @@ internal partial class HelpMenu
 
         stack.Add(new GitHubLink());
         
-        stack.Add(new DependencyInfo(typeof(Sdk.Logger))
+        stack.Add(new DependencyInfo(typeof(Logger))
         {
             Url = "https://github.com/OpenCommissioning/OC_Assistant_Sdk",
             UrlName = "github"

@@ -19,6 +19,8 @@ public partial class MainWindow
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
         WebApi.BuildAndRun();
+
+        //MainMenu.Items.Insert(1, new Twincat.MainMenu(AppInterface.Instance));
     }
 
     private void ReadSettings()

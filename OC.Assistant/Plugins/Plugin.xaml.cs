@@ -3,12 +3,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml.Linq;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 
 namespace OC.Assistant.Plugins;
 
-internal partial class Plugin
+internal partial class Plugin : IPlugin
 {
     public Type? Type { get; private set; }
     public IPluginController? PluginController { get; private set; }
@@ -89,14 +90,28 @@ internal partial class Plugin
         });
     }
 
-    private void PluginOnStarted()
+    private IClient? PluginOnStarted()
     {
+        if (PluginController is null) return null;
+        
+        var readSize = PluginController.IoType == IoType.Struct ? 
+            PluginController.InputStructure.Length : 
+            PluginController.InputAddress.Length;
+        
+        var writeSize = PluginController.IoType == IoType.Struct ? 
+            PluginController.OutputStructure.Length : 
+            PluginController.OutputAddress.Length;
+
+        var client = AppInterface.Instance.PluginOnStart(writeSize, readSize);
+        
         Dispatcher.Invoke(() =>
         {
             StartStopButton.IsEnabled = true;
             StartIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
             StopIcon.Foreground = Application.Current.Resources["DangerBrush"] as SolidColorBrush;
         });
+        
+        return client;
     }
     
     private void PluginOnStarting()
