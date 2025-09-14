@@ -24,7 +24,7 @@
             Background="{DynamicResource White4Brush}"
             Margin="0 0 3 0"
             Padding="5 0">
-        <Label x:Name="HostLabel"
+        <Label x:Name="ModeLabel"
                VerticalAlignment="Center" 
                HorizontalAlignment="Center"
                Foreground="{DynamicResource ForegroundBaseBrush}">

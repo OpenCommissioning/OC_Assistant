@@ -12,8 +12,8 @@ public partial class WelcomePage
     public WelcomePage()
     {
         InitializeComponent();
-        AppInterface.Instance.Connected += (_, _) => Visibility = Visibility.Hidden;
-        AppInterface.Instance.Disconnected += () => Visibility = Visibility.Visible;
+        AppControl.Instance.Connected += (_, _, _) => Visibility = Visibility.Hidden;
+        AppControl.Instance.Disconnected += () => Visibility = Visibility.Visible;
         ContentAdded += content =>
         {
             Dispatcher.Invoke(() =>
@@ -44,7 +44,7 @@ public partial class WelcomePage
         
         if (openFileDialog.ShowDialog() == true)
         {
-            AppInterface.Instance.Connect(openFileDialog.FileName);
+            AppControl.Instance.Connect(openFileDialog.FileName);
         }
     }
 
@@ -71,6 +71,6 @@ public partial class WelcomePage
             Logger.LogError(this, ex.Message);
         }
 
-        AppInterface.Instance.Connect(safeFileDialog.FileName);
+        AppControl.Instance.Connect(safeFileDialog.FileName);
     }
 }

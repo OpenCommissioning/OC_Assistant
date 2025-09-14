@@ -102,7 +102,7 @@ internal partial class Plugin : IPlugin
             PluginController.OutputStructure.Length : 
             PluginController.OutputAddress.Length;
 
-        var client = AppInterface.Instance.PluginOnStart(writeSize, readSize);
+        var client = AppControl.Instance.PluginOnStart(writeSize, readSize);
         
         Dispatcher.Invoke(() =>
         {

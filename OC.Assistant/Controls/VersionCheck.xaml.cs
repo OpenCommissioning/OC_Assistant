@@ -25,7 +25,7 @@ public partial class VersionCheck
                     const string url = "https://github.com/opencommissioning/oc_assistant/releases/latest";
                 
                     var version = Assembly.GetExecutingAssembly().GetName().Version;
-                    Logger.LogInfo(this, $"Current version {version}");
+                    Logger.LogInfo(this, $"Application version {version}");
                     var current = $"v{version?.Major}.{version?.Minor}.{version?.Build}";
                 
                     using var client = new HttpClient();

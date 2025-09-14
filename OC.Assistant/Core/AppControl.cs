@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Windows;
+﻿using System.Windows;
 using System.Xml.Linq;
 using OC.Assistant.Controls;
 using OC.Assistant.Plugins;
@@ -10,19 +9,19 @@ namespace OC.Assistant.Core;
 /// <summary>
 /// Singleton class to interact with the application.
 /// </summary>
-internal class AppInterface : IAppControl
+internal class AppControl : IAppControl
 {
-    private static readonly Lazy<AppInterface> LazyInstance = new(() => new AppInterface());
+    private static readonly Lazy<AppControl> LazyInstance = new(() => new AppControl());
     private string? _projectFile;
     
-    public static AppInterface Instance => LazyInstance.Value;
+    public static AppControl Instance => LazyInstance.Value;
     
     public IClient? PluginOnStart(int writeSize, int readSize)
     {
         return PluginStarted?.Invoke(writeSize, readSize);
     }
     
-    public event Action<string, string?>? Connected;
+    public event Action<string, CommunicationType, object?>? Connected;
     public event Action? Disconnected;
     public event Action? StartedRunning;
     public event Action? StoppedRunning;
@@ -32,36 +31,24 @@ internal class AppInterface : IAppControl
     public event Func<int, int, IClient>? PluginStarted;
     public bool IsRunning { get; private set; }
 
-    private AppInterface()
+    private AppControl()
     {
         if (LazyInstance.IsValueCreated) return;
         WebApi.ConfigReceived += ConfigReceived;
         PluginManager.PluginUpdated += PluginUpdated;
     }
 
-    public void Connect(string projectFile, string? projectFolder = null)
+    public void Connect(string projectFile, CommunicationType mode = CommunicationType.Default, object? parameter = null)
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
             if (_projectFile is not null) Disconnect();
             _projectFile = projectFile;
-
-            if (projectFolder is null)
-            {
-                XmlFile.Instance.Path = projectFile;
-                ApiLocal.Interface.CommunicationType = CommunicationType.TcpIp;
-                Instance.PluginStarted += OnPluginStarted;
-                Connected?.Invoke(projectFile, null);
-                Logger.LogInfo(this, $"{_projectFile} connected");
-                Stop();
-                return;
-            }
-            
-            var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-            XmlFile.Instance.Path = System.IO.Path.Combine(projectFolder, $"{assemblyName}.xml");
-            ApiLocal.Interface.CommunicationType = CommunicationType.Twincat;
-            Connected?.Invoke(projectFile, projectFolder);
+            XmlFile.Instance.Path = projectFile;
+            Connected?.Invoke(projectFile, mode, parameter);
             Logger.LogInfo(this, $"{_projectFile} connected");
+
+            if (parameter is null) Instance.PluginStarted += OnPluginStarted;
         });
     }
 

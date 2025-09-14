@@ -17,16 +17,16 @@ public partial class PluginManager
         ItemsControl.ItemsSource = Plugins;
         Plugins.CollectionChanged += PluginsOnCollectionChanged;
         XmlFile.Instance.Reloaded += XmlOnReloaded;
-        AppInterface.Instance.Connected += OnConnected;
-        AppInterface.Instance.Disconnected += OnDisconnect;
-        AppInterface.Instance.StartedRunning += OnStartedRunning;
-        AppInterface.Instance.StoppedRunning += OnStoppedRunning;
-        AppInterface.Instance.Locked += OnLocked;
+        AppControl.Instance.Connected += OnConnected;
+        AppControl.Instance.Disconnected += OnDisconnect;
+        AppControl.Instance.StartedRunning += OnStartedRunning;
+        AppControl.Instance.StoppedRunning += OnStoppedRunning;
+        AppControl.Instance.Locked += OnLocked;
     }
-    
-    private void OnConnected(string projectFile, string? projectFolder = null)
+
+    private void OnConnected(string projectFile, CommunicationType info, object? parameter)
     {
-        if (projectFolder is not null) return;
+        if (parameter is not null) return;
         TcpServer.Activate();
     }
     

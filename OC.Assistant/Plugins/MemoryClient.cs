@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Plugins;
 
 internal class MemoryClient : IClient
 {
@@ -33,7 +33,7 @@ internal class MemoryClient : IClient
         _readSymbol = null;
     }
 
-    public void SetWriteIndex(string symbolName)
+    public void SetWriteIndex(string symbolName, string? prefix, string? suffix)
     {
         if (string.IsNullOrEmpty(symbolName))
         {
@@ -44,7 +44,7 @@ internal class MemoryClient : IClient
         WriteBuffers.TryAdd(symbolName, new byte[WriteBuffer.Length]);
     }
 
-    public void SetReadIndex(string symbolName)
+    public void SetReadIndex(string symbolName, string? prefix, string? suffix)
     {
         if (string.IsNullOrEmpty(symbolName))
         {
@@ -113,4 +113,9 @@ internal class MemoryClient : IClient
             Logger.LogError(this, e.Message);
         }
     }
+
+    public IRecordDataServer RecordDataServer { get; } = new RecordDataServerFallback();
+    public CommunicationType CommunicationType => CommunicationType.Default;
+    public string ServerAddress => XmlFile.Instance.TcpIpServerAddress;
+    public int ServerPort => XmlFile.Instance.TcpIpServerPort;
 }

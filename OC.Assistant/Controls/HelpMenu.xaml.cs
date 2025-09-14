@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
+using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;
@@ -34,7 +34,6 @@ internal partial class HelpMenu
             const string url = "https://github.com/OpenCommissioning/OC_Assistant";
             Style = Application.Current.FindResource("LinkButton") as Style;
             Margin = new Thickness(0, 10, 0, 20);
-            Cursor = Cursors.Hand;
             Content = "Assistant github page";
             Click += (_, _) => Process.Start(new ProcessStartInfo {FileName = url, UseShellExecute = true});
         }
@@ -71,10 +70,25 @@ internal partial class HelpMenu
             UrlName = "github"
         });
         
+        AddPackages(stack);
         AddThirdParty(stack);
         AddPlugins(stack);
         
         _ = Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+    
+    private static void AddPackages(UIElementCollection stack)
+    {
+        var packages = PackageRegister.Packages.DistinctBy(x => x.Type.Assembly.FullName);
+        
+        foreach (var package in packages)
+        {
+            stack.Add(new DependencyInfo(package.Type)
+            {
+                Url = package.RepositoryUrl,
+                UrlName = package.RepositoryType
+            });
+        }
     }
     
     private static void AddPlugins(UIElementCollection stack)
@@ -96,13 +110,7 @@ internal partial class HelpMenu
 
     private static void AddThirdParty(UIElementCollection stack)
     {
-        stack.Add(new Label{Content = "\n\nThird party software:\n"});
-        
-        stack.Add(new DependencyInfo(typeof(EnvDTE.DTE))
-        {
-            Url = "https://www.nuget.org/packages/envdte",
-            UrlName = "nuget"
-        });
+        stack.Add(new Label{Content = "\n\nNuget packages:\n"});
         
         stack.Add(new DependencyInfo(typeof(Microsoft.AspNetCore.Builder.WebApplication))
         {
@@ -110,27 +118,9 @@ internal partial class HelpMenu
             UrlName = "nuget"
         });
         
-        stack.Add(new DependencyInfo(typeof(TwinCAT.Ads.AdsClient))
-        {
-            Url = "https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads",
-            UrlName = "nuget"
-        });
-        
         stack.Add(new DependencyInfo(typeof(Serilog.ILogger))
         {
             Url = "https://www.nuget.org/packages/Serilog.Sinks.File",
-            UrlName = "nuget"
-        });
-        
-        stack.Add(new DependencyInfo(typeof(TCatSysManagerLib.TcSysManager))
-        {
-            Url = "https://www.nuget.org/packages/TCatSysManagerLib",
-            UrlName = "nuget"
-        });
-        
-        stack.Add(new DependencyInfo("OC.TcPnScanner.CLI", "")
-        {
-            Url = "https://www.nuget.org/packages/OC.TcPnScanner.CLI",
             UrlName = "nuget"
         });
     }

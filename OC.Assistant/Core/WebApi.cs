@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Core;
@@ -20,7 +22,7 @@ public static class WebApi
     
     public static event Action<XElement>? ConfigReceived;
     
-    public static void BuildAndRun()
+    public static void BuildAndRun(AppSettings appSettings)
     {
         if (_isRunning)
         {
@@ -36,8 +38,16 @@ public static class WebApi
             Logger.Error += Error;
             
             var builder = WebApplication.CreateBuilder();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddControllers().AddXmlSerializerFormatters();
+            
+            builder.WebHost.
+                UseUrls($"http://{appSettings.WebApiAddress}:{appSettings.WebApiPort}");
+            builder.Services
+                .AddEndpointsApiExplorer()
+                .AddControllers()
+                .AddXmlSerializerFormatters();
+            
+            builder.Logging.ClearProviders();
+            builder.Logging.AddProvider(new WebApiLogger());
         
             var app = builder.Build();
          
@@ -49,7 +59,10 @@ public static class WebApi
                 => HandleTimeScaling(timeScaling));
          
             app.MapGet("/api/messages", HandleMessages);
-        
+
+            app.MapGet("/api/plugins", HandlePlugins);
+
+            Logger.LogInfo(typeof(WebApi), $"WebApi listening on {app.Configuration["urls"]}");
             await app.RunAsync();
         });
     }
@@ -78,7 +91,7 @@ public static class WebApi
     {
         try
         {
-            ApiLocal.Interface.TimeScaling = timeScaling;
+            ApiLocal.TimeScaling = timeScaling;
             return Results.Accepted();
         }
         catch (Exception e)
@@ -86,12 +99,25 @@ public static class WebApi
             return Results.Problem(detail: e.Message, statusCode: 400, title: "Invalid data");
         }
     }
+
+    private static IResult HandlePlugins()
+    {
+        if (XmlFile.Instance.Path is null)
+        {
+            return Results.Problem(
+                detail: "Assistant is not connected.",
+                statusCode: 400,
+                title: "NotConnected");
+        }
+        
+        return Results.Content(XmlFile.Instance.Plugins.ToString(), "application/xml");
+    }
     
     private static async Task<IResult> HandleConfig(HttpRequest request)
     {
         try
         {
-            if (BusyState.IsSet || AppInterface.Instance.IsRunning)
+            if (BusyState.IsSet || AppControl.Instance.IsRunning)
             {
                 return Results.Problem(detail: "Assistant is busy or running.", statusCode: 400, title: "Busy");
             }

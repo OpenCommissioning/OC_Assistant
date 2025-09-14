@@ -3,11 +3,11 @@ using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Plugins;
 
-public partial class TcpIpServer
+public partial class TcpIpServerView
 {
-    private readonly Core.TcpIpServer _tcpIpServer = new ();
+    private readonly TcpIpServer _tcpIpServer = new ();
     
-    public TcpIpServer()
+    public TcpIpServerView()
     {
         InitializeComponent();
     }

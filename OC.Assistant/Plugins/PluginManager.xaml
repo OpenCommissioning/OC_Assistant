@@ -14,7 +14,7 @@
         </Grid.ColumnDefinitions>
         <ScrollViewer Grid.Column="0" x:Name="ScrollView">
             <StackPanel>
-                <plugins:TcpIpServer x:Name="TcpServer" Visibility="Collapsed"/>
+                <plugins:TcpIpServerView x:Name="TcpServer" Visibility="Collapsed"/>
                 <ItemsControl x:Name="ItemsControl"/>
                 <Button Style="{DynamicResource ButtonSecondary}"  
                         x:Name="BtnAdd" Visibility="Hidden" Click="BtnAddOnClick"

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Plugins;
 
 public class TcpIpServer
 {
@@ -69,13 +69,13 @@ public class TcpIpServer
             while (!token.IsCancellationRequested)
             {
                 if (!await ReadExactAsync(stream, buffer, 4, token)) break;
-                var channelLength = BitConverter.ToInt32(buffer[..4].Reverse().ToArray());
+                var channelLength = BitConverter.ToInt32(buffer.AsSpan()[..4]);
 
                 if (!await ReadExactAsync(stream, buffer, channelLength, token)) break;
                 var channel = Encoding.UTF8.GetString(buffer, 0, channelLength);
                 
                 if (!await ReadExactAsync(stream, buffer, 4, token)) break;
-                var payloadLength = BitConverter.ToInt32(buffer[..4].Reverse().ToArray());
+                var payloadLength = BitConverter.ToInt32(buffer.AsSpan()[..4]);
 
                 var payload = new byte[payloadLength];
                 if (!await ReadExactAsync(stream, payload, payloadLength, token)) break;
@@ -87,11 +87,11 @@ public class TcpIpServer
                 
                 if (!MemoryClient.WriteBuffers.TryGetValue(channel, out var writeBuffer))
                 {
-                    await stream.WriteAsync(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(0)), token);
+                    await stream.WriteAsync(BitConverter.GetBytes(0), token);
                     continue;
                 }
                 
-                var responseLength = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(writeBuffer.Length));
+                var responseLength = BitConverter.GetBytes(writeBuffer.Length);
                 await stream.WriteAsync(responseLength, token);
                 await stream.WriteAsync(writeBuffer, token);
             }

@@ -1,9 +1,9 @@
-﻿namespace OC.Assistant.Plugins;
+﻿namespace OC.Assistant.Core;
 
 /// <summary>
-/// Represents a plugin info, containing its type information and optional details.
+/// Represents information for a <see cref="Type"/> with additional information.
 /// </summary>
-internal class PluginInfo(Type type, string? repositoryUrl = null, string? repositoryType = null)
+internal class TypeInfo(Type type, string? repositoryUrl = null, string? repositoryType = null)
 {
     /// <summary>
     /// The <see cref="System.Type"/> of the plugin.
