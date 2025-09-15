@@ -79,6 +79,12 @@ public class TcpIpServer
 
                 var payload = new byte[payloadLength];
                 if (!await ReadExactAsync(stream, payload, payloadLength, token)) break;
+
+                if (channel == "/R")
+                {
+                    await HandleRecordData(stream, payload, token);
+                    continue;
+                }
                 
                 if (MemoryClient.ReadBuffers.TryGetValue(channel, out var readBuffer) && readBuffer.Length == payload.Length)
                 {
@@ -117,5 +123,44 @@ public class TcpIpServer
             read += bytesRead;
         }
         return true;
+    }
+    
+    private async Task HandleRecordData(NetworkStream stream, byte[] payload, CancellationToken token = default)
+    {
+        var direction = payload[0];
+        if (direction is < 1 or > 4) return;
+        
+        var identifier = BitConverter.ToUInt32(payload.AsSpan()[2..]);
+        uint index = 0;
+        uint dataLength = 0;
+
+        switch (direction)
+        {
+            case 1: //RD_REC
+                //get from RD_REC dict via identifier
+                //...
+                await stream.WriteAsync(BitConverter.GetBytes(index), token);
+                await stream.WriteAsync(BitConverter.GetBytes(dataLength), token);
+                break;
+            case 2: //WR_REC
+                //get from WR_REC dict via identifier
+                //...
+                var data = Array.Empty<byte>();
+                if (data.Length != dataLength) return;
+                await stream.WriteAsync(BitConverter.GetBytes(index), token);
+                await stream.WriteAsync(BitConverter.GetBytes(dataLength), token);
+                await stream.WriteAsync(data, token);
+                break;
+            case 3: //RD_RES
+                // invoke ReadRes
+                //...
+                await stream.WriteAsync(new byte[1], token);
+                break;
+            case 4: //WR_RES
+                // invoke WriteRes
+                //...
+                await stream.WriteAsync(new byte[1], token);
+                break;
+        }
     }
 }
