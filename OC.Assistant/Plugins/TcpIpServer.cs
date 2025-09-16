@@ -10,9 +10,7 @@ public class TcpIpServer
     private readonly List<Task> _tasks = [];
 
     public void RunDetached(string ipAddress, int port)
-    {
-        _tasks.Add(RunAsync(ipAddress, port)); 
-    }
+        => _tasks.Add(RunAsync(ipAddress, port)); 
 
     private async Task RunAsync(string ipAddress, int port)
     {
@@ -68,21 +66,21 @@ public class TcpIpServer
 
             while (!token.IsCancellationRequested)
             {
-                if (!await ReadExactAsync(stream, buffer, 4, token)) break;
+                if (!await ReadAsync(stream, buffer, 4, token)) break;
                 var channelLength = BitConverter.ToInt32(buffer.AsSpan()[..4]);
 
-                if (!await ReadExactAsync(stream, buffer, channelLength, token)) break;
+                if (!await ReadAsync(stream, buffer, channelLength, token)) break;
                 var channel = Encoding.UTF8.GetString(buffer, 0, channelLength);
                 
-                if (!await ReadExactAsync(stream, buffer, 4, token)) break;
+                if (!await ReadAsync(stream, buffer, 4, token)) break;
                 var payloadLength = BitConverter.ToInt32(buffer.AsSpan()[..4]);
 
                 var payload = new byte[payloadLength];
-                if (!await ReadExactAsync(stream, payload, payloadLength, token)) break;
+                if (!await ReadAsync(stream, payload, payloadLength, token)) break;
 
                 if (channel == "/R")
                 {
-                    await HandleRecordData(stream, payload, token);
+                    await HandleRecordDataAsync(stream, payload, token);
                     continue;
                 }
                 
@@ -112,7 +110,7 @@ public class TcpIpServer
         }
     }
     
-    private static async Task<bool> ReadExactAsync(NetworkStream stream, byte[] buffer, int length, CancellationToken token = default)
+    private static async Task<bool> ReadAsync(NetworkStream stream, byte[] buffer, int length, CancellationToken token = default)
     {
         var read = 0;
         while (read < length)
@@ -125,42 +123,50 @@ public class TcpIpServer
         return true;
     }
     
-    private async Task HandleRecordData(NetworkStream stream, byte[] payload, CancellationToken token = default)
+    private async Task HandleRecordDataAsync(NetworkStream stream, byte[] payload, CancellationToken token = default)
     {
-        var direction = payload[0];
-        if (direction is < 1 or > 4) return;
-        
-        var identifier = BitConverter.ToUInt32(payload.AsSpan()[2..]);
-        uint index = 0;
-        uint dataLength = 0;
-
-        switch (direction)
+        try
         {
-            case 1: //RD_REC
-                //get from RD_REC dict via identifier
-                //...
-                await stream.WriteAsync(BitConverter.GetBytes(index), token);
-                await stream.WriteAsync(BitConverter.GetBytes(dataLength), token);
-                break;
-            case 2: //WR_REC
-                //get from WR_REC dict via identifier
-                //...
-                var data = Array.Empty<byte>();
-                if (data.Length != dataLength) return;
-                await stream.WriteAsync(BitConverter.GetBytes(index), token);
-                await stream.WriteAsync(BitConverter.GetBytes(dataLength), token);
-                await stream.WriteAsync(data, token);
-                break;
-            case 3: //RD_RES
-                // invoke ReadRes
-                //...
-                await stream.WriteAsync(new byte[1], token);
-                break;
-            case 4: //WR_RES
-                // invoke WriteRes
-                //...
-                await stream.WriteAsync(new byte[1], token);
-                break;
+            var direction = BitConverter.ToUInt16(payload);
+            var indexOffset = BitConverter.ToUInt32(payload.AsSpan()[2..]);
+            uint index;
+            uint dataLength;
+
+            switch (direction)
+            {
+                case 1: //RD_REC
+                    if (RecordData.Instance.TryGetReadRequest(indexOffset) is not {} readRequest) break;
+                    index = (ushort)readRequest.IndexGroup;
+                    dataLength = readRequest.CbLength;
+                    await stream.WriteAsync(BitConverter.GetBytes(index), token);
+                    await stream.WriteAsync(BitConverter.GetBytes(dataLength), token);
+                    return;
+                case 2: //WR_REC
+                    if (RecordData.Instance.TryGetWriteRequest(indexOffset) is not {} writeRequest) break;
+                    index = (ushort)writeRequest.IndexGroup;
+                    dataLength = writeRequest.CbLength;
+                    if (writeRequest.Data?.Length != dataLength) break;
+                    await stream.WriteAsync(BitConverter.GetBytes(index), token);
+                    await stream.WriteAsync(BitConverter.GetBytes(dataLength), token);
+                    await stream.WriteAsync(writeRequest.Data, token);
+                    return;
+                case 3: //RD_RES
+                    index = BitConverter.ToUInt32(payload.AsSpan()[6..]);
+                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[10..]);
+                    RecordData.Instance.SendReadRes(indexOffset, index, dataLength, payload[14..]);
+                    break;
+                case 4: //WR_RES
+                    index = BitConverter.ToUInt32(payload.AsSpan()[6..]);
+                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[10..]);
+                    RecordData.Instance.SendWriteRes(indexOffset, index, dataLength);
+                    break;
+            }
         }
+        catch (Exception e)
+        {
+            Sdk.Logger.LogWarning(this, e.Message);
+        }
+        
+        await stream.WriteAsync(new byte[1], token);
     }
 }

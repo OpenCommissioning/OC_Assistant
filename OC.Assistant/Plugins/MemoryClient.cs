@@ -114,7 +114,7 @@ internal class MemoryClient : IClient
         }
     }
 
-    public IRecordDataServer RecordDataServer { get; } = new RecordDataServerFallback();
+    public IRecordDataServer RecordDataServer { get; } = RecordData.Instance;
     public CommunicationType CommunicationType => CommunicationType.Default;
     public string ServerAddress => XmlFile.Instance.TcpIpServerAddress;
     public int ServerPort => XmlFile.Instance.TcpIpServerPort;
