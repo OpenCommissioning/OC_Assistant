@@ -8,6 +8,7 @@ public class RecordData : IRecordDataServer
     private static readonly Lazy<RecordData> Lazy = new(() => new RecordData());
     private ConcurrentDictionary<uint, Queue<RecordDataRequest>> WriteRequests { get; } = new();
     private ConcurrentDictionary<uint, Queue<RecordDataRequest>> ReadRequests { get; } = new();
+    private ConcurrentDictionary<uint, object?> SubscribedDevices { get; } = new();
     
     public static RecordData Instance => Lazy.Value;
     
@@ -20,6 +21,9 @@ public class RecordData : IRecordDataServer
     
     public RecordDataRequest? TryGetReadRequest(uint indexOffset)
         => ReadRequests.TryGetValue(indexOffset, out var queue) && queue.Count > 0 ? queue.Dequeue() : null;
+    
+    public void Subscribe(uint indexOffset)
+        => SubscribedDevices.TryAdd(indexOffset, null);
 
     private static RecordDataResponse CreateResponse(uint indexOffset, uint index, uint dataLength, byte[]? data = null)
     {
@@ -38,12 +42,14 @@ public class RecordData : IRecordDataServer
     
     public void WriteReq(RecordDataRequest request)
     {
+        if (!SubscribedDevices.ContainsKey(request.IndexOffset)) return;
         WriteRequests.TryAdd(request.IndexOffset, new Queue<RecordDataRequest>());
         WriteRequests[request.IndexOffset].Enqueue(request);
     }
 
     public void ReadReq(RecordDataRequest request)
     {
+        if (!SubscribedDevices.ContainsKey(request.IndexOffset)) return;
         ReadRequests.TryAdd(request.IndexOffset, new Queue<RecordDataRequest>());
         ReadRequests[request.IndexOffset].Enqueue(request);
     }

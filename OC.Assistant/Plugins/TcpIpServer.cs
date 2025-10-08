@@ -127,13 +127,16 @@ public class TcpIpServer
     {
         try
         {
-            var direction = BitConverter.ToUInt16(payload);
+            var command = BitConverter.ToUInt16(payload);
             var indexOffset = BitConverter.ToUInt32(payload.AsSpan()[2..]);
-            uint index;
+            ushort index;
             uint dataLength;
 
-            switch (direction)
+            switch (command)
             {
+                case 0: //Subscribe
+                    RecordData.Instance.Subscribe(indexOffset);
+                    break;
                 case 1: //RD_REC
                     if (RecordData.Instance.TryGetReadRequest(indexOffset) is not {} readRequest) break;
                     index = (ushort)readRequest.IndexGroup;
@@ -151,13 +154,13 @@ public class TcpIpServer
                     await stream.WriteAsync(writeRequest.Data, token);
                     return;
                 case 3: //RD_RES
-                    index = BitConverter.ToUInt32(payload.AsSpan()[6..]);
-                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[10..]);
+                    index = BitConverter.ToUInt16(payload.AsSpan()[6..]);
+                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[8..]);
                     RecordData.Instance.SendReadRes(indexOffset, index, dataLength, payload[14..]);
                     break;
                 case 4: //WR_RES
-                    index = BitConverter.ToUInt32(payload.AsSpan()[6..]);
-                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[10..]);
+                    index = BitConverter.ToUInt16(payload.AsSpan()[6..]);
+                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[8..]);
                     RecordData.Instance.SendWriteRes(indexOffset, index, dataLength);
                     break;
             }
