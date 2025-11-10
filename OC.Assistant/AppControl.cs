@@ -35,13 +35,19 @@ internal class AppControl : IAppControl
     private AppControl()
     {
         if (LazyInstance.IsValueCreated) return;
-        WebApi.ConfigReceived += ConfigReceived;
-        PluginManager.PluginUpdated += PluginUpdated;
+        WebApi.ConfigReceived += OnConfigReceived;
+        PluginManager.PluginUpdated += OnPluginUpdated;
         
         // Deprecated named pipe API. Will be removed in future versions
-        NamedPipeApi.Interface.ConfigReceived += ConfigReceived;
+        NamedPipeApi.Interface.ConfigReceived += OnConfigReceived;
     }
 
+    private void OnConfigReceived(XElement config)
+        => ConfigReceived?.Invoke(config);
+    
+    private void OnPluginUpdated(string? name, string? oldName)
+        => PluginUpdated?.Invoke(name, oldName);
+    
     public void Connect(string projectFile, CommunicationType mode = CommunicationType.Default, object? parameter = null)
     {
         Application.Current.Dispatcher.Invoke(() =>
