@@ -37,6 +37,9 @@ internal class AppControl : IAppControl
         if (LazyInstance.IsValueCreated) return;
         WebApi.ConfigReceived += ConfigReceived;
         PluginManager.PluginUpdated += PluginUpdated;
+        
+        // Deprecated named pipe API. Will be removed in future versions
+        NamedPipeApi.Interface.ConfigReceived += ConfigReceived;
     }
 
     public void Connect(string projectFile, CommunicationType mode = CommunicationType.Default, object? parameter = null)
