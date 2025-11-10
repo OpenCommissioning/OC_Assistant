@@ -18,12 +18,9 @@
     
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19" />
+      <PackageReference Include="OC.Assistant.Sdk" Version="2.0.0" />
+      <PackageReference Include="OC.Assistant.Theme" Version="2.1.2" />
       <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <ProjectReference Include="..\..\Sdk\OC.Assistant.Sdk\OC.Assistant.Sdk.csproj" />
-      <ProjectReference Include="..\..\Theme\OC.Assistant.Theme\OC.Assistant.Theme.csproj" />
     </ItemGroup>
     
 </Project>
