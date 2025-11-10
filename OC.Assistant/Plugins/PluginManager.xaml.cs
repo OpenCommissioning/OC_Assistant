@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using OC.Assistant.Core;
 using OC.Assistant.Sdk.Plugin;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;

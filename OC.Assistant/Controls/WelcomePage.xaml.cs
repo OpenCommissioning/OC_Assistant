@@ -2,7 +2,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
-using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Common;
 
 /// <inheritdoc cref="ConcurrentQueue{T}"/>
 /// <param name="capacity">

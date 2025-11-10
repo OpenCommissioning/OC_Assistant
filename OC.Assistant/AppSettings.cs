@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant;
 
 /// <summary>
 /// Represents the settings structure.

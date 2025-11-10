@@ -1,10 +1,11 @@
 ﻿using System.Windows;
 using System.Xml.Linq;
+using OC.Assistant.Api;
 using OC.Assistant.Controls;
 using OC.Assistant.Plugins;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant;
 
 /// <summary>
 /// Singleton class to interact with the application.

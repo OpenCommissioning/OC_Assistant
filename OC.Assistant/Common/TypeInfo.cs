@@ -1,4 +1,4 @@
-﻿namespace OC.Assistant.Core;
+﻿namespace OC.Assistant.Common;
 
 /// <summary>
 /// Represents information for a <see cref="Type"/> with additional information.

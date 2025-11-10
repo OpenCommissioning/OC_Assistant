@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Media;
-using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;

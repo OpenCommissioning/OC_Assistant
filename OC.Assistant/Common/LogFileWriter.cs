@@ -1,7 +1,7 @@
 ﻿using OC.Assistant.Sdk;
 using Serilog;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Common;
 
 public static class LogFileWriter
 {

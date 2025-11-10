@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Common;
 
 /// <summary>
 /// Static <see cref="Assembly"/> helper.

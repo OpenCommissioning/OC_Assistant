@@ -4,11 +4,11 @@ using System.Windows.Controls;
 using System.Xml.Linq;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Common;
 
-internal class PackageRegister : List<TypeInfo>
+internal class PackageHandler : List<TypeInfo>
 {
-    private static readonly Lazy<PackageRegister> LazyInstance = new(() => []);
+    private static readonly Lazy<PackageHandler> LazyInstance = new(() => []);
     
     /// <summary>
     /// The list of available packages.
@@ -23,9 +23,29 @@ internal class PackageRegister : List<TypeInfo>
     /// <summary>
     /// The private constructor.
     /// </summary>
-    private PackageRegister()
+    private PackageHandler()
     {
+        if (LazyInstance.IsValueCreated) return;
         Initialize();
+    }
+
+    /// <summary>
+    /// Implements found packages into the given menu.
+    /// </summary>
+    public static void Implement(Menu menu)
+    {
+        foreach (var package in Packages)
+        {
+            try
+            {
+                if (Activator.CreateInstance(package.Type, AppControl.Instance) is not MenuItem menuItem) continue;
+                menu.Items.Insert(1, menuItem);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(typeof(PackageHandler), e.Message);
+            }
+        }
     }
     
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using OC.Assistant.Core;
+using OC.Assistant.Api;
+using OC.Assistant.Common;
 using OC.Assistant.Sdk;
 using OC.Assistant.Theme;
 
@@ -22,12 +22,7 @@ public partial class MainWindow
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
         WebApi.BuildAndRun(AppSettings);
-        
-        foreach (var package in PackageRegister.Packages)
-        {
-            if (Activator.CreateInstance(package.Type, AppControl.Instance) is not MenuItem menu) continue;
-            MainMenu.Items.Insert(1, menu);
-        }
+        PackageHandler.Implement(MainMenu);
     }
     
     private void SetSizeAndPosition()

@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OC.Assistant.Common;
 using OC.Assistant.Sdk;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Api;
 
 /// <summary>
 /// Represents an HTTP-based API.

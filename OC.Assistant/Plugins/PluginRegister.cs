@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Xml.Linq;
-using OC.Assistant.Core;
+using OC.Assistant.Common;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
-using TypeInfo = OC.Assistant.Core.TypeInfo;
+using TypeInfo = OC.Assistant.Common.TypeInfo;
 
 namespace OC.Assistant.Plugins;
 

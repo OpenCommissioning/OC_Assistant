@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using OC.Assistant.Core;
+using OC.Assistant.Common;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;
@@ -79,7 +79,7 @@ internal partial class HelpMenu
     
     private static void AddPackages(UIElementCollection stack)
     {
-        var packages = PackageRegister.Packages.DistinctBy(x => x.Type.Assembly.FullName);
+        var packages = PackageHandler.Packages.DistinctBy(x => x.Type.Assembly.FullName);
         
         foreach (var package in packages)
         {

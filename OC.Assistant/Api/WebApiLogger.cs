@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace OC.Assistant.Core;
+namespace OC.Assistant.Api;
 
 public class WebApiLogger : ILoggerProvider
 {
