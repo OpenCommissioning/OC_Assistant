@@ -15,15 +15,14 @@
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Label Margin="6,0,0,0" VerticalAlignment="Stretch" VerticalContentAlignment="Center">Properties</Label>
-                <Button Width="36" ToolTip="Hide Properties"
-                        HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                <Button Width="24" Height="24" Padding="0"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
                         Click="CloseButtonClick">
                     <ContentControl
                         Template="{DynamicResource IconTemplate}"
-                        Margin="0 -2 0 2"
                         FontSize="10"
                         Foreground="{DynamicResource ForegroundBaseBrush}"
-                        Content="{DynamicResource IconChromeMinimize}"/>
+                        Content="{DynamicResource IconChromeClose}"/>
                 </Button>
             </Grid>
             <plugins:EditorWindow 
