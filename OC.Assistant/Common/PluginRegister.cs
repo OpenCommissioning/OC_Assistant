@@ -1,25 +1,33 @@
 ﻿using System.IO;
 using System.Reflection;
+using System.Windows.Controls;
 using System.Xml.Linq;
-using OC.Assistant.Common;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
-using TypeInfo = OC.Assistant.Common.TypeInfo;
 
-namespace OC.Assistant.Plugins;
+namespace OC.Assistant.Common;
 
 /// <summary>
 /// Available plugins.
 /// </summary>
-internal class PluginRegister : List<TypeInfo>
+internal class PluginRegister
 {
+    private static readonly Lazy<PluginRegister> LazyInstance = new(() => new PluginRegister());
+    private readonly List<TypeInfo> _plugins = [];
+    private readonly List<TypeInfo> _extensions = [];
+    
     /// <summary>
     /// The list of available plugins.
     /// </summary>
-    public static IReadOnlyCollection<TypeInfo> Plugins => LazyInstance.Value;
+    public static IReadOnlyCollection<TypeInfo> Plugins => LazyInstance.Value._plugins;
     
     /// <summary>
-    /// The full path of the plugins search directory. 
+    /// The list of available extensions.
+    /// </summary>
+    public static IReadOnlyCollection<TypeInfo> Extensions => LazyInstance.Value._extensions;
+    
+    /// <summary>
+    /// The full path of the search directory. 
     /// </summary>
     public static string SearchPath { get; } = Path.GetFullPath(@".\Plugins");
     
@@ -32,15 +40,33 @@ internal class PluginRegister : List<TypeInfo>
     {
         return Plugins.FirstOrDefault(x => x.Type.Name == typeName);
     }
-    
-    private static readonly Lazy<PluginRegister> LazyInstance = new(() => []);
 
     /// <summary>
     /// The private constructor.
     /// </summary>
     private PluginRegister()
     {
+        if (LazyInstance.IsValueCreated) return;
         Initialize();
+    }
+    
+    /// <summary>
+    /// Adds found extensions into the given menu.
+    /// </summary>
+    public static void ImplementExtensions(Menu menu)
+    {
+        foreach (var package in Extensions)
+        {
+            try
+            {
+                if (Activator.CreateInstance(package.Type, AppControl.Instance) is not MenuItem menuItem) continue;
+                menu.Items.Insert(1, menuItem);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(typeof(PluginRegister), e.Message);
+            }
+        }
     }
 
     /// <summary>
@@ -48,7 +74,7 @@ internal class PluginRegister : List<TypeInfo>
     /// </summary>
     private void Initialize()
     {
-        Clear();
+        _plugins.Clear();
         
         if (Directory.Exists(SearchPath))
         {
@@ -104,11 +130,22 @@ internal class PluginRegister : List<TypeInfo>
             
             AssemblyHelper.AddDirectory(dir);
             var assembly = Assembly.LoadFile($"{dir}\\{dll}");
-                
-            foreach (var type in assembly.ExportedTypes.Where(x => x.BaseType == typeof(PluginBase)))
+            
+            foreach (var type in assembly.ExportedTypes)
             {
-                if (this.Any(x => x.Type.FullName == type.FullName)) continue;
-                Add(new TypeInfo(type, repositoryUrl, repositoryType));
+                if (type.BaseType == typeof(PluginBase))
+                {
+                    if (_plugins.Any(x => x.Type.FullName == type.FullName)) continue;
+                    _plugins.Add(new TypeInfo(type, repositoryUrl, repositoryType));
+                }
+                
+                if (type is {IsClass: true, IsAbstract: false, Name: "MainMenu"} &&
+                    typeof(MenuItem).IsAssignableFrom(type) &&
+                    type.GetConstructor([typeof(IAppControl)]) is not null)
+                {
+                    if (_extensions.Any(x => x.Type.FullName == type.FullName)) continue;
+                    _extensions.Add(new TypeInfo(type, repositoryUrl, repositoryType));
+                }
             }
         }
         catch (Exception e)

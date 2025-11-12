@@ -70,16 +70,16 @@ internal partial class HelpMenu
             UrlName = "github"
         });
         
-        AddPackages(stack);
+        Addons(stack);
         AddThirdParty(stack);
         AddPlugins(stack);
         
         _ = Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
     }
     
-    private static void AddPackages(UIElementCollection stack)
+    private static void Addons(UIElementCollection stack)
     {
-        var packages = PackageHandler.Packages.DistinctBy(x => x.Type.Assembly.FullName);
+        var packages = PluginRegister.Extensions.DistinctBy(x => x.Type.Assembly.FullName);
         
         foreach (var package in packages)
         {
@@ -93,7 +93,7 @@ internal partial class HelpMenu
     
     private static void AddPlugins(UIElementCollection stack)
     {
-        var plugins = Plugins.PluginRegister.Plugins.DistinctBy(x => x.Type.Assembly.FullName).ToArray();
+        var plugins = PluginRegister.Plugins.DistinctBy(x => x.Type.Assembly.FullName).ToArray();
         if (plugins.Length == 0) return;
         
         stack.Add(new Label{Content = "\n\nPlugins:\n"});

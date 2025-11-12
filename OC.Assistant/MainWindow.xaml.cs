@@ -22,7 +22,7 @@ public partial class MainWindow
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
         WebApi.BuildAndRun(AppSettings);
-        PackageHandler.Implement(MainMenu);
+        PluginRegister.ImplementExtensions(MainMenu);
     }
     
     private void SetSizeAndPosition()
