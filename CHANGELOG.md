@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.5"></a>
+## [1.17.5](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.5) (2025-11-20)
+
+### Bug Fixes
+
+* tc variable evaluation ([e1edb6c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e1edb6cdfac2f99e75c2df47158e61d8de01dc18))
+* twincat gvl pack mode ([68a5909](https://www.github.com/OpenCommissioning/OC_Assistant/commit/68a59099b0415921d042ee551794239db45d7ff7))
+
 <a name="1.17.4"></a>
 ## [1.17.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.4) (2025-08-13)
 
