@@ -160,6 +160,7 @@ public static class TcSmTreeItemExtension
             $"{{attribute 'linkalways'}}\n" +
             $"{{attribute 'qualified_only'}}\n" +
             $"{{attribute 'subsequent'}}\n" +
+            $"{{attribute 'pack_mode' := '1'}}\n" +
             $"VAR_GLOBAL\n{variables}END_VAR";
         
         return gvlItem;

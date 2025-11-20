@@ -46,7 +46,7 @@ internal class EtherCatVariables : List<EtherCatVariable>
             var inOut = syncMan switch
             {
                 "0" when outputSize is not null => "AT %I*",
-                "0" when inputSize is not null => "AT %Q*",
+                "1" when inputSize is not null => "AT %Q*",
                 "2" => "AT %I*",
                 "3" => "AT %Q*",
                 _ => null
