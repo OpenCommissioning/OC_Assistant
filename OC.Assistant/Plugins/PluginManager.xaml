@@ -9,11 +9,11 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MinWidth="10"></ColumnDefinition>
-            <ColumnDefinition x:Name="GridSplitter" Width="0"></ColumnDefinition>
-            <ColumnDefinition x:Name="EditorColumn" Width="0"></ColumnDefinition>
+            <ColumnDefinition Width="4"></ColumnDefinition>
+            <ColumnDefinition x:Name="EditorColumn" Width="340"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <ScrollViewer Grid.Column="0" x:Name="ScrollView">
-            <StackPanel>
+        <ScrollViewer Grid.Column="0" x:Name="ScrollView" MouseDown="ScrollViewOnMouseDown">
+            <StackPanel >
                 <ItemsControl x:Name="ItemsControl"/>
                 <Button Style="{DynamicResource ButtonSecondary}"  
                         x:Name="BtnAdd" Visibility="Hidden" Click="BtnAddOnClick"
@@ -30,7 +30,6 @@
         <plugins:PluginEditor Grid.Column="2" x:Name="Editor" 
                             Margin="-3,2,0,0" 
                             Saved="EditorOnSaved"
-                            Closed="HideEditor"
                             SizeChanged="EditorOnSizeChanged"/>
         <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Transparent"/>
     </Grid>

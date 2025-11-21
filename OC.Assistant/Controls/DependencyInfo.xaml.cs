@@ -5,38 +5,30 @@ namespace OC.Assistant.Controls;
 
 public partial class DependencyInfo
 {
-    private string? _url;
-    
     public DependencyInfo(Type type)
     {
         InitializeComponent();
         NameLabel.Content = type.Assembly.GetName().Name;
         VersionLabel.Content = type.Assembly.GetName().Version?.ToString();
     }
-    
-    public DependencyInfo(string? name, string? version = null)
-    {
-        InitializeComponent();
-        NameLabel.Content = name;
-        VersionLabel.Content = version;
-    }
-    
+
     public string? Url
     {
-        get => _url;
-        set
+        get;
+        init
         {
             if (value is null)
             {
                 UrlButton.Visibility = Visibility.Collapsed;
                 return;
             }
+
             UrlButton.Visibility = Visibility.Visible;
-            _url = value;
+            field = value;
             UrlButton.ToolTip = value;
         }
     }
-    
+
     public string? UrlName
     {
         set => UrlButton.Content = value;

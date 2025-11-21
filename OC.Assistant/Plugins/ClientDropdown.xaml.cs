@@ -3,18 +3,24 @@ using OC.Assistant.Common;
 
 namespace OC.Assistant.Plugins;
 
-public partial class PluginDropdown
+public partial class ClientDropdown
 {
     public Type? SelectedType { get; private set; }
     
-    public PluginDropdown()
+    public ClientDropdown()
     {
         InitializeComponent();
         
         Loaded += (_, _) =>
         {
+            if (Items.Count > 0) return; 
             Items.Clear();
-            foreach (var type in PluginRegister.Plugins.Select(x => x.Type))
+            
+            //var unknown = new ComboBoxItem {Content = "None"};
+            //unknown.Selected += ComboBoxItem_Selected;
+            //Items.Add(unknown);
+            
+            foreach (var type in PluginRegister.ClientTypes)
             {
                 var comboBoxItem = new ComboBoxItem
                 {
@@ -25,16 +31,30 @@ public partial class PluginDropdown
                 comboBoxItem.Selected += ComboBoxItem_Selected;
                 Items.Add(comboBoxItem);
             }
+            
             SelectedIndex = 0;
         };
+    }
+
+    public void SelectType(Type? type)
+    {
+        foreach (ComboBoxItem item in Items)
+        {
+            var itemType = item.Tag as Type;
+            if (type != itemType) continue;
+            SelectedItem = item;
+            return;
+        }
+        
+        SelectedIndex = -1;
     }
     
     private void ComboBoxItem_Selected(object sender, EventArgs e)
     {
         var comboBoxItem = (ComboBoxItem)sender;
-        SelectedType = (Type)comboBoxItem.Tag;
+        SelectedType = comboBoxItem.Tag as Type;
         TypeSelected?.Invoke(SelectedType);
     }
         
-    public event Action<Type>? TypeSelected;
+    public event Action<Type?>? TypeSelected;
 }

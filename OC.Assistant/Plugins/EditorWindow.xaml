@@ -13,15 +13,22 @@
     <StackPanel Grid.Row="0">
         <TextBox 
             x:Name="PluginName" 
+            ToolTip="Name of the Plugin instance"
             Margin="0 0 0 5"
             Text="MyPlugin"/>
-        <Grid Margin="0 0 0 10">
-            <TextBox x:Name="TypeInfo" IsEnabled="False"/>
+        <Grid Margin="0 0 0 5" ToolTip="Plugin Type">
+            <TextBox x:Name="TypeInfo" IsEnabled="False" Visibility="Hidden"/>
             <plugins:PluginDropdown 
                 x:Name="TypeDropdown" 
                 HorizontalAlignment="Stretch"
                 TypeSelected="TypeSelectorOnSelected"/>
         </Grid>
+        <plugins:ClientDropdown 
+            x:Name="ClientDropdown" 
+            ToolTip="Client Communication Type"
+            Margin="0 0 0 10"
+            HorizontalAlignment="Stretch"
+            TypeSelected="ClientSelectorOnSelected"/>
     </StackPanel>
     <ScrollViewer Grid.Row="1">
         <DockPanel x:Name="ParameterPanel" Margin="4 0 0 0"/>

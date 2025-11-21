@@ -8,9 +8,6 @@ namespace OC.Assistant.Plugins;
 
 internal partial class PluginParameter : IParameter
 {
-    private readonly string? _fileFilter;
-    private object? _value;
-        
     public PluginParameter(IParameter parameter)
     {
         InitializeComponent();
@@ -32,15 +29,15 @@ internal partial class PluginParameter : IParameter
         
     public object? Value
     {
-        get => ValueTextBox.Text.ConvertTo(_value?.GetType() ?? null);
+        get => ValueTextBox.Text.ConvertTo(field?.GetType() ?? null);
         set
         {
             Dispatcher.Invoke(() =>
             {
-                _value = value;
-                ValueTextBox.Text = $"{_value}";
+                field = value;
+                ValueTextBox.Text = $"{field}";
                 
-                if (_value is bool boolValue)
+                if (field is bool boolValue)
                 {
                     ValueCheckBox.Visibility = Visibility.Visible;
                     ValueCheckBox.IsChecked = boolValue;
@@ -56,11 +53,11 @@ internal partial class PluginParameter : IParameter
 
     public string? FileFilter
     {
-        get => _fileFilter;
+        get;
         private init
         {
-            _fileFilter = value;
-            FileSelector.Visibility = _fileFilter is null || Value is bool ? Visibility.Collapsed : Visibility.Visible;
+            field = value;
+            FileSelector.Visibility = field is null || Value is bool ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 

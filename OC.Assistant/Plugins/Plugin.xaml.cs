@@ -8,8 +8,9 @@ using OC.Assistant.Sdk.Plugin;
 
 namespace OC.Assistant.Plugins;
 
-internal partial class Plugin
+internal partial class Plugin : IPlugin
 {
+    public Type? ClientType { get; set; }
     public Type? Type { get; private set; }
     public IPluginController? PluginController { get; private set; }
     
@@ -24,12 +25,15 @@ internal partial class Plugin
         Name = "MyPlugin";
     }
         
-    public Plugin(string name, Type type, XContainer parameter) : this()
+    public Plugin(string name, Type type, Type? clientType, XContainer parameter) : this()
     {
         if (!InitType(type)) return;
+        ClientType = clientType;
         PluginController?.Parameter.Update(parameter);
         Name = name;
-        BtnEditText.Text = $"{Name}  ({Type?.Name})";
+        NameText.Text = Name;
+        TypeText.Text = Type?.Name;
+        ClientTypeText.Text = ClientType?.Name ?? "<unknown>";
         PluginController?.Initialize(name);
     }
 
@@ -38,7 +42,9 @@ internal partial class Plugin
         if (!IsValid) return false;
         Name = name;
         PluginController.Stop();
-        BtnEditText.Text = $"{Name}  ({Type.Name})";
+        NameText.Text = Name;
+        TypeText.Text = Type?.Name;
+        ClientTypeText.Text = ClientType?.Name ?? "<unknown>";
         return PluginController.Save(name);
     }
         
@@ -60,6 +66,7 @@ internal partial class Plugin
             PluginController.Stopped += PluginOnStopped;
             PluginController.Starting += PluginOnStarting;
             PluginController.Stopping += PluginOnStopping;
+            PluginController.ClientRequested += PluginOnClientRequested;
             return true;
         }
         catch (Exception e)
@@ -69,13 +76,46 @@ internal partial class Plugin
         }
     }
 
-    private void PluginOnStopped()
+    private void PluginOnStarting()
+    {
+        Dispatcher.Invoke(() =>
+        {
+            StartStopButton.IsEnabled = false;
+            StartIcon.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
+            StopIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
+        });
+    }
+    
+    private IPluginClient? PluginOnClientRequested()
+    {
+        if (PluginController is null || ClientType is null) return null;
+        
+        var readSize = PluginController.IoType == IoType.Struct ? 
+            PluginController.InputStructure.Length : 
+            PluginController.InputAddress.Length;
+        
+        var writeSize = PluginController.IoType == IoType.Struct ? 
+            PluginController.OutputStructure.Length : 
+            PluginController.OutputAddress.Length;
+
+        try
+        {
+            return Activator.CreateInstance(ClientType, writeSize, readSize) as IPluginClient;
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(this, e.Message);
+            return null;
+        }
+    }
+    
+    private void PluginOnStarted()
     {
         Dispatcher.Invoke(() =>
         {
             StartStopButton.IsEnabled = true;
-            StartIcon.Foreground = Application.Current.Resources["SuccessBrush"] as SolidColorBrush;
-            StopIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
+            StartIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
+            StopIcon.Foreground = Application.Current.Resources["DangerBrush"] as SolidColorBrush;
         });
     }
     
@@ -88,29 +128,20 @@ internal partial class Plugin
             StartIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
         });
     }
-
-    private void PluginOnStarted()
+    
+    private void PluginOnStopped()
     {
         Dispatcher.Invoke(() =>
         {
             StartStopButton.IsEnabled = true;
-            StartIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
-            StopIcon.Foreground = Application.Current.Resources["DangerBrush"] as SolidColorBrush;
-        });
-    }
-    
-    private void PluginOnStarting()
-    {
-        Dispatcher.Invoke(() =>
-        {
-            StartStopButton.IsEnabled = false;
-            StartIcon.Foreground = Application.Current.Resources["White3Brush"] as SolidColorBrush;
+            StartIcon.Foreground = Application.Current.Resources["SuccessBrush"] as SolidColorBrush;
             StopIcon.Foreground = Application.Current.Resources["TransparentBrush"] as SolidColorBrush;
         });
     }
 
     public void Start()
     {
+        if (ClientType is null) Logger.LogWarning(this, $"No channel for {Name} selected");
         if (PluginController?.IsRunning == true) return;
         PluginController?.Start();
     }
@@ -156,20 +187,14 @@ internal partial class Plugin
         }
     }
 
-    public new bool IsEnabled
-    {
-        set
-        {
-            Dispatcher.Invoke(() =>
-            {
-                RemoveButton.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
-            });
-        }
-    }
-        
     public bool IsSelected
     {
-        set => EditButton.Tag = value ? "Selected" : null;
+        get;
+        set
+        {
+            field = value;
+            EditButton.Tag = value ? "Selected" : null;
+        }
     }
 
     public event Action<Plugin>? OnRemove;

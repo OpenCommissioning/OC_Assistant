@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Plugins;
 
@@ -13,107 +12,71 @@ internal partial class PluginEditor
     /// </summary>
     public PluginEditor()
     {
-        Visibility = Visibility.Collapsed;
         InitializeComponent();
     }
 
     /// <summary>
-    /// Enable/Disable the control.
-    /// </summary>
-    public new bool IsEnabled
-    {
-        set => ApplyButton.IsEnabled = EditorWindow.IsEnabled = value;
-    }
-    
-    /// <summary>
     /// The plugin has been added or saved.
     /// </summary>
-    public event Action<Plugin, string?>? Saved;
+    public event Action<Plugin, string?, Type?>? Saved;
     
     /// <summary>
-    /// The editor has been closed.
-    /// </summary>
-    public event Action? Closed;
-    
-    /// <summary>
-    /// Show the editor.
+    /// Selects and shows the given plugin.
     /// </summary>
     /// <param name="plugin">The selected plugin to show.</param>
     /// <param name="plugins">All currently available plugins in the project.</param>
     /// <returns></returns>
-    public async Task<bool> Show(Plugin plugin, IReadOnlyCollection<Plugin> plugins)
+    public async Task Select(Plugin plugin, IReadOnlyCollection<Plugin> plugins)
     {
-        if (!await CheckAndConfirmChanges()) return false;
+        if (!await CheckUnsavedChanges()) return;
         EditorWindow.Show(plugins, plugin);
-        Visibility = Visibility.Visible;
+        EditorWindow.Visibility = Visibility.Visible;
         
         plugin.IsSelected = true;
         foreach (var item in plugins.Where(p => p != plugin))
         {
             item.IsSelected = false;
         }
-        
-        return true;
     }
 
     /// <summary>
-    /// Hides the editor.
+    /// Clears the editor.
     /// </summary>
-    public void Hide()
+    public void Clear()
     {
         EditorWindow.ResetUnsavedChanges();
         foreach (var plugin in EditorWindow.Plugins)
         {
             plugin.IsSelected = false;
         }
-        Visibility = Visibility.Collapsed;
+        EditorWindow.Visibility = Visibility.Collapsed;
     }
 
-    private async Task<bool> CheckAndConfirmChanges()
+    public async Task<bool> CheckUnsavedChanges()
     {
         if (!EditorWindow.UnsavedChanges) return true;
 
-        var result = await Theme.MessageBox.Show(
-            "Plugins", 
+        await Theme.MessageBox.Show(
+            "Unsaved changes", 
             """
-            Changes have not been saved.
-            Save now?
+            Unsaved changes for the selected plugin.
+            Please confirm or discard.
             """,
-            MessageBoxButton.YesNoCancel, 
+            MessageBoxButton.OK, 
             MessageBoxImage.Warning);
-
-        if (result != MessageBoxResult.Yes)
-        {
-            return result == MessageBoxResult.No;
-        }
         
-        EditorWindow.Apply();
-        return true;
+        return false;
     }
 
     private void EditorWindowOnChanged(bool isUnsavedChanges) =>
         ApplyButton.Visibility = isUnsavedChanges ? Visibility.Visible : Visibility.Collapsed;
     
-    private void EditorWindowOnSaved(Plugin plugin, string? oldName) => 
-        Saved?.Invoke(plugin, oldName);
+    private void EditorWindowOnSaved(Plugin plugin, string? oldName, Type? oldClient) => 
+        Saved?.Invoke(plugin, oldName, oldClient);
     
     private void ApplyButtonClick(object sender, RoutedEventArgs e) => 
         EditorWindow.Apply();
     
     private void DiscardOnClick(object sender, RoutedEventArgs e) => 
         EditorWindow.Reload();
-    
-    private async void CloseButtonClick(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            if (!await CheckAndConfirmChanges()) return;
-            Hide();
-            Closed?.Invoke();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(this, ex.Message);
-        }
-    }
 }

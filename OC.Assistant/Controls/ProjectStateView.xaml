@@ -6,35 +6,13 @@
              mc:Ignorable="d"
              d:DesignHeight="30" d:DesignWidth="300"
              Orientation="Horizontal"
-             Margin="6 0 6 0"
-             HorizontalAlignment="Right">
+             Height="24"
+             Margin="6 0">
     <Border VerticalAlignment="Center"
             CornerRadius="{DynamicResource ControlCornerRadius}" 
             Background="{DynamicResource White4Brush}"
-            Margin="0 0 3 0"
-            Padding="5 0 5 0">
-        <Label x:Name="SolutionLabel"
-               VerticalAlignment="Center" 
-               HorizontalAlignment="Center"
-               Foreground="{DynamicResource ForegroundBaseBrush}">
-        </Label>
-    </Border>
-    <Border VerticalAlignment="Center" 
-            CornerRadius="{DynamicResource ControlCornerRadius}" 
-            Background="{DynamicResource White4Brush}"
-            Margin="0 0 3 0"
-            Padding="5 0 5 0">
-        <Label x:Name="NedIdLabel"
-               VerticalAlignment="Center" 
-               HorizontalAlignment="Center"
-               Foreground="{DynamicResource ForegroundBaseBrush}">
-        </Label>
-    </Border>
-    <Border x:Name="StateBorder" 
-            Width="50" 
-            VerticalAlignment="Center" 
-            CornerRadius="{DynamicResource ControlCornerRadius}">
-        <Label x:Name="StateLabel" 
+            Padding="5 0">
+        <Label x:Name="ProjectLabel"
                VerticalAlignment="Center" 
                HorizontalAlignment="Center"
                Foreground="{DynamicResource ForegroundBaseBrush}">

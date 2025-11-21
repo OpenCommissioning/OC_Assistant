@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using OC.Assistant.Core;
 using OC.Assistant.Sdk;
 using OC.Assistant.Sdk.Plugin;
 
@@ -19,6 +18,7 @@ internal partial class EditorWindow
     public void Show(IReadOnlyCollection<Plugin> plugins, Plugin plugin)
     {
         TypeDropdown.Visibility = Visibility.Collapsed;
+        TypeInfo.Visibility = Visibility.Visible;
 
         Plugin = plugin;
         Plugins = plugins;
@@ -27,6 +27,8 @@ internal partial class EditorWindow
         PluginName.Text = Plugin.Name;
         PluginName.TextChanged += ValueOnChanged;
         TypeInfo.Text = Plugin.Type?.Name ?? "";
+
+        ClientDropdown.SelectType(plugin.ClientType);
         
         LoadParameters();
     }
@@ -39,8 +41,14 @@ internal partial class EditorWindow
     private void TypeSelectorOnSelected(Type e)
     {
         if (TypeDropdown.Visibility == Visibility.Collapsed || e == Plugin.Type) return;
-        if (Plugin.InitType(e) != true) return;
+        if (!Plugin.InitType(e)) return;
         LoadParameters();
+    }
+    
+    private void ClientSelectorOnSelected(Type? e)
+    {
+        if (e == Plugin.ClientType) return;
+        ValueOnChanged();
     }
         
     private void LoadParameters()
@@ -72,7 +80,7 @@ internal partial class EditorWindow
     
     public bool UnsavedChanges { get; private set; }
     public event Action<bool>? Changed;
-    public event Action<Plugin, string?>? Saved;
+    public event Action<Plugin, string?, Type?>? Saved;
 
     public bool Apply()
     {
@@ -80,7 +88,7 @@ internal partial class EditorWindow
         {
             if (!PluginName.Text.IsPlcCompatible())
             {
-                Logger.LogWarning(this, $"Name {PluginName.Text} is not TwinCAT PLC compatible");
+                Logger.LogWarning(this, $"Name {PluginName.Text} is not PLC compatible");
                 return false;
             }
         
@@ -91,12 +99,16 @@ internal partial class EditorWindow
             }
 
             var oldName = Plugin.Name != PluginName.Text ? Plugin.Name : null;
+            var oldClient = Plugin.ClientType;
+            
+            //Update the client type of the selected plugin
+            Plugin.ClientType = ClientDropdown.SelectedType;
 
             //Update parameters of the selected plugin
             Plugin.PluginController?.Parameter.Update(ParameterPanel.Children.OfType<IParameter>());
         
             //Call the save method for the selected plugin
-            if (Plugin.Save(PluginName.Text) != true)
+            if (!Plugin.Save(PluginName.Text))
             {
                 Logger.LogWarning(this, $"Unable to save plugin {Plugin.Name}");
                 return false;
@@ -104,7 +116,7 @@ internal partial class EditorWindow
         
             Logger.LogInfo(this, $"Plugin '{Plugin.Name}' saved");
             ResetUnsavedChanges();
-            Saved?.Invoke(Plugin, oldName);
+            Saved?.Invoke(Plugin, oldName, oldClient);
             return true;
 
         }

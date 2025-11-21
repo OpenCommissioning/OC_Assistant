@@ -2,16 +2,8 @@
           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
           Header="File"
-          x:ClassModifier="internal"
-          xmlns:local="clr-namespace:OC.Assistant.Controls">
-    <local:DteSelector x:Name="DteSelector">
-        <MenuItem Header="No open TwinCAT project"/>
-    </local:DteSelector>
-    <MenuItem Header="Open Solution" Click="OpenSlnOnClick">
-    </MenuItem>
-    <MenuItem Header="Create Solution" Click="CreateSlnOnClick">
-    </MenuItem>
+          x:ClassModifier="internal">
+    <MenuItem Header="Disconnect" x:Name="DisconnectItem" IsEnabled="False" Click="CloseProjectOnClick" />
     <Separator/>
-    <MenuItem Header="Exit" Click="ExitOnClick">
-    </MenuItem>
+    <MenuItem Header="Exit" Click="ExitOnClick"/>
 </MenuItem>
