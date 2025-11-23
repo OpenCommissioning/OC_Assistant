@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.6"></a>
+## [1.17.6](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.6) (2025-11-23)
+
+### Bug Fixes
+
+* bool part repleace ([2dff561](https://www.github.com/OpenCommissioning/OC_Assistant/commit/2dff561205a557f050cc860372f121158b8fe4b4))
+
 <a name="1.17.5"></a>
 ## [1.17.5](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.5) (2025-11-20)
 
