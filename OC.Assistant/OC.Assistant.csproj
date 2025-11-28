@@ -7,9 +7,9 @@
         <UseWPF>true</UseWPF>
         <Company>Spiratec AG</Company>
         <LangVersion>default</LangVersion>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net10.0-windows</TargetFramework>
         <ApplicationIcon>Resources\oc_logo.ico</ApplicationIcon>
-        <Version>1.17.6</Version>
+        <Version>1.16.0</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -17,14 +17,10 @@
     </PropertyGroup>
     
     <ItemGroup>
-      <EmbeddedResource Include="Resources\OC.TcTemplate.zip" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
-      <PackageReference Include="OC.Assistant.Sdk" Version="1.7.2" />
-      <PackageReference Include="OC.Assistant.Theme" Version="2.1.1" />
-      <PackageReference Include="TCatSysManagerLib" Version="3.3.1" />
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19" />
+	  <PackageReference Include="OC.Assistant.Sdk" Version="2.1.1" />
+      <PackageReference Include="OC.Assistant.Theme" Version="2.2.0" />
+      <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     </ItemGroup>
     
 </Project>

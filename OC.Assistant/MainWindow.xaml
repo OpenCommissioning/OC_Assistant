@@ -5,10 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:theme="http://schemas.open-commissioning-assistant.com/2024"
         xmlns:controls="clr-namespace:OC.Assistant.Controls"
-        xmlns:plugins="clr-namespace:OC.Assistant.Plugins"
-        xmlns:pnGenerator="clr-namespace:OC.Assistant.PnGenerator"
-        xmlns:generator="clr-namespace:OC.Assistant.Generator"
-        xmlns:core="clr-namespace:OC.Assistant.Core"
+        xmlns:pluginSystem="clr-namespace:OC.Assistant.PluginSystem"
         mc:Ignorable="d"
         Title="Open Commissioning Assistant"
         Width="800" Height="600"
@@ -17,29 +14,28 @@
         Closing="MainWindowOnClosing">
     <theme:Window.TitleBarContent>
         <Grid>
-            <Menu HorizontalAlignment="Left">
-                <controls:FileMenu />
-                <generator:Menu />
-                <pnGenerator:Menu />
-                <controls:HelpMenu/>
-            </Menu>
+            <controls:MainMenu HorizontalAlignment="Left"/>
             <controls:VersionCheck HorizontalAlignment="Right"/>
         </Grid>
     </theme:Window.TitleBarContent>
-    <Grid Margin="0 2 0 0">
-        <Grid Margin="0,0,0,24">
+    <Grid>
+        <Grid Margin="0,2,0,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="4"/>
                 <RowDefinition Height="140" MinHeight="32" x:Name="ConsoleRow"/>
             </Grid.RowDefinitions>
-            <plugins:PluginManager Grid.Row="0" Margin="0,0,0,-2"/>
-            <theme:LogViewer Grid.Row="2" x:Name="LogViewer" LogFilePath="{x:Static core:AppData.LogFilePath}" SizeChanged="LogViewerOnSizeChanged"/>
+            <pluginSystem:PluginManager Grid.Row="0"/>
+            <theme:LogViewer 
+                x:Name="LogViewer" 
+                Grid.Row="2" 
+                Margin="0,-1,0,0"
+                SizeChanged="LogViewerOnSizeChanged"/>
             <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
-            <controls:NotConnectedOverlay Grid.Row="0" />
+            <controls:WelcomePage Grid.Row="0" />
         </Grid>
         <Grid Background="{DynamicResource White6Brush}" VerticalAlignment="Bottom">
-            <controls:ProjectStateView Height="24" />
+            <controls:ProjectStateView HorizontalAlignment="Left"/>
         </Grid>
     </Grid>
 </theme:Window>

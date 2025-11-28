@@ -1,0 +1,28 @@
+﻿<UserControl x:Class="OC.Assistant.PluginSystem.PluginParameter"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="32" d:DesignWidth="300" x:ClassModifier="internal">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MaxWidth="160"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" x:Name="NameLabel" VerticalAlignment="Stretch" HorizontalAlignment="Left" VerticalContentAlignment="Center" HorizontalContentAlignment="Left">Name</Label>
+        <CheckBox Grid.Column="1" x:Name="ValueCheckBox" 
+                  Checked="ValueCheckBox_OnChecked" 
+                  Unchecked="ValueCheckBox_OnUnchecked"
+                  Click="ValueCheckBox_OnClick">
+        </CheckBox>
+        <TextBox Grid.Column="1" x:Name="ValueTextBox" 
+                 Text="Value" 
+                 HorizontalAlignment="Stretch" 
+                 VerticalAlignment="Stretch"
+                 TextChanged="ValueTextBox_OnTextChanged">
+        </TextBox>
+        <Button x:Name="FileSelector" Grid.Column="2" Width="30" Style="{DynamicResource ButtonSecondary}" Click="FileSelector_OnClick" Padding="0" Margin="0" VerticalAlignment="Stretch">...</Button>
+    </Grid>
+</UserControl>

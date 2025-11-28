@@ -56,7 +56,7 @@ jobs:
 
     - name: Dotnet publish
       if: steps.versionize.outcome == 'success'
-      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 --self-contained false -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true --output ./
+      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 --no-self-contained -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true --output ./
 
     - name: Install AzureSignTool
       run: dotnet tool install --global azuresigntool

@@ -1,0 +1,18 @@
+﻿<StackPanel x:Class="OC.Assistant.PluginSystem.NoPluginMessage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300"
+             Margin="0 12 0 0">
+    <Label>Create a Plugins folder and place any plugin there.</Label>
+    <StackPanel Orientation="Horizontal">
+        <Label>Learn more on the</Label>
+        <Button 
+            Style="{DynamicResource LinkButton}"
+            Click="LinkButtonOnClick">
+            Assistant github page
+        </Button>
+    </StackPanel>
+</StackPanel>

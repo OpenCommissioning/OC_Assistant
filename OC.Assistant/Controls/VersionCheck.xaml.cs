@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows;
-using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;
 
@@ -25,7 +24,6 @@ public partial class VersionCheck
                     const string url = "https://github.com/opencommissioning/oc_assistant/releases/latest";
                 
                     var version = Assembly.GetExecutingAssembly().GetName().Version;
-                    Logger.LogInfo(this, $"Current version {version}");
                     var current = $"v{version?.Major}.{version?.Minor}.{version?.Build}";
                 
                     using var client = new HttpClient();
@@ -49,7 +47,7 @@ public partial class VersionCheck
                 }
                 catch
                 {
-                    //Logger.LogWarning(this, $"Unable to fetch latest release from GitHub");
+                    // ignore exceptions as fetching the latest version is not critical
                 }
             });
         }

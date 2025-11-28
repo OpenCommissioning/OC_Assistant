@@ -1,11 +1,17 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 
 namespace OC.Assistant.Controls;
 
 public partial class DependencyInfo
 {
-    private string? _url;
+    public DependencyInfo(Assembly assembly)
+    {
+        InitializeComponent();
+        NameLabel.Content = assembly.GetName().Name;
+        VersionLabel.Content = assembly.GetName().Version?.ToString();
+    }
     
     public DependencyInfo(Type type)
     {
@@ -13,30 +19,24 @@ public partial class DependencyInfo
         NameLabel.Content = type.Assembly.GetName().Name;
         VersionLabel.Content = type.Assembly.GetName().Version?.ToString();
     }
-    
-    public DependencyInfo(string? name, string? version = null)
-    {
-        InitializeComponent();
-        NameLabel.Content = name;
-        VersionLabel.Content = version;
-    }
-    
+
     public string? Url
     {
-        get => _url;
-        set
+        get;
+        init
         {
             if (value is null)
             {
                 UrlButton.Visibility = Visibility.Collapsed;
                 return;
             }
+
             UrlButton.Visibility = Visibility.Visible;
-            _url = value;
+            field = value;
             UrlButton.ToolTip = value;
         }
     }
-    
+
     public string? UrlName
     {
         set => UrlButton.Content = value;

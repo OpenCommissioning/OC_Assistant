@@ -2,7 +2,8 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
+using OC.Assistant.Common;
+using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Controls;
 
@@ -33,7 +34,6 @@ internal partial class HelpMenu
             const string url = "https://github.com/OpenCommissioning/OC_Assistant";
             Style = Application.Current.FindResource("LinkButton") as Style;
             Margin = new Thickness(0, 10, 0, 20);
-            Cursor = Cursors.Hand;
             Content = "Assistant github page";
             Click += (_, _) => Process.Start(new ProcessStartInfo {FileName = url, UseShellExecute = true});
         }
@@ -41,12 +41,12 @@ internal partial class HelpMenu
     
     private void AppDataOnClick(object sender, RoutedEventArgs e)
     {
-        Process.Start("explorer.exe" , Core.AppData.Path);
+        Process.Start("explorer.exe" , AppData.Path);
     }
 
     private void VerboseOnClick(object sender, RoutedEventArgs e)
     {
-        Sdk.Logger.Verbose = ((CheckBox) sender).IsChecked == true;
+        Logger.Verbose = ((CheckBox) sender).IsChecked == true;
     }
     
     private void AboutOnClick(object sender, RoutedEventArgs e)
@@ -58,7 +58,7 @@ internal partial class HelpMenu
 
         stack.Add(new GitHubLink());
         
-        stack.Add(new DependencyInfo(typeof(Sdk.Logger))
+        stack.Add(new DependencyInfo(typeof(Logger))
         {
             Url = "https://github.com/OpenCommissioning/OC_Assistant_Sdk",
             UrlName = "github"
@@ -71,53 +71,40 @@ internal partial class HelpMenu
         });
         
         AddThirdParty(stack);
-        AddPlugins(stack);
+        AddAssemblies(stack);
         
         _ = Theme.MessageBox.Show($"About {ProductName}", content, MessageBoxButton.OK, MessageBoxImage.Information);
     }
     
-    private static void AddPlugins(UIElementCollection stack)
+    private static void AddAssemblies(UIElementCollection stack)
     {
-        var plugins = Plugins.PluginRegister.Plugins.DistinctBy(x => x.Type.Assembly.FullName).ToArray();
-        if (plugins.Length == 0) return;
+        if (AssemblyRegister.Assemblies.Count == 0) return;
         
-        stack.Add(new Label{Content = "\n\nPlugins:\n"});
+        stack.Add(new Label{Content = "\n\nPlugins & Extensions:\n"});
         
-        foreach (var plugin in plugins)
+        foreach (var assemblyInfo in AssemblyRegister.Assemblies)
         {
-            stack.Add(new DependencyInfo(plugin.Type)
+            stack.Add(new DependencyInfo(assemblyInfo.Assembly)
             {
-                Url = plugin.RepositoryUrl,
-                UrlName = plugin.RepositoryType
+                Url = assemblyInfo.RepositoryUrl,
+                UrlName = assemblyInfo.RepositoryType
             });
         }
     }
 
     private static void AddThirdParty(UIElementCollection stack)
     {
-        stack.Add(new Label{Content = "\n\nThird party software:\n"});
+        stack.Add(new Label{Content = "\n\nNuget packages:\n"});
         
-        stack.Add(new DependencyInfo(typeof(EnvDTE.DTE))
+        stack.Add(new DependencyInfo(typeof(Microsoft.AspNetCore.Builder.WebApplication))
         {
-            Url = "https://www.nuget.org/packages/envdte",
+            Url = "https://www.nuget.org/packages/Microsoft.AspNetCore.OpenApi",
             UrlName = "nuget"
         });
         
-        stack.Add(new DependencyInfo(typeof(TwinCAT.Ads.AdsClient))
+        stack.Add(new DependencyInfo(typeof(Serilog.ILogger))
         {
-            Url = "https://www.nuget.org/packages/Beckhoff.TwinCAT.Ads",
-            UrlName = "nuget"
-        });
-        
-        stack.Add(new DependencyInfo(typeof(TCatSysManagerLib.TcSysManager))
-        {
-            Url = "https://www.nuget.org/packages/TCatSysManagerLib",
-            UrlName = "nuget"
-        });
-        
-        stack.Add(new DependencyInfo("OC.TcPnScanner.CLI", "")
-        {
-            Url = "https://www.nuget.org/packages/OC.TcPnScanner.CLI",
+            Url = "https://www.nuget.org/packages/Serilog.Sinks.File",
             UrlName = "nuget"
         });
     }
