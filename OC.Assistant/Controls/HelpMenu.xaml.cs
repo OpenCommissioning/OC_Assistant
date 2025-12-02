@@ -27,18 +27,6 @@ internal partial class HelpMenu
         }
     }
     
-    private class GitHubLink : Button
-    {
-        public GitHubLink()
-        {
-            const string url = "https://github.com/OpenCommissioning/OC_Assistant";
-            Style = Application.Current.FindResource("LinkButton") as Style;
-            Margin = new Thickness(0, 10, 0, 20);
-            Content = "Assistant github page";
-            Click += (_, _) => Process.Start(new ProcessStartInfo {FileName = url, UseShellExecute = true});
-        }
-    }
-    
     private void AppDataOnClick(object sender, RoutedEventArgs e)
     {
         Process.Start("explorer.exe" , AppData.Path);
@@ -56,7 +44,7 @@ internal partial class HelpMenu
         
         stack.Add(new Label {Content = $"\n{ProductName}\nVersion {Version}\n{CompanyName}"});
 
-        stack.Add(new GitHubLink());
+        stack.Add(new GitHubLink {Margin = new Thickness(0,10,0,20)});
         
         stack.Add(new DependencyInfo(typeof(Logger))
         {
@@ -80,7 +68,7 @@ internal partial class HelpMenu
     {
         if (AssemblyRegister.Assemblies.Count == 0) return;
         
-        stack.Add(new Label{Content = "\n\nPlugins & Extensions:\n"});
+        stack.Add(new Label{Content = "\n\nPlugins:\n"});
         
         foreach (var assemblyInfo in AssemblyRegister.Assemblies)
         {
