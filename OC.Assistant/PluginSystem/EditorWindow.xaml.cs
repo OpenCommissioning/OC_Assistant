@@ -33,6 +33,7 @@ internal partial class EditorWindow
 
     public void Reload()
     {
+        XmlFile.Instance.LoadPluginParameters(Plugins, Plugin.Name);
         Show(Plugins, Plugin);
     }
     

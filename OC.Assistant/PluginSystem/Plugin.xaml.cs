@@ -37,6 +37,11 @@ internal partial class Plugin : IPlugin, IDisposable
         PluginController?.Initialize(name);
     }
 
+    public void Update(XContainer parameter)
+    {
+        PluginController?.Parameter.Update(parameter);
+    }
+
     public bool Save(string name)
     {
         if (!IsValid) return false;

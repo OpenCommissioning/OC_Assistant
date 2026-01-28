@@ -36,6 +36,17 @@ internal static class XmlFileExtension
         }
         
         /// <summary>
+        /// Loads the parameters from the <see cref="XmlFile"/> and updates the plugin by the given name.
+        /// </summary>
+        public void LoadPluginParameters(IReadOnlyCollection<Plugin> plugins, string? name)
+        {
+            var xPlugin = xmlFile.GetPluginElements().FirstOrDefault(x => x.Name == name);
+            var plugin = plugins.FirstOrDefault(x => x.Name == name);
+            if (xPlugin is null || plugin is null) return;
+            plugin.Update(xPlugin.Parameter);
+        }
+        
+        /// <summary>
         /// Removes all <see cref="XPlugin"/> elements by the given name.
         /// </summary>
         public void RemovePlugin(string? name)
