@@ -12,6 +12,7 @@ public partial class MainWindow
 {
     public MainWindow()
     {
+        Loaded += OnLoaded;
         var messages = new Queue<(object, string, MessageType)>();
         LogFileWriter.Create();
         Logger.Info += LoggerOnInfo;
@@ -34,7 +35,7 @@ public partial class MainWindow
         }
         
         SetSizeAndPosition();
-        BusyState.Changed += BusyOverlay.SetState;
+        
         WebApi.RunDetached();
         NamedPipeApi.RunDetached();
         TcpIpServer.RunDetached();
@@ -44,7 +45,9 @@ public partial class MainWindow
         void LoggerOnWarning(object sender, string message) => messages.Enqueue((sender, message, MessageType.Warning));
         void LoggerOnError(object sender, string message) => messages.Enqueue((sender, message, MessageType.Error));
     }
-    
+
+    private static void OnLoaded(object sender, RoutedEventArgs e) => BusyState.Changed += BusyOverlay.SetState;
+
     private void SetSizeAndPosition()
     {
         var settings = AppControl.Instance.Settings;
