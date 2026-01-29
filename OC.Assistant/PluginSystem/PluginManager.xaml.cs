@@ -164,7 +164,7 @@ public partial class PluginManager
             editor.Saved += EditorOnSaved;
         
             await Theme.MessageBox
-                .Show("Add plugin", editor, MessageBoxButton.OKCancel, MessageBoxImage.None, editor.Apply);
+                .Show("Add plugin", editor, MessageBoxButton.OKCancel, MessageBoxImage.None, editor.ApplyAsync);
         }
         catch (Exception ex)
         {

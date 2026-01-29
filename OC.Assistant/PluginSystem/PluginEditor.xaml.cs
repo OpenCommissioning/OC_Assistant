@@ -74,8 +74,12 @@ internal partial class PluginEditor
     private void EditorWindowOnSaved(Plugin plugin, string? oldName, Type? oldChannel) => 
         Saved?.Invoke(plugin, oldName, oldChannel);
     
-    private void ApplyButtonClick(object sender, RoutedEventArgs e) => 
-        EditorWindow.Apply();
+    private async void ApplyButtonOnClick(object sender, RoutedEventArgs e)
+    {
+        Sdk.BusyState.Set(this);
+        await EditorWindow.ApplyAsync();
+        Sdk.BusyState.Reset(this);
+    }
     
     private void DiscardOnClick(object sender, RoutedEventArgs e) => 
         EditorWindow.Reload();

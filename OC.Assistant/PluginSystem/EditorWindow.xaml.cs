@@ -81,7 +81,7 @@ internal partial class EditorWindow
     public event Action<bool>? Changed;
     public event Action<Plugin, string?, Type?>? Saved;
 
-    public bool Apply()
+    public async Task<bool> ApplyAsync()
     {
         try
         {
@@ -107,7 +107,7 @@ internal partial class EditorWindow
             Plugin.PluginController?.Parameter.Update(ParameterPanel.Children.OfType<IParameter>());
         
             //Call the save method for the selected plugin
-            if (!Plugin.Save(PluginName.Text))
+            if (!await Plugin.SaveAsync(PluginName.Text))
             {
                 Logger.LogWarning(this, $"Unable to save plugin {Plugin.Name}");
                 return false;

@@ -42,7 +42,7 @@ internal partial class Plugin : IPlugin, IDisposable
         PluginController?.Parameter.Update(parameter);
     }
 
-    public bool Save(string name)
+    public async Task<bool> SaveAsync(string name)
     {
         if (!IsValid) return false;
         Name = name;
@@ -50,7 +50,7 @@ internal partial class Plugin : IPlugin, IDisposable
         NameText.Text = Name;
         TypeText.Text = Type?.Name;
         ClientTypeText.Text = ChannelType?.Name ?? "<unknown>";
-        return PluginController.Save(name);
+        return await Task.Run(() => PluginController.Save(name));
     }
         
     [MemberNotNullWhen(true, nameof(Type))]
