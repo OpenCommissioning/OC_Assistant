@@ -24,8 +24,10 @@ public static class AssemblyHelper
         AppDomain.CurrentDomain.AssemblyResolve += (_, resolveEventArgs) =>
         {
             var assemblyFile = $"{resolveEventArgs.Name.Split(',')[0]}.dll";
-            return (from filePath in Directory.GetFiles(directory, assemblyFile, searchOption).Reverse() 
-                select Assembly.LoadFile(filePath)).FirstOrDefault();
+            return Directory
+                .GetFiles(directory, assemblyFile, searchOption)
+                .Select(Assembly.LoadFile)
+                .LastOrDefault();
         };
     }
 }
