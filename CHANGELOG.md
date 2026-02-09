@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.7"></a>
+## [1.17.7](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.7) (2026-02-09)
+
+### Bug Fixes
+
+* ethercat device gvl name parcing ([8e1c1e2](https://www.github.com/OpenCommissioning/OC_Assistant/commit/8e1c1e22d41bc2bc4a0b8c201caaa3fcf2246f47))
+
 <a name="1.17.6"></a>
 ## [1.17.6](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.6) (2025-11-23)
 
