@@ -12,9 +12,9 @@ public partial class MainWindow
 {
     public MainWindow()
     {
-        Loaded += OnLoaded;
         var messages = new Queue<(object, string, MessageType)>();
         LogFileWriter.Create();
+        BusyState.Changed += BusyOverlay.ChangeState;
         Logger.Info += LoggerOnInfo;
         Logger.Warning += LoggerOnWarning;
         Logger.Error += LoggerOnError;
@@ -45,8 +45,6 @@ public partial class MainWindow
         void LoggerOnWarning(object sender, string message) => messages.Enqueue((sender, message, MessageType.Warning));
         void LoggerOnError(object sender, string message) => messages.Enqueue((sender, message, MessageType.Error));
     }
-
-    private static void OnLoaded(object sender, RoutedEventArgs e) => BusyState.Changed += BusyOverlay.SetState;
 
     private void SetSizeAndPosition()
     {
