@@ -15,10 +15,10 @@ internal partial class PluginParameter : IParameter
         VerticalAlignment = VerticalAlignment.Top;
         Loaded += OnLoaded;
         
+        FileFilter = parameter.FileFilter;
         Name = parameter.Name;
         Value = parameter.Value;
         ToolTip = parameter.ToolTip;
-        FileFilter = parameter.FileFilter;
     }
         
     public new string Name
@@ -29,7 +29,9 @@ internal partial class PluginParameter : IParameter
         
     public object? Value
     {
-        get => ValueTextBox.Text.ConvertTo(field?.GetType() ?? null);
+        get => IsPasswordFilter(FileFilter) ? 
+            ValuePasswordBox.Password.ConvertTo(field?.GetType() ?? null) : 
+            ValueTextBox.Text.ConvertTo(field?.GetType() ?? null);
         set
         {
             Dispatcher.Invoke(() =>
@@ -42,10 +44,20 @@ internal partial class PluginParameter : IParameter
                     ValueCheckBox.Visibility = Visibility.Visible;
                     ValueCheckBox.IsChecked = boolValue;
                     ValueTextBox.Visibility = Visibility.Hidden;
+                    ValuePasswordBox.Visibility = Visibility.Hidden;
                     return;
                 }
                 
                 ValueCheckBox.Visibility = Visibility.Hidden;
+
+                if (IsPasswordFilter(FileFilter))
+                {
+                    ValuePasswordBox.Visibility = Visibility.Visible;
+                    ValueTextBox.Visibility = Visibility.Hidden;
+                    ValuePasswordBox.Password = $"{field}";
+                    return;
+                }
+                
                 ValueTextBox.Visibility = Visibility.Visible;
             });
         }
@@ -57,9 +69,12 @@ internal partial class PluginParameter : IParameter
         private init
         {
             field = value;
-            FileSelector.Visibility = field is null || Value is bool ? Visibility.Collapsed : Visibility.Visible;
+            FileSelector.Visibility = field is null || IsPasswordFilter(field) || Value is bool ? 
+                Visibility.Collapsed : Visibility.Visible;
         }
     }
+    
+    private static bool IsPasswordFilter(string? filter) => filter == "Password";
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -90,6 +105,12 @@ internal partial class PluginParameter : IParameter
     private void ValueTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         if (!ValueTextBox.IsKeyboardFocused) return;
+        Changed?.Invoke();
+    }
+    
+    private void ValuePasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
+    {
+        if (!ValuePasswordBox.IsKeyboardFocused) return;
         Changed?.Invoke();
     }
 

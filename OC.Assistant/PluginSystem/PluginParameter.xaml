@@ -23,6 +23,13 @@
                  VerticalAlignment="Stretch"
                  TextChanged="ValueTextBox_OnTextChanged">
         </TextBox>
+        <PasswordBox Grid.Column="1" x:Name="ValuePasswordBox" 
+                 Password="Value" 
+                 HorizontalAlignment="Stretch" 
+                 VerticalAlignment="Stretch"
+                 Visibility="Hidden"
+                 PasswordChanged="ValuePasswordBox_OnPasswordChanged">
+        </PasswordBox>
         <Button x:Name="FileSelector" Grid.Column="2" Width="30" Style="{DynamicResource ButtonSecondary}" Click="FileSelector_OnClick" Padding="0" Margin="0" VerticalAlignment="Stretch">...</Button>
     </Grid>
 </UserControl>
