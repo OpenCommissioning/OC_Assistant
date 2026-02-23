@@ -146,9 +146,5 @@ internal class EtherCatGenerator
         }
     }
 
-    private static string PlcCompatibleString(string name)
-    {
-        //Then replace any special character
-        return name.TcPlcCompatibleString();
-    }
+    private static string PlcCompatibleString(string name) => name.TcPlcCompatibleString();
 }
