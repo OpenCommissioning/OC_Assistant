@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.8"></a>
+## [1.17.8](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.8) (2026-02-23)
+
+### Bug Fixes
+
+* hotfix revert ([8088e4f](https://www.github.com/OpenCommissioning/OC_Assistant/commit/8088e4f582a2eff1102d3675fce45bc29ac8ac4b))
+
 <a name="1.17.7"></a>
 ## [1.17.7](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.7) (2026-02-09)
 
