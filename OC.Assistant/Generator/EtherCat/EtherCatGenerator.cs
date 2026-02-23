@@ -146,12 +146,5 @@ internal class EtherCatGenerator
         }
     }
 
-    private static string PlcCompatibleString(string name)
-    {
-        //First remove the device type, e.g. KF2.1 (EL1008) => KF2.1
-        var result = name.TcRemoveBrackets();
-
-        //Then replace any special character
-        return result.TcPlcCompatibleString();
-    }
+    private static string PlcCompatibleString(string name) => name.TcPlcCompatibleString();
 }
