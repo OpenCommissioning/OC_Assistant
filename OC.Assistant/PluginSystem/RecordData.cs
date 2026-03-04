@@ -6,8 +6,8 @@ namespace OC.Assistant.PluginSystem;
 public class RecordData : IRecordDataServer
 {
     private static readonly Lazy<RecordData> Lazy = new(() => new RecordData());
-    private ConcurrentDictionary<uint, Queue<RecordDataTelegram>> WriteRequests { get; } = new();
-    private ConcurrentDictionary<uint, Queue<RecordDataTelegram>> ReadRequests { get; } = new();
+    private ConcurrentDictionary<uint, ConcurrentQueue<RecordDataTelegram>> WriteRequests { get; } = new();
+    private ConcurrentDictionary<uint, ConcurrentQueue<RecordDataTelegram>> ReadRequests { get; } = new();
     private ConcurrentDictionary<uint, object?> SubscribedDevices { get; } = new();
     
     public static RecordData Instance => Lazy.Value;
@@ -19,13 +19,15 @@ public class RecordData : IRecordDataServer
     public RecordDataTelegram? TryGetWriteRequest(ushort identifier, ushort hardWareId)
     {
         var key = (uint) (hardWareId + 0x10000 * identifier);
-        return WriteRequests.TryGetValue(key, out var queue) && queue.Count > 0 ? queue.Dequeue() : null;
+        return WriteRequests.TryGetValue(key, out var queue) && !queue.IsEmpty ? 
+            queue.TryDequeue(out var telegram) ? telegram : null : null;
     }
 
     public RecordDataTelegram? TryGetReadRequest(ushort identifier, ushort hardWareId)
     {
         var key = (uint) (hardWareId + 0x10000 * identifier);
-        return ReadRequests.TryGetValue(key, out var queue) && queue.Count > 0 ? queue.Dequeue() : null;
+        return ReadRequests.TryGetValue(key, out var queue) && !queue.IsEmpty ? 
+            queue.TryDequeue(out var telegram) ? telegram : null : null;
     }
 
     public void Subscribe(ushort identifier, ushort hardWareId)
@@ -47,7 +49,7 @@ public class RecordData : IRecordDataServer
     {
         var key = (uint) (request.HardwareId + 0x10000 * request.Identifier);
         if (!SubscribedDevices.ContainsKey(key)) return;
-        WriteRequests.TryAdd(key, new Queue<RecordDataTelegram>());
+        WriteRequests.TryAdd(key, new ConcurrentQueue<RecordDataTelegram>());
         WriteRequests[key].Enqueue(request);
     }
 
@@ -55,7 +57,7 @@ public class RecordData : IRecordDataServer
     {
         var key = (uint) (request.HardwareId + 0x10000 * request.Identifier);
         if (!SubscribedDevices.ContainsKey(key)) return;
-        ReadRequests.TryAdd(key, new Queue<RecordDataTelegram>());
+        ReadRequests.TryAdd(key, new ConcurrentQueue<RecordDataTelegram>());
         ReadRequests[key].Enqueue(request);
     }
 

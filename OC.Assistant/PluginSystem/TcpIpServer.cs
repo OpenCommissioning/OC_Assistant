@@ -157,7 +157,7 @@ public static class TcpIpServer
                 case 3: //RD_RES
                     index = BitConverter.ToUInt16(payload.AsSpan()[6..]);
                     dataLength = BitConverter.ToUInt32(payload.AsSpan()[8..]);
-                    RecordData.Instance.SendReadRes(identifier, hardwareId, index, dataLength, payload[14..]);
+                    RecordData.Instance.SendReadRes(identifier, hardwareId, index, dataLength, payload[12..]);
                     break;
                 case 4: //WR_RES
                     index = BitConverter.ToUInt16(payload.AsSpan()[6..]);
