@@ -8,7 +8,6 @@
         xmlns:plugins="clr-namespace:OC.Assistant.Plugins"
         xmlns:pnGenerator="clr-namespace:OC.Assistant.PnGenerator"
         xmlns:generator="clr-namespace:OC.Assistant.Generator"
-        xmlns:core="clr-namespace:OC.Assistant.Core"
         mc:Ignorable="d"
         Title="Open Commissioning Assistant"
         Width="800" Height="600"
@@ -34,7 +33,7 @@
                 <RowDefinition Height="140" MinHeight="32" x:Name="ConsoleRow"/>
             </Grid.RowDefinitions>
             <plugins:PluginManager Grid.Row="0" Margin="0,0,0,-2"/>
-            <theme:LogViewer Grid.Row="2" x:Name="LogViewer" LogFilePath="{x:Static core:AppData.LogFilePath}" SizeChanged="LogViewerOnSizeChanged"/>
+            <theme:LogViewer Grid.Row="2" x:Name="LogViewer" SizeChanged="LogViewerOnSizeChanged"/>
             <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
             <controls:NotConnectedOverlay Grid.Row="0" />
         </Grid>

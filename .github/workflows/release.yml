@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     steps:
     - name: Checkout
@@ -18,6 +18,18 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x' 
+        
+    - name: Test publish
+      run: |
+        dotnet publish `
+          OC.Assistant `
+          --configuration release `
+          --runtime win-x64 `
+          --no-self-contained `
+          -p:PublishSingleFile=true `
+          -p:EnableWindowsTargeting=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:IncludeAllContentForSelfExtract=true
 
     - name: Install Versionize
       run: dotnet tool install --global Versionize
@@ -56,7 +68,17 @@ jobs:
 
     - name: Dotnet publish
       if: steps.versionize.outcome == 'success'
-      run: dotnet publish OC.Assistant --configuration release --runtime win-x64 --self-contained false -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true --output ./
+      run: |
+        dotnet publish `
+          OC.Assistant `
+          --configuration release `
+          --runtime win-x64 `
+          --no-self-contained `
+          -p:PublishSingleFile=true `
+          -p:EnableWindowsTargeting=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:IncludeAllContentForSelfExtract=true `
+          --output ./
 
     - name: Install AzureSignTool
       run: dotnet tool install --global azuresigntool
