@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.10"></a>
+## [1.17.10](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.10) (2026-03-05)
+
+### Bug Fixes
+
+* plugin instance vertical alignment ([e79a421](https://www.github.com/OpenCommissioning/OC_Assistant/commit/e79a42100aa429ed11221df4f8a59cabccaad790))
+
 <a name="1.17.9"></a>
 ## [1.17.9](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.9) (2026-03-05)
 
