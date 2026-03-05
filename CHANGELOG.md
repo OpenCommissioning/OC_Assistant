@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.9"></a>
+## [1.17.9](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.9) (2026-03-05)
+
+### Bug Fixes
+
+* upgrade theme package reference and implement new logging system ([2f513cf](https://www.github.com/OpenCommissioning/OC_Assistant/commit/2f513cf57bff9b81bd6589849a9bad91adeca25d))
+
 <a name="1.17.8"></a>
 ## [1.17.8](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.8) (2026-02-23)
 
