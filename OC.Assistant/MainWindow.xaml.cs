@@ -10,13 +10,34 @@ public partial class MainWindow
 {
     public MainWindow()
     {
+        var messages = new Queue<(object, string, MessageType)>();
+        LogFileWriter.Create();
+        BusyState.Changed += BusyOverlay.ChangeState;
+        Logger.Info += LoggerOnInfo;
+        Logger.Warning += LoggerOnWarning;
+        Logger.Error += LoggerOnError;
+        
         InitializeComponent();
         ReadSettings();
         
-        BusyState.Changed += BusyOverlay.SetState;
+        Logger.Info -= LoggerOnInfo;
+        Logger.Warning -= LoggerOnWarning;
+        Logger.Error -= LoggerOnError;
+        
         Logger.Info += (sender, message) => LogViewer.Add(sender, message, MessageType.Info);
         Logger.Warning += (sender, message) => LogViewer.Add(sender, message, MessageType.Warning);
         Logger.Error += (sender, message) => LogViewer.Add(sender, message, MessageType.Error);
+        
+        while (messages.TryDequeue(out var m))
+        {
+            LogViewer.Add(m.Item1, m.Item2, m.Item3);
+        }
+        
+        return;
+
+        void LoggerOnInfo(object sender, string message) => messages.Enqueue((sender, message, MessageType.Info));
+        void LoggerOnWarning(object sender, string message) => messages.Enqueue((sender, message, MessageType.Warning));
+        void LoggerOnError(object sender, string message) => messages.Enqueue((sender, message, MessageType.Error));
     }
 
     private void ReadSettings()
