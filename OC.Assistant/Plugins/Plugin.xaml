@@ -7,13 +7,13 @@
       d:DesignHeight="36" d:DesignWidth="800" x:ClassModifier="internal"
       VerticalAlignment="Top"
       Margin="2">
-    <Button Style="{DynamicResource SelectButton}" x:Name="EditButton" VerticalAlignment="Stretch" HorizontalContentAlignment="Left" Click="EditButton_Click" Margin="0">
+    <Button Style="{DynamicResource SelectButton}" x:Name="EditButton" VerticalAlignment="Stretch" HorizontalContentAlignment="Left" Click="EditButton_Click" Margin="0" HorizontalAlignment="Stretch">
         <TextBlock x:Name="BtnEditText" Margin="10,0,0,0"></TextBlock>
     </Button>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
         <Button x:Name="StartStopButton" Click="StartStopButton_Click" 
                 Width="40" 
-                Margin="4" 
+                Margin="2" 
                 Padding="0" 
                 ToolTip="Start/Stop" 
                 VerticalAlignment="Stretch">
@@ -30,7 +30,7 @@
                     Content="{DynamicResource IconStop}"/>
             </Grid>
         </Button>
-        <Button x:Name="RemoveButton" Click="RemoveButton_Click" Width="40" Margin="4" Padding="0" ToolTip="Remove" VerticalAlignment="Stretch">
+        <Button x:Name="RemoveButton" Click="RemoveButton_Click" Width="40" Margin="2" Padding="0" ToolTip="Remove" VerticalAlignment="Stretch">
             <ContentControl
                 Template="{DynamicResource IconTemplate}"
                 Content="{DynamicResource IconDelete}"/>
