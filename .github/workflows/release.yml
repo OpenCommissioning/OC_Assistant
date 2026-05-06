@@ -36,6 +36,7 @@ jobs:
         $version = versionize inspect
         echo "VERSION=v$version" >> $env:GITHUB_ENV
         $changelog = versionize changelog
+        New-Item -ItemType Directory -Force -Path ../publish | Out-Null
         Set-Content -Path ../publish/latest_changelog.md -Value $changelog
       shell: pwsh
       
