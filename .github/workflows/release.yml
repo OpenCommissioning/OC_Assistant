@@ -84,16 +84,14 @@ jobs:
     - name: Build sdk and push to nuget
       run: |
         dotnet build OC.Assistant.Sdk --configuration release
-        dotnet nuget push "OC.Assistant.Sdk/bin/release/*.nupkg" `
-          --api-key ${{secrets.NUGET_API_KEY}} `
-          --source https://api.nuget.org/v3/index.json
+        $pkg = Get-Item "./OC.Assistant.Sdk/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
+        dotnet nuget push $pkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
       
     - name: Build ui and push to nuget
       run: |
         dotnet build OC.Assistant.Ui --configuration release
-        dotnet nuget push "OC.Assistant.Ui/bin/release/*.nupkg" `
-          --api-key ${{secrets.NUGET_API_KEY}} `
-          --source https://api.nuget.org/v3/index.json
+        $pkg = Get-Item "./OC.Assistant.Ui/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
+        dotnet nuget push $pkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
       
     - name: Push to github
       uses: ad-m/github-push-action@master
