@@ -1,0 +1,12 @@
+<MenuItem xmlns="https://github.com/avaloniaui"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:vm="clr-namespace:OC.Assistant.ViewModels"
+          x:Class="OC.Assistant.Views.FileMenu"
+          x:DataType="vm:MainViewModel"
+          Header="File"
+          CornerRadius="{DynamicResource ControlCornerRadius}">
+    <MenuItem Header="Reload Project" IsEnabled="{Binding IsProjectConnected}" Command="{Binding ReloadProjectCommand}"/>
+    <MenuItem Header="Disconnect" IsEnabled="{Binding IsProjectConnected}" Command="{Binding CloseProjectCommand}"/>
+    <Separator/>
+    <MenuItem Header="Exit" Command="{Binding ExitCommand}"/>
+</MenuItem>

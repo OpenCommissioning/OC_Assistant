@@ -1,0 +1,22 @@
+<Border 
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="clr-namespace:OC.Assistant.Views"
+    x:Class="OC.Assistant.Views.PluginProperties"
+    Background="{DynamicResource SystemAltLowColor}"
+    CornerRadius="{DynamicResource OverlayCornerRadius}">
+    <Grid 
+        RowDefinitions="30,*">
+        <Label 
+            Grid.Row="0" 
+            Margin="6,0,0,0"
+            VerticalAlignment="Stretch"
+            VerticalContentAlignment="Center"
+            Content="Properties"/>
+        <Grid 
+            Grid.Row="1" 
+            Margin="20,0">
+            <views:PluginEditor/>
+        </Grid>
+    </Grid>
+</Border>

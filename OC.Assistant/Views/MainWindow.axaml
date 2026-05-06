@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:ui="https://github.com/opencommissioning"
+           xmlns:views="clr-namespace:OC.Assistant.Views"
+           xmlns:vm="clr-namespace:OC.Assistant.ViewModels"
+           x:Class="OC.Assistant.Views.MainWindow"
+           x:DataType="vm:MainViewModel"
+           Title="{Binding ProjectLabel}"
+           Background="{DynamicResource SystemAltHighColor}"
+           MinWidth="600" MinHeight="400"
+           IsVisible="false"
+           Closing="WindowOnClosing">
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="2*" MinHeight="64"/>
+                <RowDefinition Height="4"/>
+                <RowDefinition Height="1*" MinHeight="64"/>
+            </Grid.RowDefinitions>
+            <Grid
+                Grid.Row="0">
+                <views:MainMenu 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Left">
+                </views:MainMenu>
+                <Button 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Right"
+                    Classes="Link"
+                    Content="{Binding Version}"
+                    IsVisible="{Binding VersionVisibility}"
+                    Command="{Binding VersionClickCommand}"/>
+            </Grid>
+            <Grid
+                Grid.Row="1"
+                IsVisible="{Binding IsProjectConnected}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200*" MinWidth="100"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="100*" MinWidth="100"/>
+                </Grid.ColumnDefinitions>
+                <ScrollViewer 
+                    Grid.Column="0">
+                    <views:PluginList
+                        DataContext="{Binding PluginListViewModel}"
+                        VerticalAlignment="Stretch"/>
+                </ScrollViewer>
+                <GridSplitter 
+                    Grid.Column="1" 
+                    ResizeDirection="Columns"
+                    Background="Transparent"/>
+                <views:PluginProperties 
+                    Grid.Column="2"
+                    DataContext="{Binding PluginEditorViewModel}"/>
+            </Grid>
+            <views:FrontPage Grid.Row="1"/>
+            <GridSplitter Grid.Row="2" Background="Transparent"/>
+            <ui:LogViewer Grid.Row="3"/>
+        </Grid>
+        <ui:BusyOverlay IsVisible="{Binding IsBusy}"/>
+    </Grid>
+</Window>

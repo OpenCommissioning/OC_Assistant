@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:OC.Assistant.PluginServer.ViewModels"
+             x:Class="OC.Assistant.PluginServer.Views.Settings"
+             Margin="5,20"
+             x:DataType="vm:MenuViewModel">
+    <StackPanel>
+        <Label Margin="4,0" Content="IP Address"/>
+        <TextBox HorizontalAlignment="Stretch"
+                 Text="{Binding IpAddress}"
+                 Margin="0,5,0,10"/>
+        <Label Margin="4,0" Content="Port"/>
+        <TextBox HorizontalAlignment="Stretch"
+                 Text="{Binding Port}"
+                 Margin="0,5,0,10"/>
+    </StackPanel>
+</UserControl>

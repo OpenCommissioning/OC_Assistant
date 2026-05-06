@@ -1,0 +1,94 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Default button -->
+    <Style Selector="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Cursor" Value="Arrow"/>
+    </Style>
+    
+    <!-- Primary button (use Classes="Primary") -->
+    <Style Selector="Button.Primary">
+        <Setter Property="Foreground" Value="{DynamicResource SystemChromeWhiteColor}"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="Button">
+                <Border
+                    Name="Background"
+                    Background="{DynamicResource SystemAccentColor}"
+                    Padding="8,5"
+                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                    <ContentPresenter
+                        Name="ContentPresenter"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.Primary:pointerover /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark2}"/>
+    </Style>
+    <Style Selector="Button.Primary:pressed /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}"/>
+    </Style>
+
+    <!-- Secondary button (use Classes="Secondary") -->
+    <Style Selector="Button.Secondary">
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="Button">
+                <Border
+                    Name="Background"
+                    Background="{DynamicResource SystemListLowColor}"
+                    BorderBrush="{DynamicResource SystemListMediumColor}"
+                    BorderThickness="2"
+                    Padding="6,3"
+                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                    <ContentPresenter
+                        Name="ContentPresenter"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.Secondary:pointerover /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource SystemListMediumColor}"/>
+    </Style>
+    <Style Selector="Button.Secondary:pressed /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource SystemBaseLowColor}"/>
+    </Style>
+
+    <!-- Link button (use Classes="Link") -->
+    <Style Selector="Button.Link">
+        <Setter Property="Margin" Value="4,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Foreground" Value="{DynamicResource SystemAccentColorLight2}"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="Button">
+                <TextBlock
+                    Name="Text"
+                    Foreground="{TemplateBinding Foreground}">
+                    <ContentPresenter
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                </TextBlock>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.Link:pointerover /template/ TextBlock#Text">
+        <Setter Property="TextDecorations" Value="Underline"/>
+    </Style>
+    <Style Selector="Button.Link:disabled">
+        <Setter Property="Opacity" Value="0.6"/>
+    </Style>
+    
+</Styles>

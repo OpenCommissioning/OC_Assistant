@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:OC.Assistant.PluginServer.ViewModels"
+             x:Class="OC.Assistant.PluginServer.Views.FrontPageContent"
+             HorizontalAlignment="Left"
+             Margin="10,0, 0, 0"
+             x:DataType="vm:FrontPageViewModel">
+    <UserControl.DataContext>
+        <vm:FrontPageViewModel/>
+    </UserControl.DataContext>
+    <StackPanel Orientation="Horizontal">
+        <Button Classes="Secondary" Command="{Binding OpenCommand}"
+                Margin="4,0" Content="open"/>
+        <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+               Foreground="{DynamicResource SystemBaseMediumLowColor}" Content="or"/>
+        <Button Classes="Secondary" Command="{Binding CreateCommand}"
+                Margin="4,0" Content="create"/>
+        <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+               Foreground="{DynamicResource SystemBaseMediumLowColor}" Content="a project file"/>
+    </StackPanel>
+</UserControl>

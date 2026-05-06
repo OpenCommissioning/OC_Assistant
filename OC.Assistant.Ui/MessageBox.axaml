@@ -1,0 +1,71 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:OC.Assistant.Ui"
+        x:Class="OC.Assistant.Ui.MessageBox"
+        ShowInTaskbar="False"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner"
+        Title=""
+        Background="{DynamicResource SystemAltHighColor}"
+        Closed="WindowOnClosed">
+
+    <Grid 
+        MinWidth="340" 
+        MinHeight="110" 
+        MaxHeight="560" 
+        RowDefinitions="*,Auto" 
+        ColumnDefinitions="Auto,*">
+
+        <!-- Icon -->
+        <ContentControl 
+            Name="IconControl"
+            Grid.Row="0" 
+            Grid.Column="0"
+            FontSize="36"
+            VerticalAlignment="Top"
+            Margin="20,10,0,20"/>
+
+        <!-- Content area -->
+        <ScrollViewer 
+            Grid.Row="0" 
+            Grid.Column="1"
+            Margin="0,0">
+            <Panel 
+                Name="ContentGrid" 
+                Margin="25,0"/>
+        </ScrollViewer>
+
+        <!-- Buttons -->
+        <StackPanel 
+            Grid.Row="1" 
+            Grid.Column="0" 
+            Grid.ColumnSpan="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            Margin="9">
+            <Button 
+                Name="ButtonOk" 
+                Content="OK" 
+                MinWidth="70"
+                Classes="Primary" Margin="0,0,6,0"
+                Click="ButtonOnClick"/>
+            <Button 
+                Name="ButtonCancel" 
+                Content="Cancel" 
+                MinWidth="70"
+                Classes="Secondary"
+                Click="ButtonOnClick"/>
+        </StackPanel>
+        
+        <local:BusyOverlay 
+            Name="BusyOverlay"
+            Grid.Row="0" 
+            Grid.Column="0" 
+            Grid.RowSpan="2" 
+            Grid.ColumnSpan="2"/>
+    </Grid>
+
+</Window>

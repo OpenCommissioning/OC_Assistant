@@ -1,0 +1,23 @@
+<MenuItem xmlns="https://github.com/avaloniaui"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:vm="clr-namespace:OC.Assistant.ViewModels"
+          x:Class="OC.Assistant.Views.HelpMenu"
+          x:DataType="vm:HelpMenuViewModel"
+          Header="Help"
+          CornerRadius="{DynamicResource ControlCornerRadius}">
+    <MenuItem.DataContext>
+        <vm:HelpMenuViewModel/>
+    </MenuItem.DataContext>
+    <MenuItem 
+        Header="AppData Folder" 
+        Command="{Binding AppDataCommand}"/>
+    <MenuItem 
+        Header="Verbose logging"
+        ToggleType="CheckBox"
+        IsChecked="{Binding Verbose, Mode=TwoWay}" 
+        StaysOpenOnClick="True"/>
+    <Separator/>
+    <MenuItem 
+        Header="About" 
+        Command="{Binding AboutCommand}"/>
+</MenuItem>

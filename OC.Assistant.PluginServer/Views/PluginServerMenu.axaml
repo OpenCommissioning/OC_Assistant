@@ -1,0 +1,12 @@
+<MenuItem xmlns="https://github.com/avaloniaui"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:vm="clr-namespace:OC.Assistant.PluginServer.ViewModels"
+          x:Class="OC.Assistant.PluginServer.Views.PluginServerMenu"
+          IsEnabled="{Binding IsEnabled}"
+          Header="PluginServer"
+          x:DataType="vm:MenuViewModel">
+    <MenuItem.DataContext>
+        <vm:MenuViewModel/>
+    </MenuItem.DataContext>
+    <MenuItem Header="Settings" Command="{Binding SettingsCommand}"/>
+</MenuItem>

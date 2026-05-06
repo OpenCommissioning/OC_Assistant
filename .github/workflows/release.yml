@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2025
+    runs-on: windows-latest
 
     steps:
     - name: Checkout
@@ -17,21 +17,9 @@ jobs:
     - name: Setup dotnet
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x' 
-        
-    - name: Test publish
-      run: |
-        dotnet publish `
-          OC.Assistant `
-          --configuration release `
-          --runtime win-x64 `
-          --no-self-contained `
-          -p:PublishSingleFile=true `
-          -p:EnableWindowsTargeting=true `
-          -p:IncludeNativeLibrariesForSelfExtract=true `
-          -p:IncludeAllContentForSelfExtract=true
+        dotnet-version: '10.0.x' 
 
-    - name: Install Versionize
+    - name: Install versionize
       run: dotnet tool install --global Versionize
 
     - name: Setup git
@@ -40,34 +28,23 @@ jobs:
         git config --global user.name "oc-bot"
       
     - name: Versioning
-      id: versionize
       run: versionize --exit-insignificant-commits
-      continue-on-error: true
 
-    - name: Get current version
-      if: steps.versionize.outcome == 'success'
+    - name: Get current version and changelog
       run: |
+        cd ./OC.Assistant
         $version = versionize inspect
         echo "VERSION=v$version" >> $env:GITHUB_ENV
-      shell: pwsh
-
-    - name: Get current changelog
-      if: steps.versionize.outcome == 'success'
-      run: |
         $changelog = versionize changelog
-        Set-Content -Path latest_changelog.md -Value $changelog
+        Set-Content -Path ../publish/latest_changelog.md -Value $changelog
       shell: pwsh
+      
+    #- name: Clone and add twincat reference
+    #  run: |
+    #    git clone https://github.com/OpenCommissioning/OC_Assistant_Twincat.git publish/twincat
+    #    dotnet add reference publish/twincat/OC.Twincat/OC.Twincat.csproj --project OC.Assistant
 
-    - name: Push changes to GitHub
-      if: steps.versionize.outcome == 'success'
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
-        tags: true
-
-    - name: Dotnet publish
-      if: steps.versionize.outcome == 'success'
+    - name: Dotnet publish assistant
       run: |
         dotnet publish `
           OC.Assistant `
@@ -75,16 +52,16 @@ jobs:
           --runtime win-x64 `
           --no-self-contained `
           -p:PublishSingleFile=true `
-          -p:EnableWindowsTargeting=true `
           -p:IncludeNativeLibrariesForSelfExtract=true `
-          -p:IncludeAllContentForSelfExtract=true `
-          --output ./
+          -p:IncludeAllContentForSelfExtract=true
+        
+    #- name: Remove twincat reference
+    #  run: dotnet reference remove publish/twincat/OC.Twincat/OC.Twincat.csproj --project OC.Assistant
 
-    - name: Install AzureSignTool
+    - name: Install azuresigntool
       run: dotnet tool install --global azuresigntool
 
     - name: Sign executable
-      if: steps.versionize.outcome == 'success'
       run: |
         azuresigntool sign `
           -kvu ${{secrets.AZURE_KEY_VAULT}} `
@@ -94,17 +71,39 @@ jobs:
           -kvs ${{secrets.AZURE_CLIENT_SECRET}} `
           -tr http://timestamp.globalsign.com/tsa/advanced `
           -td sha256 `
-          .\OC.Assistant.exe
+          ./OC.Assistant/bin/release/net10.0-windows/win-x64/publish/OC.Assistant.exe
 
     - name: Zip signed executable
-      if: steps.versionize.outcome == 'success'
-      run: Compress-Archive -Path ./OC.Assistant.exe -DestinationPath ./OC.Assistant_${{env.VERSION}}.zip
-      shell: pwsh
-
-    - name: Publish new release
-      if: steps.versionize.outcome == 'success'
       run: |
-        gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F latest_changelog.md
-        gh release upload ${{env.VERSION}} ./OC.Assistant_${{env.VERSION}}.zip
+        Compress-Archive `
+          -Path ./OC.Assistant/bin/release/net10.0-windows/win-x64/publish/OC.Assistant.exe `
+          -DestinationPath ./publish/OC.Assistant_${{env.VERSION}}.zip
+      shell: pwsh
+      
+    - name: Build sdk and push to nuget
+      run: |
+        dotnet build OC.Assistant.Sdk --configuration release
+        dotnet nuget push "OC.Assistant.Sdk/bin/release/*.nupkg" `
+          --api-key ${{secrets.NUGET_API_KEY}} `
+          --source https://api.nuget.org/v3/index.json
+      
+    - name: Build ui and push to nuget
+      run: |
+        dotnet build OC.Assistant.Ui --configuration release
+        dotnet nuget push "OC.Assistant.Ui/bin/release/*.nupkg" `
+          --api-key ${{secrets.NUGET_API_KEY}} `
+          --source https://api.nuget.org/v3/index.json
+      
+    - name: Push to github
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        tags: true
+
+    - name: Create github release and upload artifacts
+      run: |
+        gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F ./publish/latest_changelog.md
+        gh release upload ${{env.VERSION}} ./publish/OC.Assistant_${{env.VERSION}}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

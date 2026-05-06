@@ -1,3 +1,7 @@
 ﻿<Solution>
   <Project Path="OC.Assistant\OC.Assistant.csproj" Type="Classic C#" />
+  <Project Path="OC.Assistant.Sdk\OC.Assistant.Sdk.csproj" Type="Classic C#" />
+  <Project Path="OC.Assistant.Ui\OC.Assistant.Ui.csproj" Type="Classic C#" />
+  <Project Path="OC.Assistant.Twincat\OC.Assistant.Twincat.csproj" Type="Classic C#" />
+  <Project Path="OC.Assistant.PluginServer\OC.Assistant.PluginServer.csproj" Type="Classic C#" />
 </Solution>

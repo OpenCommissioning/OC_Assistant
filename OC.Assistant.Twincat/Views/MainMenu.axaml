@@ -1,0 +1,45 @@
+<MenuItem xmlns="https://github.com/avaloniaui"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:vm="clr-namespace:OC.Assistant.Twincat.ViewModels"
+          xmlns:views="clr-namespace:OC.Assistant.Twincat.Views"
+          x:Class="OC.Assistant.Twincat.Views.MainMenu"
+          x:DataType="vm:MainViewModel"
+          IsEnabled="{Binding IsEnabled}"
+          IsSubMenuOpen="{Binding IsMenuOpened, Mode=TwoWay}">
+    <MenuItem.DataContext>
+        <vm:MainViewModel/>
+    </MenuItem.DataContext>
+    <MenuItem.Header>
+        <StackPanel Orientation="Horizontal">
+            <Label>TwinCAT</Label>
+            <Grid Margin="-2,-6,0,0">
+                <ContentControl
+                    IsVisible="{Binding RunIndicatorVisibility}"
+                    ToolTip.Tip="TwinCAT Run Mode"
+                    Template="{DynamicResource IconTemplate}"
+                    FontSize="9"
+                    Foreground="{DynamicResource SuccessBrush}"
+                    Content="{DynamicResource IconStatusCircleOuter}"/>
+                <ContentControl
+                    IsVisible="{Binding ConfigIndicatorVisibility}"
+                    ToolTip.Tip="TwinCAT Config Mode"
+                    Template="{DynamicResource IconTemplate}"
+                    FontSize="9"
+                    Foreground="{DynamicResource SystemAccentColor}"
+                    Content="{DynamicResource IconStatusCircleOuter}"/>
+            </Grid>
+        </StackPanel>
+    </MenuItem.Header>
+    <MenuItem Header="Update Project" Command="{Binding CreateProjectCommand}"
+              IsEnabled="{Binding IsContentEnabled}"/>
+    <MenuItem Header="Update Task" Command="{Binding CreateTaskCommand}"
+              IsEnabled="{Binding IsContentEnabled}"/>
+    <MenuItem Header="Create device template" Command="{Binding CreateTemplateCommand}"
+              IsEnabled="{Binding IsContentEnabled}"/>
+    <views:PnScannerMenu/>
+    <Separator/>
+    <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand}"
+              IsEnabled="{Binding IsContentEnabled}"/>
+    <Separator/>
+    <MenuItem Header="{Binding NedId}" IsEnabled="False"/>
+</MenuItem>

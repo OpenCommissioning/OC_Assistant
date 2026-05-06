@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:OC.Assistant.ViewModels"
+             x:Class="OC.Assistant.Views.AboutPage"
+             x:DataType="vm:HelpMenuViewModel">
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="vm:PackageInfoViewModel">
+            <Grid Height="28">
+                <Rectangle Height="1" Fill="{DynamicResource SystemListMediumColor}" VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+                <StackPanel Orientation="Horizontal">
+                    <Label Margin="0,0,5,0" VerticalAlignment="Center" MinWidth="220" Content="{Binding Name}"/>
+                    <Label Margin="0,0,5,0" VerticalAlignment="Center" MinWidth="80" Content="{Binding Version}"/>
+                    <Button Classes="Link"
+                            IsVisible="{Binding UrlVisibility}"
+                            Content="{Binding UrlName}"
+                            ToolTip.Tip="{Binding Url}"
+                            Command="{Binding UrlClickCommand}"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+    <StackPanel>
+        <Label Content="{Binding ApplicationInfo}"/>
+        <Button Classes="Link" Margin="0,10,0,20" Content="Assistant github page" Command="{Binding GitHubLinkCommand}"/>
+        <ItemsControl ItemsSource="{Binding LocalPackages}"/>
+        <Label Margin="0,20,0,10" Content="Nuget Packages:"/>
+        <ItemsControl ItemsSource="{Binding ExternalPackages}"/>
+        <Label Margin="0,20,0,10" Content="Plugins:" IsVisible="{Binding HasPlugins}"/>
+        <ItemsControl ItemsSource="{Binding PluginPackages}"/>
+    </StackPanel>
+</UserControl>

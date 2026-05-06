@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             d:DesignHeight="500" d:DesignWidth="500"
+             xmlns:vm="clr-namespace:OC.Assistant.Twincat.ViewModels"
+             x:Class="OC.Assistant.Twincat.Views.PnScannerWindow"
+             x:DataType="vm:PnScannerViewModel">
+    <StackPanel Width="400">
+        <Label 
+            Content="Name"/>
+        <TextBox 
+            Margin="0,4,0,0"
+            Text="{Binding PnName, Mode=TwoWay}"/>
+        <Label 
+            Margin="0,10,0,0" 
+            Content="Adapter"/>
+        <ComboBox 
+            Margin="0,4,0,0"
+            HorizontalAlignment="Stretch"
+            ItemsSource="{Binding AdapterKeys}"
+            SelectedItem="{Binding SelectedAdapterKey}">
+        </ComboBox>
+        <Label
+            Margin="0,10,0,0" 
+            Content="TIA aml file"/>
+        <Grid 
+            Margin="0,4,0,0" 
+            ColumnDefinitions="40,*">
+            <Button 
+                Grid.Column="0" 
+                Classes="Secondary" 
+                HorizontalAlignment="Stretch"
+                Command="{Binding SelectAmlFileCommand}"
+                Content="..."/>
+            <Label 
+                Grid.Column="1" 
+                VerticalContentAlignment="Center" 
+                IsEnabled="False">
+                <TextBlock 
+                    Margin="8,0,0,0" 
+                    Text="{Binding HwFile}"/>
+            </Label>
+        </Grid>
+        <Label 
+            Margin="0,10,0,0" 
+            Content="GSDML folder (optional)"/>
+        <Grid 
+            Margin="0,4,0,0"
+            ColumnDefinitions="40,*">
+            <Button 
+                Grid.Column="0" 
+                Classes="Secondary" 
+                HorizontalAlignment="Stretch"
+                Command="{Binding SelectGsdFolderCommand}" 
+                Content="..."/>
+            <Label 
+                Grid.Column="1" 
+                VerticalContentAlignment="Center" 
+                IsEnabled="False">
+                <TextBlock 
+                    Margin="8,0,0,0" 
+                    Text="{Binding GsdFolder}"/>
+            </Label>
+        </Grid>
+    </StackPanel>
+</UserControl>

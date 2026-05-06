@@ -1,0 +1,17 @@
+<MenuItem xmlns="https://github.com/avaloniaui"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:vm="clr-namespace:OC.Assistant.Twincat.ViewModels"
+          x:Class="OC.Assistant.Twincat.Views.PnScannerMenu"
+          x:DataType="vm:PnScannerMenuViewModel"
+          Header="Profinet Scanner">
+    <MenuItem.DataContext>
+        <vm:PnScannerMenuViewModel/>
+    </MenuItem.DataContext>
+    <MenuItem Header="Install" IsVisible="{Binding IsNotInstalled}" Command="{Binding InstallCommand}"/>
+    <MenuItem Header="Open" IsVisible="{Binding IsInstalled}" Command="{Binding OpenCommand}"/>
+    <MenuItem Header="Logfiles" IsEnabled="{Binding HasLogfiles}" IsVisible="{Binding IsInstalled}"
+              Command="{Binding LogfilesCommand}"/>
+    <Separator IsVisible="{Binding IsInstalled}"/>
+    <MenuItem Header="Update" IsVisible="{Binding IsInstalled}" Command="{Binding UpdateCommand}"/>
+    <MenuItem Header="Uninstall" IsVisible="{Binding IsInstalled}" Command="{Binding UninstallCommand}"/>
+</MenuItem>
