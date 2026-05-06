@@ -27,6 +27,7 @@
                 <Button 
                     VerticalAlignment="Center" 
                     HorizontalAlignment="Right"
+                    Margin="12 0"
                     Classes="Link"
                     Content="{Binding Version}"
                     IsVisible="{Binding VersionVisibility}"
