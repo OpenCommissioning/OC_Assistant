@@ -1,0 +1,17 @@
+<Border xmlns="https://github.com/avaloniaui"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:vm="clr-namespace:OC.Assistant.ViewModels"
+      x:Class="OC.Assistant.Views.FrontPage"
+      x:DataType="vm:MainViewModel"
+      Background="{DynamicResource SystemAltLowColor}"
+      IsVisible="{Binding FrontPageVisibility}"
+      CornerRadius="{DynamicResource OverlayCornerRadius}">
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Label HorizontalAlignment="Left"
+               FontSize="24"
+               Margin="10"
+               Foreground="{DynamicResource SystemBaseMediumLowColor}"
+               Content="No project connected"/>
+        <ItemsControl ItemsSource="{Binding FrontPageContents}"/>
+    </StackPanel>
+</Border>

@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Company>Spiratec AG</Company>
+        <LangVersion>default</LangVersion>
+        <TargetFramework>net10.0</TargetFramework>
+		<Version>1.17.10</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Title>OC.Assistant.Sdk</Title>
+		<Authors>open commissioning</Authors>
+		<Description>SDK for Open Commissioning Assistant Plugins</Description>
+		<PackageProjectUrl>https://github.com/OpenCommissioning</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/OpenCommissioning/OC_Assistant</RepositoryUrl>
+		<Copyright>Copyright (c) 2024, SpiraTec AG</Copyright>
+		<RepositoryType>git</RepositoryType>
+		<PackageIcon>oc_logo.png</PackageIcon>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DebugType>none</DebugType>
+      <DocumentationFile>bin\Release\OC.Assistant.Sdk.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\OC.Assistant.Sdk.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="Resources\oc_logo.png" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+</Project>

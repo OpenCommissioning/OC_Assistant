@@ -1,0 +1,110 @@
+<Border xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:OC.Assistant.Ui"
+             x:Class="OC.Assistant.Ui.LogViewer"
+             Background="{DynamicResource SystemAltLowColor}"
+             CornerRadius="{DynamicResource OverlayCornerRadius}"
+             Loaded="OnLoaded">
+    <Grid Name="MainGrid" RowDefinitions="32,*,0,0">
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 2">
+            <Button Click="ClearOnClick" Width="30" VerticalAlignment="Stretch"
+                    Padding="0,0,2,0" Margin="5,3,3,3">
+                <ContentControl Template="{DynamicResource IconTemplate}"
+                                FontSize="14"
+                                Foreground="{DynamicResource SystemBaseHighColor}"
+                                Content="{DynamicResource IconDelete}"/>
+            </Button>
+            <Border Background="{DynamicResource SystemBaseLowColor}" Width="1" Margin="3,4"/>
+            <ToggleButton Name="InfoFilter" Click="InfoFilterOnClick" IsChecked="True"
+                          Width="30" VerticalAlignment="Stretch" Padding="0,0,0,2" Margin="3,3,0,3">
+                <ContentControl FontSize="16" Template="{DynamicResource InformationIcon}"/>
+            </ToggleButton>
+            <ToggleButton Name="WarningFilter" Click="WarningFilterOnClick" IsChecked="True"
+                          Width="30" VerticalAlignment="Stretch" Padding="0,0,0,2" Margin="3,3,0,3">
+                <ContentControl FontSize="16" Template="{DynamicResource WarningIcon}"/>
+            </ToggleButton>
+            <ToggleButton Name="ErrorFilter" Click="ErrorFilterOnClick" IsChecked="True"
+                          Width="30" VerticalAlignment="Stretch" Padding="0,0,0,2" Margin="3,3,0,3">
+                <ContentControl FontSize="16" Template="{DynamicResource ErrorIcon}"/>
+            </ToggleButton>
+        </StackPanel>
+        <Border Grid.Row="0" VerticalAlignment="Bottom" Height="1"
+                Background="{DynamicResource SystemBaseLowColor}" Opacity="0.2"
+                UseLayoutRounding="True"/>
+
+        <!-- Log list -->
+        <ListBox Name="ItemsControl"
+                 Grid.Row="1"
+                 SelectionMode="Single"
+                 SelectionChanged="ItemsControlOnSelectionChanged"
+                 BorderThickness="0"
+                 Background="Transparent">
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Style>
+                <Style Selector="ListBoxItem:selected /template/ Border#Root">
+                    <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark3}"/>
+                </Style>
+            </ListBox.Styles>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="local:Message">
+                    <Grid Margin="0 3" ColumnDefinitions="32,140,*" VerticalAlignment="Center">
+                        <Panel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <ContentControl FontSize="16" Template="{DynamicResource InformationIcon}"
+                                            IsVisible="{Binding IsInfo}"/>
+                            <ContentControl FontSize="16" Template="{DynamicResource WarningIcon}"
+                                            IsVisible="{Binding IsWarning}"/>
+                            <ContentControl FontSize="16" Template="{DynamicResource ErrorIcon}"
+                                            IsVisible="{Binding IsError}"/>
+                        </Panel>
+                        <TextBlock 
+                            Grid.Column="1" 
+                            Text="{Binding Header}"
+                            Foreground="{DynamicResource SystemBaseMediumLowColor}"/>
+                        <TextBlock 
+                            Grid.Column="2" 
+                            Text="{Binding Text}" 
+                            Foreground="{DynamicResource SystemBaseMediumHighColor}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Splitter -->
+        <GridSplitter 
+            Name="GridSplitter"
+            IsVisible="False"
+            Grid.Row="2" 
+            ResizeDirection="Rows"
+            Background="Transparent" 
+            HorizontalAlignment="Stretch"/>
+        
+        <!-- Detail panel -->
+        <Grid 
+            Name="Detail" 
+            Grid.Row="3" 
+            IsVisible="False">
+            <TextBox Name="DetailBox"
+                     Background="Transparent"
+                     VerticalContentAlignment="Top"
+                     IsVisible="True"
+                     IsReadOnly="True"
+                     TextWrapping="Wrap"
+                     Classes="Readonly"/>
+            <Button VerticalAlignment="Top" HorizontalAlignment="Right"
+                    Width="24" Height="24" Padding="0"
+                    Click="CloseDetailOnClick">
+                <ContentControl Template="{DynamicResource IconTemplate}"
+                                FontSize="10"
+                                Foreground="{DynamicResource SystemBaseHighColor}"
+                                Content="{DynamicResource IconChromeClose}"/>
+            </Button>
+        </Grid>
+
+    </Grid>
+</Border>

@@ -1,0 +1,146 @@
+<Border 
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:OC.Assistant.ViewModels"
+    x:Class="OC.Assistant.Views.PluginList"
+    x:DataType="vm:PluginListViewModel"
+    Background="{DynamicResource SystemAltLowColor}"
+    CornerRadius="6"
+    Padding="3">
+    <Border.Resources>
+        <ControlTheme x:Key="PluginListBoxItem" TargetType="ListBoxItem">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}"/>
+            <Setter Property="Template">
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border 
+                        Name="Bd"
+                        Background="{DynamicResource SystemListLowColor}"
+                        BorderBrush="{DynamicResource SystemListMediumColor}"
+                        BorderThickness="2"
+                        CornerRadius="{DynamicResource ControlCornerRadius}">
+                        <ContentPresenter 
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style 
+                Selector="^:pointerover /template/ Border#Bd">
+                <Setter Property="Background" Value="{DynamicResource SystemListMediumColor}"/>
+            </Style>
+            <Style 
+                Selector="^:selected /template/ Border#Bd">
+                <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}"/>
+            </Style>
+        </ControlTheme>
+    </Border.Resources>
+        <Border.DataTemplates>
+        <DataTemplate DataType="vm:PluginViewModel">
+            <Grid>
+                <StackPanel 
+                    Margin="4,0"
+                    VerticalAlignment="Center" 
+                    Orientation="Horizontal">
+                    <Border 
+                        Margin="2,0" 
+                        CornerRadius="{DynamicResource ControlCornerRadius}" 
+                        Background="{DynamicResource SystemAccentColorDark1}">
+                        <TextBlock 
+                            Margin="5,0" 
+                            Foreground="{DynamicResource SystemChromeWhiteColor}"
+                            Text="{Binding Name}"/>
+                    </Border>
+                    <Border 
+                        Margin="2,0" 
+                        CornerRadius="{DynamicResource ControlCornerRadius}" 
+                        Background="{DynamicResource SystemListMediumColor}">
+                        <TextBlock 
+                            Margin="5,0" 
+                            Text="{Binding Type}"/>
+                    </Border>
+                    <Border 
+                        Margin="2,0" 
+                        CornerRadius="{DynamicResource ControlCornerRadius}" 
+                        Background="{DynamicResource SystemListMediumColor}">
+                        <TextBlock 
+                            Margin="5,0" 
+                            Text="{Binding ChannelType}"/>
+                    </Border>
+                </StackPanel>
+                <StackPanel 
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+                    <Button 
+                        Width="36" 
+                        Margin="1" 
+                        Padding="0"
+                        ToolTip.Tip="Start/Stop"
+                        VerticalAlignment="Stretch"
+                        Command="{Binding StartStopCommand}">
+                        <Grid>
+                            <ContentControl 
+                                IsVisible="{Binding Idle}"
+                                Foreground="{DynamicResource SuccessBrush}"
+                                Template="{DynamicResource IconTemplate}"
+                                Content="{DynamicResource IconPlay}"/>
+                            <ContentControl 
+                                IsVisible="{Binding Starting}"
+                                Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                Template="{DynamicResource IconTemplate}"
+                                Content="{DynamicResource IconPlay}"/>
+                            <ContentControl 
+                                IsVisible="{Binding Run}"
+                                Foreground="{DynamicResource DangerBrush}"
+                                Template="{DynamicResource IconTemplate}"
+                                Content="{DynamicResource IconStop}"/>
+                            <ContentControl 
+                                IsVisible="{Binding Stopping}"
+                                Foreground="{DynamicResource SystemBaseMediumLowColor}"
+                                Template="{DynamicResource IconTemplate}"
+                                Content="{DynamicResource IconStop}"/>
+                        </Grid>
+                    </Button>
+                    <Button 
+                        Width="36"
+                        Margin="1"
+                        Padding="0"
+                        ToolTip.Tip="Remove"
+                        FontSize="14"
+                        VerticalAlignment="Stretch"
+                        Command="{Binding RemoveCommand}">
+                        <ContentControl 
+                            Template="{DynamicResource IconTemplate}"
+                            Content="{DynamicResource IconDelete}"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Border.DataTemplates>
+    <StackPanel>
+        <ListBox 
+            ItemsSource="{Binding Plugins}"
+            SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
+            ItemContainerTheme="{StaticResource PluginListBoxItem}">
+            <ListBox.Template>
+                <ControlTemplate>
+                    <ItemsPresenter/>
+                </ControlTemplate>
+            </ListBox.Template>
+        </ListBox>
+        <Button 
+            Classes="Secondary"
+            Height="28"
+            HorizontalAlignment="Stretch"
+            ToolTip.Tip="Add plugin instance"
+            Command="{Binding AddCommand}">
+            <ContentControl 
+                FontSize="14"
+                Template="{DynamicResource IconTemplate}"
+                Foreground="{DynamicResource SystemBaseHighColor}"
+                Content="{DynamicResource IconCalculatorAddition}"/>
+        </Button>
+    </StackPanel>
+</Border>

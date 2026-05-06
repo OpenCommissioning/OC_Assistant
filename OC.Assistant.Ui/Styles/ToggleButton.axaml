@@ -1,0 +1,53 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style Selector="ToggleButton">
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="8,5,8,6"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="ToggleButton">
+                <Border
+                    Name="Background"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                    <Border
+                        Name="Border"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}"
+                        CornerRadius="{DynamicResource ControlCornerRadius}">
+                        <ContentPresenter
+                            Name="ContentPresenter"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Opacity="0.5"/>
+                    </Border>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton:checked /template/ ContentPresenter#ContentPresenter">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="ToggleButton:checked /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource SystemListMediumColor}"/>
+    </Style>
+    <Style Selector="ToggleButton:pointerover /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource SystemListMediumColor}"/>
+    </Style>
+    <Style Selector="ToggleButton:pointerover /template/ ContentPresenter#ContentPresenter">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+
+</Styles>

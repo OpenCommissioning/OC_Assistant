@@ -1,0 +1,36 @@
+<Grid xmlns="https://github.com/avaloniaui"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      x:Class="OC.Assistant.Ui.BusyOverlay">
+    <Grid 
+        Background="{DynamicResource SystemAltLowColor}"/>
+    <Viewbox 
+        Height="50">
+        <Grid 
+            Width="200" 
+            Height="200">
+            <Path
+                Fill="{DynamicResource SystemBaseLowColor}"
+                Data="M 0 100
+                      a 100,100 0 1 1 200,0
+                      a 100,100 0 1 1 -200,0
+                      M 20 100
+                      a 80,80 0 1 1 160,0
+                      a 80,80 0 1 1 -160,0"/>
+            <Grid 
+                x:Name="SpinnerPath" 
+                RenderTransformOrigin="0.5,0.5">
+                <Path
+                    Fill="{DynamicResource SystemBaseMediumLowColor}"
+                    Data="M 0 100
+                          a 100,100 0 0 1 100,-100
+                          v 20
+                          a 80,80 0 0 0 -80,80"/>
+                <Grid.RenderTransform>
+                    <RotateTransform 
+                        CenterX="100" 
+                        CenterY="100"/>
+                </Grid.RenderTransform>
+            </Grid>
+        </Grid>
+    </Viewbox>
+</Grid>
