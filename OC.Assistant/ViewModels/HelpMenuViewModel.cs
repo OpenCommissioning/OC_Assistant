@@ -40,7 +40,19 @@ public partial class HelpMenuViewModel : ObservableObject
     [RelayCommand]
     private void AppData()
     {
-        Process.Start("explorer.exe", Sdk.AppData.Path);
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Sdk.AppData.Path,
+                UseShellExecute = true,
+                Verb = "open"
+            });
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(this, e.Message);
+        }
     }
     
     public bool Verbose
