@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <LangVersion>default</LangVersion>
-        <Version>1.17.10</Version>
+        <Version>1.18.0</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.0"></a>
+## [1.18.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.0) (2026-05-06)
+
+### Features
+
+* codebase rework, Avalonia conversion and new features ([decbeed](https://www.github.com/OpenCommissioning/OC_Assistant/commit/decbeed9a12c7f456972aee8d7305719951aa7f6))
+
 <a name="1.17.10"></a>
 ## [1.17.10](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.17.10) (2026-03-05)
 
