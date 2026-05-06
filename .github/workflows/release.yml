@@ -72,12 +72,12 @@ jobs:
           -kvs ${{secrets.AZURE_CLIENT_SECRET}} `
           -tr http://timestamp.globalsign.com/tsa/advanced `
           -td sha256 `
-          ./OC.Assistant/bin/release/net10.0-windows/win-x64/publish/OC.Assistant.exe
+          ./OC.Assistant/bin/release/net10.0/win-x64/publish/OC.Assistant.exe
 
     - name: Zip signed executable
       run: |
         Compress-Archive `
-          -Path ./OC.Assistant/bin/release/net10.0-windows/win-x64/publish/OC.Assistant.exe `
+          -Path ./OC.Assistant/bin/release/net10.0/win-x64/publish/OC.Assistant.exe `
           -DestinationPath ./publish/OC.Assistant_${{env.VERSION}}.zip
       shell: pwsh
       
