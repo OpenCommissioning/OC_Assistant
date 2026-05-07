@@ -1,27 +1,54 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace OC.Assistant.Sdk;
 
 /// <summary>
 /// Provides an extended <see cref="Stopwatch"/>,
-/// using a high resolution timer that can be used to wait with milliseconds precision.
+/// using a high-resolution timer that can be used to wait with millisecond precision.
 /// </summary>
 public class StopwatchEx : Stopwatch, IDisposable
 {
-    private readonly bool _isLinux;
+    private enum Platform { Windows, Linux, MacOs }
+    private readonly Platform _platform;
     private readonly NativeWindows.WaitableTimer? _waitableTimer;
-    private long _linuxStartTimeStamp;
+    private long _startTimeStamp;
+    
+    private static Platform GetOperatingSystem()
+    {
+        Platform platform;
+        if (OperatingSystem.IsWindows()) platform = Platform.Windows;
+        else if (OperatingSystem.IsLinux()) platform = Platform.Linux;
+        else if (OperatingSystem.IsMacOS()) platform = Platform.MacOs;
+        else throw new NotSupportedException();
+        return platform;
+    }
+    
+    private static NativeWindows.WaitableTimer? GetWaitableTimer(Platform platform)
+    {
+        return platform switch
+        {
+            Platform.Windows => new NativeWindows.WaitableTimer(),
+            _ => null
+        };
+    }
+
+    private static long GetTimeStamp(Platform platform)
+    {
+        return platform switch
+        {
+            Platform.Linux => NativeLinux.GetMonotonicTimeNanoseconds(),
+            Platform.MacOs => NativeMacOs.GetMonotonicTimeNanoseconds(),
+            _ => 0
+        };
+    }
     
     /// <summary>
     /// Creates a new instance of the <see cref="StopwatchEx"/> class.
     /// </summary>
     public StopwatchEx()
     {
-        _isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        if (_isLinux) return;
-
-        _waitableTimer = new NativeWindows.WaitableTimer();
+        _platform = GetOperatingSystem();
+        _waitableTimer = GetWaitableTimer(_platform);
     }
     
     /// <summary>
@@ -30,21 +57,20 @@ public class StopwatchEx : Stopwatch, IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        if (_isLinux) return;
         _waitableTimer?.Close();
     }
     
     /// <inheritdoc cref="Stopwatch.Start"/>
     public new void Start()
     {
-        if (_isLinux) _linuxStartTimeStamp = NativeLinux.GetMonotonicTimeNanoseconds();
+        _startTimeStamp = GetTimeStamp(_platform);
         base.Start();
     }
     
     /// <inheritdoc cref="Stopwatch.Restart"/>
     public new void Restart()
     {
-        if (_isLinux) _linuxStartTimeStamp = NativeLinux.GetMonotonicTimeNanoseconds();
+        _startTimeStamp = GetTimeStamp(_platform);
         base.Restart();
     }
 
@@ -55,17 +81,20 @@ public class StopwatchEx : Stopwatch, IDisposable
     /// <param name="millisecondsTimeout">The number of milliseconds.</param>
     public void WaitUntil(long millisecondsTimeout)
     {
-        if (_isLinux)
+        switch (_platform)
         {
-            var target = _linuxStartTimeStamp + millisecondsTimeout * 1_000_000;
-            NativeLinux.SleepUntil(target);
-            Restart();
-            return;
+            case Platform.Windows:
+                //dueTime in 100-nanosecond intervals, negative values indicate relative time
+                _waitableTimer?.Wait(Elapsed.Ticks - millisecondsTimeout * 10_000);
+                break;
+            case Platform.Linux:
+                NativeLinux.SleepUntil(_startTimeStamp + millisecondsTimeout * 1_000_000);
+                break;
+            case Platform.MacOs:
+                NativeMacOs.SleepUntil(_startTimeStamp + millisecondsTimeout * 1_000_000);
+                break;
         }
-
-        //dueTime in 100 nanosecond intervals, negative values indicate relative time
-        var dueTime = ElapsedTicks - millisecondsTimeout * 10_000;
-        _waitableTimer?.Wait(dueTime);
+        
         Restart();
     }
 }
