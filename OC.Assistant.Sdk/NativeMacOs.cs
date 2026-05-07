@@ -28,7 +28,12 @@ internal static class NativeMacOs
 
     static NativeMacOs()
     {
-        _ = mach_timebase_info(out var tb);
+        // mach_timebase_info returns kern_return_t (0 = KERN_SUCCESS); a non-zero result on this call
+        // would indicate a kernel-level failure that we cannot meaningfully recover from.
+        if (mach_timebase_info(out var tb) != 0)
+        {
+            throw new InvalidOperationException("mach_timebase_info failed");
+        }
         // mach_absolute_time returns "ticks"; convert with numer/denom to nanoseconds.
         NanosPerTick = (double)tb.numer / tb.denom;
         TicksPerNano = (double)tb.denom / tb.numer;
@@ -43,6 +48,9 @@ internal static class NativeMacOs
     public static void SleepUntil(long targetNanoseconds)
     {
         var deadlineTicks = (ulong)(targetNanoseconds * TicksPerNano);
-        _ = mach_wait_until(deadlineTicks);
+        if (mach_wait_until(deadlineTicks) != 0)
+        {
+            throw new InvalidOperationException("mach_wait_until failed");
+        }
     }
 }
