@@ -54,7 +54,7 @@
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="local:Message">
                     <Grid Margin="0 3" ColumnDefinitions="32,140,*" VerticalAlignment="Center">
-                        <Panel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Panel Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center">
                             <ContentControl FontSize="16" Template="{DynamicResource InformationIcon}"
                                             IsVisible="{Binding IsInfo}"/>
                             <ContentControl FontSize="16" Template="{DynamicResource WarningIcon}"
