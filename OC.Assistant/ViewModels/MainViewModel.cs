@@ -24,7 +24,7 @@ public partial class MainViewModel : ObservableObject
         EventSystem.ApiDataReceived += OnApiDataReceived;
         BusyState.Changed += BusyStateOnChanged;
         
-        CheckVersion();
+        _ = CheckVersion();
     }
 
     private void BusyStateOnChanged(bool value)

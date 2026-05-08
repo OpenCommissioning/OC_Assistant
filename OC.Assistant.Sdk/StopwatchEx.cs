@@ -1,71 +1,64 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace OC.Assistant.Sdk;
 
-/// <summary>
-/// Provides an extended <see cref="Stopwatch"/>,
-/// using a high resolution timer that can be used to wait with milliseconds precision.
-/// </summary>
-public class StopwatchEx : Stopwatch, IDisposable
+/// <inheritdoc cref="Stopwatch"/>
+/// <Remarks>
+/// This extended version provides a high-precision <see cref="WaitUntil"/> method.
+/// </Remarks>
+public sealed class StopwatchEx : Stopwatch, IDisposable
 {
-    private readonly bool _isLinux;
-    private readonly NativeWindows.WaitableTimer? _waitableTimer;
-    private long _linuxStartTimeStamp;
+    private readonly IHighPrecisionTimer _timer;
     
     /// <summary>
-    /// Creates a new instance of the <see cref="StopwatchEx"/> class.
+    /// Initializes a new instance of the <see cref="StopwatchEx"/> class.
     /// </summary>
     public StopwatchEx()
     {
-        _isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        if (_isLinux) return;
-
-        _waitableTimer = new NativeWindows.WaitableTimer();
+        _timer = HighPrecisionTimer.Create(this);
     }
     
     /// <summary>
-    /// Releases all resources used by the current instance of the <see cref="StopwatchEx"/> class.
+    /// Starts a new <see cref="StopwatchEx"/> instance and returns it.
     /// </summary>
-    public void Dispose()
+    public new static StopwatchEx StartNew()
     {
-        GC.SuppressFinalize(this);
-        if (_isLinux) return;
-        _waitableTimer?.Close();
+        StopwatchEx s = new();
+        s.Start();
+        return s;
     }
-    
+
     /// <inheritdoc cref="Stopwatch.Start"/>
     public new void Start()
     {
-        if (_isLinux) _linuxStartTimeStamp = NativeLinux.GetMonotonicTimeNanoseconds();
+        _timer.Reset();
         base.Start();
     }
-    
+
     /// <inheritdoc cref="Stopwatch.Restart"/>
     public new void Restart()
     {
-        if (_isLinux) _linuxStartTimeStamp = NativeLinux.GetMonotonicTimeNanoseconds();
+        _timer.Reset();
         base.Restart();
     }
 
     /// <summary>
-    /// Waits a number of milliseconds,
-    /// calculated by the given timeout minus the already elapsed time and restarts the <see cref="Stopwatch"/>.
+    /// Waits until the given timeout has elapsed since the
+    /// last <see cref="Start"/> or <see cref="Restart"/>.
+    /// Automatically restarts the <see cref="Stopwatch"/> after completion.
     /// </summary>
-    /// <param name="millisecondsTimeout">The number of milliseconds.</param>
+    /// <param name="millisecondsTimeout">The timeout in milliseconds.</param>
     public void WaitUntil(long millisecondsTimeout)
     {
-        if (_isLinux)
-        {
-            var target = _linuxStartTimeStamp + millisecondsTimeout * 1_000_000;
-            NativeLinux.SleepUntil(target);
-            Restart();
-            return;
-        }
+        _timer.WaitUntil(millisecondsTimeout);
+        base.Restart();
+    }
 
-        //dueTime in 100 nanosecond intervals, negative values indicate relative time
-        var dueTime = ElapsedTicks - millisecondsTimeout * 10_000;
-        _waitableTimer?.Wait(dueTime);
-        Restart();
+    /// <summary>
+    /// Releases all resources used by this <see cref="StopwatchEx"/> instance.
+    /// </summary>
+    public void Dispose()
+    {
+        _timer.Dispose();
     }
 }
