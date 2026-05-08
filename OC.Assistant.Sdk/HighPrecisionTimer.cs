@@ -4,34 +4,30 @@ namespace OC.Assistant.Sdk;
 
 internal interface IHighPrecisionTimer : IDisposable
 {
-    Stopwatch Clock { get; }
-    void Restart();
+    void Reset();
     void WaitUntil(long millisecondsTimeout);
 }
 
 internal static class HighPrecisionTimer
 {
-    public static IHighPrecisionTimer Create()
+    public static IHighPrecisionTimer Create(Stopwatch stopwatch)
     {
-        if (OperatingSystem.IsWindows()) return new WindowsTimer();
+        if (OperatingSystem.IsWindows()) return new WindowsTimer(stopwatch);
         if (OperatingSystem.IsLinux()) return new LinuxTimer();
         if (OperatingSystem.IsMacOS()) return new MacOsTimer();
         throw new PlatformNotSupportedException();
     }
 }
 
-internal sealed class WindowsTimer : IHighPrecisionTimer
+internal sealed class WindowsTimer(Stopwatch stopwatch) : IHighPrecisionTimer
 {
     private readonly NativeWindows.WaitableTimer _timer = new();
 
-    public Stopwatch Clock { get; } = new();
-
-    public void Restart() => Clock.Restart();
+    public void Reset() { }
 
     public void WaitUntil(long millisecondsTimeout)
     {
-        _timer.Wait(Clock.Elapsed.Ticks - millisecondsTimeout * 10_000L);
-        Restart();
+        _timer.Wait(stopwatch.Elapsed.Ticks - millisecondsTimeout * 10_000L);
     }
 
     public void Dispose() => _timer.Dispose();
@@ -40,19 +36,13 @@ internal sealed class WindowsTimer : IHighPrecisionTimer
 internal sealed class LinuxTimer : IHighPrecisionTimer
 {
     private long _startTimeNs;
-    
-    public Stopwatch Clock { get; } = new();
 
-    public void Restart()
-    {
-        _startTimeNs = NativeLinux.GetMonotonicTimeNanoseconds();
-        Clock.Restart();
-    }
+    public void Reset() => _startTimeNs = NativeLinux.GetMonotonicTimeNanoseconds();
 
     public void WaitUntil(long millisecondsTimeout)
     {
         NativeLinux.SleepUntil(_startTimeNs + millisecondsTimeout * 1_000_000L);
-        Restart();
+        Reset();
     }
 
     public void Dispose() { }
@@ -61,19 +51,13 @@ internal sealed class LinuxTimer : IHighPrecisionTimer
 internal sealed class MacOsTimer : IHighPrecisionTimer
 {
     private long _startTimeNs;
-    
-    public Stopwatch Clock { get; } = new();
 
-    public void Restart()
-    {
-        _startTimeNs = NativeMacOs.GetMonotonicTimeNanoseconds();
-        Clock.Restart();
-    }
+    public void Reset() => _startTimeNs = NativeMacOs.GetMonotonicTimeNanoseconds();
 
     public void WaitUntil(long millisecondsTimeout)
     {
         NativeMacOs.SleepUntil(_startTimeNs + millisecondsTimeout * 1_000_000L);
-        Restart();
+        Reset();
     }
 
     public void Dispose() { }

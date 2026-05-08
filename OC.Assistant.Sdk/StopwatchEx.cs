@@ -2,41 +2,56 @@ using System.Diagnostics;
 
 namespace OC.Assistant.Sdk;
 
-/// <summary>
-/// Provides a multi-platform high-precision timer.
-/// Not thread-safe - use one instance per thread.
-/// </summary>
-public sealed class StopwatchEx : IDisposable
+/// <inheritdoc cref="Stopwatch"/>
+/// <Remarks>
+/// This extended version provides a high-precision <see cref="WaitUntil"/> method.
+/// </Remarks>
+public sealed class StopwatchEx : Stopwatch, IDisposable
 {
-    private readonly IHighPrecisionTimer _timer = HighPrecisionTimer.Create();
+    private readonly IHighPrecisionTimer _timer;
     
-    /// <inheritdoc cref="Stopwatch.Elapsed"/>
-    public TimeSpan Elapsed => _timer.Clock.Elapsed;
-
-    /// <inheritdoc cref="Stopwatch.ElapsedMilliseconds"/>
-    public long ElapsedMilliseconds => _timer.Clock.ElapsedMilliseconds;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StopwatchEx"/> class.
+    /// </summary>
+    public StopwatchEx()
+    {
+        _timer = HighPrecisionTimer.Create(this);
+    }
+    
+    /// <summary>
+    /// Starts a new <see cref="StopwatchEx"/> instance and returns it.
+    /// </summary>
+    public new static StopwatchEx StartNew()
+    {
+        StopwatchEx s = new();
+        s.Start();
+        return s;
+    }
 
     /// <inheritdoc cref="Stopwatch.Start"/>
-    public void Start()
+    public new void Start()
     {
-        _timer.Restart();
+        _timer.Reset();
+        base.Start();
     }
 
     /// <inheritdoc cref="Stopwatch.Restart"/>
-    public void Restart()
+    public new void Restart()
     {
-        _timer.Restart();
+        _timer.Reset();
+        base.Restart();
     }
 
     /// <summary>
     /// Waits until the given timeout has elapsed since the
     /// last <see cref="Start"/> or <see cref="Restart"/>.
-    /// Automatically restarts the timer after completion.
+    /// Automatically restarts the <see cref="Stopwatch"/> after completion.
     /// </summary>
     /// <param name="millisecondsTimeout">The timeout in milliseconds.</param>
     public void WaitUntil(long millisecondsTimeout)
     {
         _timer.WaitUntil(millisecondsTimeout);
+        base.Restart();
     }
 
     /// <summary>
