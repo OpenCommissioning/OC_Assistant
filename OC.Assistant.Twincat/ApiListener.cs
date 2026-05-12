@@ -89,6 +89,6 @@ public class ApiListener
             }
             ProjectGenerator.Update(plcProjectItem);
             Logger.LogInfo(this, "Project update finished.");
-        }, throwExceptions: true);
+        });
     }
 }

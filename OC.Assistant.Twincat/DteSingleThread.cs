@@ -9,9 +9,9 @@ namespace OC.Assistant.Twincat;
 /// </summary>
 public static class DteSingleThread
 {
-    /// <inheritdoc cref="Run(System.Action,int,bool)"/><br/>
+    /// <inheritdoc cref="Run(System.Action,int)"/><br/>
     /// This overload automatically gets the <see cref="EnvDTE.DTE"/> interface of the currently connected solution.
-    public static System.Threading.Thread Run(Action<ITcSysManager15> action, int millisecondsTimeout = 0, bool throwExceptions = false)
+    public static System.Threading.Thread Run(Action<ITcSysManager15> action, int millisecondsTimeout = 0)
     {
         return Run(() =>
         {
@@ -31,7 +31,7 @@ public static class DteSingleThread
             {
                 TcDte.ReleaseTrackedObjects();
             }
-        }, millisecondsTimeout, throwExceptions);
+        }, millisecondsTimeout);
     }
 
     /// <summary>
@@ -43,9 +43,8 @@ public static class DteSingleThread
     /// <param name="millisecondsTimeout">Blocks the calling thread until this thread terminates or the timeout is reached.
     /// Value 0 disables blocking and activates the busy state.
     /// </param>
-    /// <param name="throwExceptions">Throw exceptions if true.</param>
     /// <returns>The instance of this <see cref="System.Threading.Thread"/>.</returns>
-    public static System.Threading.Thread Run(Action action, int millisecondsTimeout = 0, bool throwExceptions = false)
+    public static System.Threading.Thread Run(Action action, int millisecondsTimeout = 0)
     {
         var thread = new System.Threading.Thread(() =>
         {
@@ -58,7 +57,6 @@ public static class DteSingleThread
             catch (Exception e)
             {
                 Logger.LogError(typeof(DteSingleThread), e.Message);
-                if (throwExceptions) throw;
             }
             finally
             {

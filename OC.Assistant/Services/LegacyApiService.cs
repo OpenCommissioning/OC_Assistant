@@ -73,15 +73,23 @@ internal class LegacyApiService : IDisposable
         var type = str[..3];
         var data = str[3..];
 
-        switch (type)
+        try
         {
-            case "cfg":
-                EventSystem.InvokeApiEvent("data/config", new XElement("Payload", XElement.Parse(data)));
-                break;
-            case "tsc":
-                EventSystem.InvokeApiEvent("data/timeScaling", new XElement("Payload", data));
-                break;
+            switch (type)
+            {
+                case "cfg":
+                    EventSystem.InvokeApiEvent("data/config", new XElement("Payload", XElement.Load(data)));
+                    break;
+                case "tsc":
+                    EventSystem.InvokeApiEvent("data/timeScaling", new XElement("Payload", data));
+                    break;
+            }
         }
+        catch (Exception e)
+        {
+            Logger.LogError(typeof(LegacyApiService), e.Message);
+        }
+
     }
     
     public void Dispose()
