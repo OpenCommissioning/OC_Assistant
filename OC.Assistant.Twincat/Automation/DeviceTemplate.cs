@@ -54,7 +54,7 @@ public class DeviceTemplate
 	/// <summary>
 	/// Creates the device template.
 	/// </summary>
-	public void Create(bool throwExceptions = false)
+	public void Create()
 	{		
 		if (_validName is null) return;
 		
@@ -64,7 +64,7 @@ public class DeviceTemplate
 					.GetPlcProject()
 					.GetOrCreateChild(TEMPLATE_FOLDER, TREEITEMTYPES.TREEITEMTYPE_PLCFOLDER), 
 				_validName);
-		}, throwExceptions: throwExceptions);
+		});
 	}
 
 	private void Create(ITcSmTreeItem? parent, string name)

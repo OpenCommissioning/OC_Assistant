@@ -24,7 +24,7 @@ public partial class MainViewModel : ObservableObject
         EventSystem.ApiDataReceived += OnApiDataReceived;
         BusyState.Changed += BusyStateOnChanged;
         
-        CheckVersion();
+        _ = CheckVersion();
     }
 
     private void BusyStateOnChanged(bool value)
@@ -99,36 +99,33 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    private void CheckVersion()
+    private async Task CheckVersion()
     {
-        Task.Run(async () =>
+        try
         {
-            try
+            const string api = "https://api.github.com/repos/opencommissioning/oc_assistant/releases/latest";
+
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            var current = $"v{version?.Major}.{version?.Minor}.{version?.Build}";
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("request");
+
+            var latest = JsonDocument
+                .Parse(await client.GetStringAsync(api))
+                .RootElement
+                .GetProperty("tag_name")
+                .GetString();
+
+            if (current != latest)
             {
-                const string api = "https://api.github.com/repos/opencommissioning/oc_assistant/releases/latest";
-
-                var version = Assembly.GetExecutingAssembly().GetName().Version;
-                var current = $"v{version?.Major}.{version?.Minor}.{version?.Build}";
-
-                using var client = new HttpClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("request");
-
-                var latest = JsonDocument
-                    .Parse(await client.GetStringAsync(api))
-                    .RootElement
-                    .GetProperty("tag_name")
-                    .GetString();
-
-                if (current != latest)
-                {
-                    VersionVisibility = true;
-                    Version = $"Release {latest} available!";
-                }
+                VersionVisibility = true;
+                Version = $"Release {latest} available!";
             }
-            catch
-            {
-                // ignore exceptions as fetching the latest version is not critical
-            }
-        });
+        }
+        catch
+        {
+            // ignore exceptions. fetching the latest version is not critical
+        }
     }
 }
