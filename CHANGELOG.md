@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.1"></a>
+## [1.18.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.1) (2026-05-12)
+
+### Bug Fixes
+
+* adjust log viewer icons positioning ([92a66d7](https://www.github.com/OpenCommissioning/OC_Assistant/commit/92a66d7950194c0dd9661334ecd51131e67c4950))
+* config command for the LegacyApiService ([44d57da](https://www.github.com/OpenCommissioning/OC_Assistant/commit/44d57daef6ba3374ea983bf2922cd4411844fdfe))
+* implement a MacOS version for the high-resolution timer ([c44c98d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/c44c98d1424d4f9211f78aa90c15864ecbdab663))
+* use a multi platform compatible approach to open the AppData folder ([ff6e55f](https://www.github.com/OpenCommissioning/OC_Assistant/commit/ff6e55f5f5bade39d0547696c095164828f5e7c1))
+* version check visibility ([405286b](https://www.github.com/OpenCommissioning/OC_Assistant/commit/405286b9828b93ef568071e47cc0546658cc1d8f))
+* **Sdk:** optimized high precision timer ([625dcc3](https://www.github.com/OpenCommissioning/OC_Assistant/commit/625dcc3246465f028825886fe772bd2ece7dd486))
+
 <a name="1.18.0"></a>
 ## [1.18.0](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.0) (2026-05-06)
 
