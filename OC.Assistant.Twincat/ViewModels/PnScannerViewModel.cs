@@ -85,7 +85,9 @@ public partial class PnScannerViewModel : ObservableObject, IPnScannerSettings
         });
 
         if (folders.Count == 1)
-            GsdFolder = folders[0].Path.LocalPath;
+        {
+            GsdFolder = folders[0].Path.LocalPath[..^1];
+        }
     }
 
     private static IStorageProvider? GetStorageProvider()
