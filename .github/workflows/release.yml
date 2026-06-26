@@ -83,12 +83,14 @@ jobs:
       shell: pwsh
       
     - name: Build sdk and push to nuget
+      continue-on-error: true
       run: |
         dotnet build OC.Assistant.Sdk --configuration release
         $pkg = Get-Item "./OC.Assistant.Sdk/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
         dotnet nuget push $pkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
       
     - name: Build ui and push to nuget
+      continue-on-error: true
       run: |
         dotnet build OC.Assistant.Ui --configuration release
         $pkg = Get-Item "./OC.Assistant.Ui/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
