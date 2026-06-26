@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.2"></a>
+## [1.18.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.2) (2026-06-26)
+
+### Bug Fixes
+
+* **PnScanner:** remove trailing backslash for gsd folder path ([f9643ee](https://www.github.com/OpenCommissioning/OC_Assistant/commit/f9643ee243f8173671c5645fc39c1b350b54479b))
+
 <a name="1.18.1"></a>
 ## [1.18.1](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.1) (2026-05-12)
 
