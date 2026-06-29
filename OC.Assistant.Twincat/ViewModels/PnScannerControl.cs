@@ -51,11 +51,13 @@ public class PnScannerControl(string scannerTool, IPnScannerSettings pnScannerSe
             
         var filePath = Path.Combine(AppData.Path, $"{pnScannerSettings.PnName}.xti");
         
+        var convertPnNames = pnScannerSettings.ConvertPnNames ? " --convert-pn-names" : string.Empty;
+        
         using var process = new Process();
         process.StartInfo = new ProcessStartInfo
         {
             FileName = "cmd",
-            Arguments = $"/c {scannerTool} -d \"{pnScannerSettings.Adapter?.Id}\" -o \"{filePath}\" --aml-file \"{pnScannerSettings.HwFile}\" --gsd-path \"{pnScannerSettings.GsdFolder}\""
+            Arguments = $"/c {scannerTool} -d \"{pnScannerSettings.Adapter?.Id}\" -o \"{filePath}\" --aml-file \"{pnScannerSettings.HwFile}\" --gsd-path \"{pnScannerSettings.GsdFolder}\"{convertPnNames}"
             //RedirectStandardOutput = true,
             //RedirectStandardError = true,
             //CreateNoWindow = true

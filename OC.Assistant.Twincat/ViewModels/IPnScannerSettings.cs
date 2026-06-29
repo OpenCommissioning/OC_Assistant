@@ -8,4 +8,5 @@ public interface IPnScannerSettings
     NetworkInterface? Adapter { get;  }
     string? HwFile { get;  }
     string? GsdFolder { get; }
+    bool ConvertPnNames { get; }
 }
