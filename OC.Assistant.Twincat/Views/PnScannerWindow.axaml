@@ -62,5 +62,9 @@
                     Text="{Binding GsdFolder}"/>
             </Label>
         </Grid>
+        <ToggleSwitch
+            Margin="0,10,0,0" 
+            IsChecked="{Binding ConvertPnNames}"
+            Content="Enable PnName Conversion"/>
     </StackPanel>
 </UserControl>

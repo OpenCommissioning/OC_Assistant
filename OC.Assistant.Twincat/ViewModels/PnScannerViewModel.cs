@@ -29,6 +29,9 @@ public partial class PnScannerViewModel : ObservableObject, IPnScannerSettings
     [ObservableProperty]
     public partial string SelectedAdapterKey { get; set; } = "";
     
+    [ObservableProperty]
+    public partial bool ConvertPnNames { get; set; } = true;
+    
     public IEnumerable<string> AdapterKeys => Adapters.Keys;
 
     public NetworkInterface? Adapter => Adapters.GetValueOrDefault(SelectedAdapterKey);
