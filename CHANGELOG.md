@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.3"></a>
+## [1.18.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.3) (2026-06-29)
+
+### Bug Fixes
+
+* **TcPnScanner:** implement missing option to enable/disable pnName conversion ([a916d18](https://www.github.com/OpenCommissioning/OC_Assistant/commit/a916d189db3891db855f429a9ee7a849e911bbd8))
+
 <a name="1.18.2"></a>
 ## [1.18.2](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.2) (2026-06-26)
 
