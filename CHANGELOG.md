@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.4"></a>
+## [1.18.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.4) (2026-07-08)
+
+### Bug Fixes
+
+* **Twincat:** optimized TaskGenerator ([b36bd81](https://www.github.com/OpenCommissioning/OC_Assistant/commit/b36bd81eb5048ff198fc78c1fe8bf43d0dd71a04))
+
 <a name="1.18.3"></a>
 ## [1.18.3](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.3) (2026-06-29)
 
