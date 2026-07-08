@@ -20,16 +20,16 @@ public partial class SettingsViewModel : ObservableObject
     public SettingsViewModel()
     {
         SelectedPlcProject = XmlFile.Instance.PlcProjectName;
-        SelectedPlcTask = XmlFile.Instance.PlcTaskName;
+        //SelectedPlcTask = XmlFile.Instance.PlcTaskName;
         
         GetPlcProjects();
-        GetTasks();
+        //GetTasks();
     }
     
     public bool Save()
     {
         XmlFile.Instance.PlcProjectName = SelectedPlcProject;
-        XmlFile.Instance.PlcTaskName = SelectedPlcTask;
+        //XmlFile.Instance.PlcTaskName = SelectedPlcTask;
         XmlFile.Instance.Save();
         return true;
     }
@@ -47,6 +47,7 @@ public partial class SettingsViewModel : ObservableObject
         }, 1000);
     }
     
+    /*
     private void GetTasks()
     {
         PlcTasks.Clear();
@@ -60,4 +61,5 @@ public partial class SettingsViewModel : ObservableObject
                 .Select(item => item.Name));
         }, 1000);
     }
+    */
 }

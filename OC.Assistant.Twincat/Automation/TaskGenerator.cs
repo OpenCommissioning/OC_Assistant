@@ -10,6 +10,22 @@ namespace OC.Assistant.Twincat.Automation;
 /// </summary>
 internal static class TaskGenerator
 {
+    public static string TaskName { get; private set; } = "Main";
+    public static string Filter { get; private set; } = "MAIN.*";
+
+    public static bool SetFilter(string taskName, string filter)
+    {
+        if (!taskName.IsBasicCharacters())
+        {
+            Logger.LogWarning(typeof(TaskGenerator), "TaskName has invalid characters");
+            return false;
+        }
+        
+        TaskName = taskName;
+        Filter = filter;
+        return true;
+    }
+    
     /// <summary>
     /// Creates variables for a task, based on the plc instance.
     /// </summary>
@@ -24,11 +40,14 @@ internal static class TaskGenerator
         //Collect all symbols with 'simulation_interface' attribute
         var filter = instance.GetSymbolsWithAttribute("simulation_interface");
         
-        //Get task
-        var task = tcSysManager?.GetItem($"{TcShortcut.NODE_RT_TASKS}^{XmlFile.Instance.PlcTaskName}");
+        //Get task or create
+        var task = tcSysManager?
+            .GetItem($"{TcShortcut.NODE_RT_TASKS}")?
+            .GetOrCreateChild(TaskName, (int)TcSmTreeItemSubType.TaskWithImage);
+        
         if (task is null)
         {
-            Logger.LogWarning(typeof(TaskGenerator), "Task not found");
+            Logger.LogWarning(typeof(TaskGenerator), "Error creating task");
             return;
         }
            
@@ -43,6 +62,7 @@ internal static class TaskGenerator
         var outputVariables = new List<ITcSmTreeItem>();
 
         var instanceVarGroups = instance.GetVarGroups();
+        var nameFilter = new StringFilter(Filter);
             
         //Collect variables from plc instance
         foreach (var varGroup in instanceVarGroups)
@@ -50,10 +70,10 @@ internal static class TaskGenerator
             switch (varGroup.ItemSubType)
             {
                 case 1:
-                    varGroup.CollectVariablesRecursive(inputVariables, filter);
+                    varGroup.CollectVariablesRecursive(inputVariables, filter, nameFilter);
                     break;
                 case 2:
-                    varGroup.CollectVariablesRecursive(outputVariables, filter);
+                    varGroup.CollectVariablesRecursive(outputVariables, filter, nameFilter);
                     break;
             }
         }
@@ -77,20 +97,6 @@ internal static class TaskGenerator
         Logger.LogInfo(typeof(TaskGenerator), "Task variables have been updated.");
     }
 
-    private static HashSet<string?> GetSymbolsWithAttribute(this ITcSmTreeItem instance, string attribute)
-    {
-        if (instance.CastTo<ITcModuleInstance2>() is not {} moduleInstance) return [];
-        return XDocument.Parse(moduleInstance.ExportXml())
-            .Descendants("Symbol")
-            .Where(symbol => 
-                symbol.Element("Properties")?
-                    .Element("Property")?
-                    .Element("Name")?.Value == attribute)
-            .Select(symbol => symbol.Element("Name")?.Value)
-            .Distinct()
-            .ToHashSet();
-    }
-
     extension(IEnumerable item)
     {
         private IEnumerable<ITcSmTreeItem> GetVarGroups()
@@ -100,7 +106,7 @@ internal static class TaskGenerator
                 .Where(varGroup => varGroup.ItemType == (int)TREEITEMTYPES.TREEITEMTYPE_VARGRP).ToList();
         }
 
-        private void CollectVariablesRecursive(ICollection<ITcSmTreeItem> variables, HashSet<string?> filter)
+        private void CollectVariablesRecursive(ICollection<ITcSmTreeItem> variables, HashSet<string?> filter, StringFilter nameFilter)
         {
             var childItems = item.Cast<ITcSmTreeItem>();
         
@@ -108,11 +114,11 @@ internal static class TaskGenerator
             {
                 if (childItem.Name.EndsWith('.'))
                 {
-                    childItem.CollectVariablesRecursive(variables, filter);
+                    childItem.CollectVariablesRecursive(variables, filter, nameFilter);
                     continue;
                 }
 
-                if (filter.Contains(childItem.Name))
+                if (filter.Contains(childItem.Name) && nameFilter.IsMatch(childItem.Name))
                 {
                     variables.Add(childItem);
                 }
@@ -142,6 +148,21 @@ internal static class TaskGenerator
                         .CastTo<ITcVariable2>() is not {} var) continue;
                 var.AddLinkToVariable(variable.PathName);
             }
+        }
+
+        private HashSet<string?> GetSymbolsWithAttribute(string attribute)
+        {
+            if (varGroup.CastTo<ITcModuleInstance2>() is not {} moduleInstance) return [];
+        
+            return XDocument.Parse(moduleInstance.ExportXml())
+                .Descendants("Symbol")
+                .Where(symbol => 
+                    symbol.Element("Properties")?
+                        .Element("Property")?
+                        .Element("Name")?.Value == attribute)
+                .Select(symbol => symbol.Element("Name")?.Value)
+                .Distinct()
+                .ToHashSet();
         }
     }
 }

@@ -32,7 +32,7 @@
     </MenuItem.Header>
     <MenuItem Header="Update Project" Command="{Binding CreateProjectCommand}"
               IsEnabled="{Binding IsContentEnabled}"/>
-    <MenuItem Header="Update Task" Command="{Binding CreateTaskCommand}"
+    <MenuItem Header="Create Task" Command="{Binding CreateTaskCommand}"
               IsEnabled="{Binding IsContentEnabled}"/>
     <MenuItem Header="Create device template" Command="{Binding CreateTemplateCommand}"
               IsEnabled="{Binding IsContentEnabled}"/>
