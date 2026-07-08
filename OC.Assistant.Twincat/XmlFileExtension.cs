@@ -47,6 +47,7 @@ internal static class XmlFileExtension
             set => xmlFile.Settings.GetOrCreateChild("PlcProjectName").Value = value ?? "";
         }
     
+        /*
         /// <summary>
         /// Gets or sets the PlcTaskName value.
         /// </summary>
@@ -55,5 +56,6 @@ internal static class XmlFileExtension
             get => xmlFile.Settings.GetOrCreateChild("PlcTaskName", "PlcTask").Value;
             set => xmlFile.Settings.GetOrCreateChild("PlcTaskName").Value = value ?? "";
         }
+        */
     }
 }

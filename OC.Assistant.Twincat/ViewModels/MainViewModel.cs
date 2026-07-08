@@ -74,8 +74,20 @@ public partial class MainViewModel : ObservableObject
     }
     
     [RelayCommand]
-    private void CreateTask()
+    private async Task CreateTask()
     {
+        var settingsVm = new TaskSettingsViewModel();
+        var settings = new Views.TaskSettings{DataContext = settingsVm};
+        
+        if (!await MessageBox.Show(
+                settings,
+                MessageBoxButton.OkCancel,
+                MessageBoxImage.None,
+                () => TaskGenerator.SetFilter(settingsVm.TaskName, settingsVm.Filter)))
+        {
+            return;
+        }
+        
         DteSingleThread.Run(tcSysManager =>
         {
             TaskGenerator.CreateVariables(tcSysManager);
