@@ -10,8 +10,12 @@ public static class TcpIpServer
 {
     public static string DefaultIpAddress => "127.0.0.1";
     public static int DefaultPort => 50100;
+    
     private static CancellationTokenSource? _cts;
     private static readonly List<Task> Tasks = [];
+    private static readonly byte[] ZeroByte = new byte[1];
+    private static readonly byte[] ZeroInt = new byte[4];
+    private const string RECORD_DATA_CHANNEL = "/R";
 
     public static void RunDetached()
     {
@@ -76,8 +80,8 @@ public static class TcpIpServer
             while (!token.IsCancellationRequested)
             {
                 if (!await ReadAsync(stream, buffer, 8, token)) break;
-                var channelLength = BitConverter.ToInt32(buffer.AsSpan()[..4]);
-                var payloadLength = BitConverter.ToInt32(buffer.AsSpan()[4..8]);
+                var channelLength = BinaryPrimitives.ReadInt32LittleEndian(buffer.AsSpan()[..4]);
+                var payloadLength = BinaryPrimitives.ReadInt32LittleEndian(buffer.AsSpan()[4..8]);
 
                 string? channel = null;
                 byte[]? payload = null;
@@ -92,7 +96,7 @@ public static class TcpIpServer
 
                 if (string.IsNullOrEmpty(channel) || payload is null) break;
 
-                if (channel == "/R")
+                if (channel == RECORD_DATA_CHANNEL)
                 {
                     await HandleRecordDataAsync(stream, payload, token);
                     continue;
@@ -105,7 +109,7 @@ public static class TcpIpServer
                 
                 if (!TcpIpChannel.WriteBuffers.TryGetValue(channel, out var writeBuffer))
                 {
-                    await stream.WriteAsync(BitConverter.GetBytes(0), token);
+                    await stream.WriteAsync(ZeroInt, token);
                     continue;
                 }
 
@@ -158,9 +162,9 @@ public static class TcpIpServer
     {
         try
         {
-            var command = BitConverter.ToUInt16(payload);
-            var hardwareId = BitConverter.ToUInt16(payload.AsSpan()[2..]);
-            var identifier = BitConverter.ToUInt16(payload.AsSpan()[4..]);
+            var command = BinaryPrimitives.ReadUInt16LittleEndian(payload);
+            var hardwareId = BinaryPrimitives.ReadUInt16LittleEndian(payload.AsSpan()[2..]);
+            var identifier = BinaryPrimitives.ReadUInt16LittleEndian(payload.AsSpan()[4..]);
             ushort index;
             uint dataLength;
             
@@ -189,13 +193,13 @@ public static class TcpIpServer
                     });
                     return;
                 case 3: //RD_RES
-                    index = BitConverter.ToUInt16(payload.AsSpan()[6..]);
-                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[8..]);
+                    index = BinaryPrimitives.ReadUInt16LittleEndian(payload.AsSpan()[6..]);
+                    dataLength = BinaryPrimitives.ReadUInt32LittleEndian(payload.AsSpan()[8..]);
                     RecordData.Instance.SendReadRes(identifier, hardwareId, index, dataLength, payload[12..]);
                     break;
                 case 4: //WR_RES
-                    index = BitConverter.ToUInt16(payload.AsSpan()[6..]);
-                    dataLength = BitConverter.ToUInt32(payload.AsSpan()[8..]);
+                    index = BinaryPrimitives.ReadUInt16LittleEndian(payload.AsSpan()[6..]);
+                    dataLength = BinaryPrimitives.ReadUInt32LittleEndian(payload.AsSpan()[8..]);
                     RecordData.Instance.SendWriteRes(identifier, hardwareId, index, dataLength);
                     break;
             }
@@ -205,6 +209,6 @@ public static class TcpIpServer
             Sdk.Logger.LogWarning(typeof(TcpIpServer), e.Message);
         }
         
-        await stream.WriteAsync(new byte[1], token);
+        await stream.WriteAsync(ZeroByte, token);
     }
 }
