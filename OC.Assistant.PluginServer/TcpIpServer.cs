@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Buffers;
+using System.Buffers.Binary;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -69,21 +71,26 @@ public static class TcpIpServer
         try
         {
             await using var stream = client.GetStream();
-            var buffer = new byte[4096];
+            var buffer = new byte[8];
 
             while (!token.IsCancellationRequested)
             {
-                if (!await ReadAsync(stream, buffer, 4, token)) break;
+                if (!await ReadAsync(stream, buffer, 8, token)) break;
                 var channelLength = BitConverter.ToInt32(buffer.AsSpan()[..4]);
+                var payloadLength = BitConverter.ToInt32(buffer.AsSpan()[4..8]);
 
-                if (!await ReadAsync(stream, buffer, channelLength, token)) break;
-                var channel = Encoding.UTF8.GetString(buffer, 0, channelLength);
-                
-                if (!await ReadAsync(stream, buffer, 4, token)) break;
-                var payloadLength = BitConverter.ToInt32(buffer.AsSpan()[..4]);
+                string? channel = null;
+                byte[]? payload = null;
 
-                var payload = new byte[payloadLength];
-                if (!await ReadAsync(stream, payload, payloadLength, token)) break;
+                await WithSharedBuffer(channelLength + payloadLength, async (l, b) =>
+                {
+                    if (!await ReadAsync(stream, b, l, token)) return;
+                    channel = Encoding.UTF8.GetString(b, 0, channelLength);
+                    payload = new byte[payloadLength];
+                    Buffer.BlockCopy(b, channelLength, payload, 0, payloadLength);
+                });
+
+                if (string.IsNullOrEmpty(channel) || payload is null) break;
 
                 if (channel == "/R")
                 {
@@ -101,10 +108,13 @@ public static class TcpIpServer
                     await stream.WriteAsync(BitConverter.GetBytes(0), token);
                     continue;
                 }
-                
-                var responseLength = BitConverter.GetBytes(writeBuffer.Length);
-                await stream.WriteAsync(responseLength, token);
-                await stream.WriteAsync(writeBuffer, token);
+
+                await WithSharedBuffer(4 + writeBuffer.Length, async (l, b) =>
+                {
+                    BinaryPrimitives.WriteInt32LittleEndian(b, writeBuffer.Length);
+                    Buffer.BlockCopy(writeBuffer, 0, b, 4, writeBuffer.Length);
+                    await stream.WriteAsync(b.AsMemory()[..l], token);
+                });
             }
         }
         catch (Exception e)
@@ -129,6 +139,20 @@ public static class TcpIpServer
         }
         return true;
     }
+
+    private static async Task WithSharedBuffer(int length, Func<int, byte[], Task> func)
+    {
+        var rented = ArrayPool<byte>.Shared.Rent(length);
+        
+        try
+        {
+            await func.Invoke(length, rented);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
+    }
     
     private static async Task HandleRecordDataAsync(NetworkStream stream, byte[] payload, CancellationToken token = default)
     {
@@ -146,15 +170,23 @@ public static class TcpIpServer
             {
                 case 1: //RD_REC
                     if (RecordData.Instance.TryGetReadRequest(identifier, hardwareId) is not {} readRequest) break;
-                    await stream.WriteAsync(BitConverter.GetBytes(readRequest.Index), token);
-                    await stream.WriteAsync(BitConverter.GetBytes(readRequest.CbLength), token);
+                    await WithSharedBuffer(6, async (l, b) =>
+                    {
+                        BinaryPrimitives.WriteUInt16LittleEndian(b, readRequest.Index);
+                        BinaryPrimitives.WriteUInt32LittleEndian(b.AsSpan()[2..], readRequest.CbLength);
+                        await stream.WriteAsync(b.AsMemory()[..l], token);
+                    });
                     return;
                 case 2: //WR_REC
                     if (RecordData.Instance.TryGetWriteRequest(identifier, hardwareId) is not {} writeRequest) break;
                     if (writeRequest.Data?.Length != writeRequest.CbLength) break;
-                    await stream.WriteAsync(BitConverter.GetBytes(writeRequest.Index), token);
-                    await stream.WriteAsync(BitConverter.GetBytes(writeRequest.CbLength), token);
-                    await stream.WriteAsync(writeRequest.Data, token);
+                    await WithSharedBuffer(6 + writeRequest.Data.Length, async (l, b) =>
+                    {
+                        BinaryPrimitives.WriteUInt16LittleEndian(b, writeRequest.Index);
+                        BinaryPrimitives.WriteUInt32LittleEndian(b.AsSpan()[2..], writeRequest.CbLength);
+                        Buffer.BlockCopy(writeRequest.Data, 0, b, 6, writeRequest.Data.Length);
+                        await stream.WriteAsync(b.AsMemory()[..l], token);
+                    });
                     return;
                 case 3: //RD_RES
                     index = BitConverter.ToUInt16(payload.AsSpan()[6..]);
