@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.5"></a>
+## [1.18.5](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.5) (2026-07-17)
+
+### Bug Fixes
+
+* **PluginServer:** optimized socket read/write ([a7f8e70](https://www.github.com/OpenCommissioning/OC_Assistant/commit/a7f8e704387e677a25472b2b12ed00ba2f76b46c))
+
 <a name="1.18.4"></a>
 ## [1.18.4](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.4) (2026-07-08)
 
