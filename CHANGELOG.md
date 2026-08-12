@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.6"></a>
+## [1.18.6](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.6) (2026-08-12)
+
+### Bug Fixes
+
+* prevent silent crashes by catching failed api and app events ([52bd94b](https://www.github.com/OpenCommissioning/OC_Assistant/commit/52bd94bd255d44da8c55a972a3e311b136c14c5e))
+* **WebService:** channelType validation for /api/start and /api/stop endpoints ([0eb388c](https://www.github.com/OpenCommissioning/OC_Assistant/commit/0eb388cfe7b9cf80e1b4c5b32e36d9653e411851))
+
 <a name="1.18.5"></a>
 ## [1.18.5](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.5) (2026-07-17)
 
