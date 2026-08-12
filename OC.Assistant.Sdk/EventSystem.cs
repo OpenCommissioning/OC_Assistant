@@ -40,8 +40,23 @@ public static class EventSystem
     /// <c>app/start</c>, channelType as <see cref="System.Type"/><br/>
     /// <c>app/stop</c>, channelType as <see cref="System.Type"/><br/>
     /// </remarks>
-    public static void InvokeAppEvent(string identifier, object? payload = null) => AppDataReceived?.Invoke(identifier, payload);
-    
+    public static void InvokeAppEvent(string identifier, object? payload = null)
+    {
+        if (AppDataReceived is null) return;
+        
+        foreach (var appEventDelegate in AppDataReceived.GetInvocationList().Cast<AppDataHandler>())
+        {
+            try
+            {
+                appEventDelegate(identifier, payload ?? new XElement("Payload"));
+            }
+            catch(Exception e)
+            {
+                Logger.LogError(appEventDelegate.Target ?? appEventDelegate, e.Message);
+            }
+        }
+    }
+
     /// <summary>
     /// Event triggered when fixed or custom api data is received.
     /// </summary>
@@ -62,9 +77,23 @@ public static class EventSystem
     /// </summary>
     /// <param name="identifier">The identifier.</param>
     /// <param name="payload">The payload.</param>
-    internal static void InvokeApiEvent(string identifier, XElement? payload = null) 
-        => ApiDataReceived?.Invoke(identifier, payload ?? new XElement("Payload"));
-    
+    internal static void InvokeApiEvent(string identifier, XElement? payload = null)
+    {
+        if (ApiDataReceived is null) return;
+        
+        foreach (var apiEventDelegate in ApiDataReceived.GetInvocationList().Cast<ApiDataHandler>())
+        {
+            try
+            {
+                apiEventDelegate(identifier, payload ?? new XElement("Payload"));
+            }
+            catch(Exception e)
+            {
+                Logger.LogError(apiEventDelegate.Target ?? apiEventDelegate, e.Message);
+            }
+        }
+    }
+
     /// <summary>
     /// Invokes an api request event.
     /// </summary>
@@ -74,9 +103,19 @@ public static class EventSystem
     internal static IEnumerable<XElement> InvokeApiRequest(string identifier, XElement payload)
     {
         if (ApiRequestReceived is null) yield break;
-        foreach (var requestDelegate in ApiRequestReceived.GetInvocationList().Cast<ApiRequestHandler>())
+        
+        foreach (var apiRequestDelegate in ApiRequestReceived.GetInvocationList().Cast<ApiRequestHandler>())
         {
-            yield return requestDelegate(identifier, payload);
+            XElement? result = null;
+            try
+            {
+                result = apiRequestDelegate(identifier, payload);
+            }
+            catch(Exception e)
+            {
+                Logger.LogError(apiRequestDelegate.Target ?? apiRequestDelegate, e.Message);
+            }
+            if (result is not null) yield return result;
         }
     }
     
