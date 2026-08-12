@@ -107,6 +107,15 @@ public class WebService
         
         return Results.Content(plugins.ToString(), "application/xml");
     }
+
+    private static Type? ValidateChannelType(string? channelType)
+    {
+        if (channelType is null) return null;
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .Select(a => a.GetType(channelType))
+            .FirstOrDefault(t => t is not null) ?? 
+               throw new Exception("Invalid channelType.");
+    }
     
     private IResult HandleApplicationStart(string? channelType = null)
     {
@@ -114,7 +123,7 @@ public class WebService
         {
             if (!_appService.IsConnected) throw new Exception("Assistant is not connected.");
             if (BusyState.IsSet) throw new Exception("Assistant is busy.");
-            _pluginService.StartPlugins(channelType is null ? null : Type.GetType(channelType));
+            _pluginService.StartPlugins(channelType is null ? null : ValidateChannelType(channelType));
             return Results.Accepted();
         }
         catch (Exception e)
@@ -129,7 +138,7 @@ public class WebService
         {
             if (!_appService.IsConnected) throw new Exception("Assistant is not connected.");
             if (BusyState.IsSet) throw new Exception("Assistant is busy.");
-            _pluginService.StopPlugins(channelType is null ? null : Type.GetType(channelType));
+            _pluginService.StopPlugins(channelType is null ? null : ValidateChannelType(channelType));
             return Results.Accepted();
         }
         catch (Exception e)
