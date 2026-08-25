@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using OC.Assistant.Sdk;
 using TCatSysManagerLib;
@@ -11,7 +12,7 @@ namespace OC.Assistant.Twincat.Automation;
 internal static class TaskGenerator
 {
     public static string TaskName { get; private set; } = "Main";
-    public static string Filter { get; private set; } = "MAIN.*";
+    public static string Filter { get; private set; } = "^MAIN\\.";
 
     public static bool SetFilter(string taskName, string filter)
     {
@@ -62,7 +63,7 @@ internal static class TaskGenerator
         var outputVariables = new List<ITcSmTreeItem>();
 
         var instanceVarGroups = instance.GetVarGroups();
-        var nameFilter = new StringFilter(Filter);
+        var nameFilter = new Regex(Filter, RegexOptions.IgnoreCase);
             
         //Collect variables from plc instance
         foreach (var varGroup in instanceVarGroups)
@@ -106,7 +107,7 @@ internal static class TaskGenerator
                 .Where(varGroup => varGroup.ItemType == (int)TREEITEMTYPES.TREEITEMTYPE_VARGRP).ToList();
         }
 
-        private void CollectVariablesRecursive(ICollection<ITcSmTreeItem> variables, HashSet<string?> filter, StringFilter nameFilter)
+        private void CollectVariablesRecursive(ICollection<ITcSmTreeItem> variables, HashSet<string?> filter, Regex nameFilter)
         {
             var childItems = item.Cast<ITcSmTreeItem>();
         

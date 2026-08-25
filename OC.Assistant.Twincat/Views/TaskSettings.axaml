@@ -15,6 +15,6 @@
             Text="{Binding Filter}"
             HorizontalAlignment="Stretch"
             Margin="0,5,0,10"
-            ToolTip.Tip="{Binding ToolTip}"/>
+            ToolTip.Tip="Supports regex patterns to filter variable names (full path)"/>
     </StackPanel>
 </UserControl>
