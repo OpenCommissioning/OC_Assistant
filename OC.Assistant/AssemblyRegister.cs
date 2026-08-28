@@ -118,6 +118,7 @@ internal class AssemblyRegister
             var dllPath = Path.Combine(dir, dll);
             
             if (!File.Exists(dllPath)) return;
+            var assembly = Assembly.LoadFrom(dllPath);
 
             if (additionalDirectories is not null)
             {
@@ -128,7 +129,6 @@ internal class AssemblyRegister
             }
             
             AddDirectory(dir);
-            var assembly = Assembly.LoadFrom(dllPath);
 
             if (_assemblies.Any(x => x.Assembly == assembly)) return;
             _assemblies.Add(new AssemblyInfo(assembly, repositoryUrl, repositoryType));
