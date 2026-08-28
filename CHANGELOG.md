@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.7"></a>
+## [1.18.7](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.7) (2026-08-28)
+
+### Bug Fixes
+
+* load plugin assemblies before adding AssemblyResolve ([2e8aed7](https://www.github.com/OpenCommissioning/OC_Assistant/commit/2e8aed7865844ac999097b8967c1acea3de9ca1f))
+* **Twincat:** replace the custom TaskGenerator filter with a native regex filter ([6e00e0f](https://www.github.com/OpenCommissioning/OC_Assistant/commit/6e00e0f7a59f7bdcb477e86de99fa4351cc58a8e))
+
 <a name="1.18.6"></a>
 ## [1.18.6](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.6) (2026-08-12)
 
