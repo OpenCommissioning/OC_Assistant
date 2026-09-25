@@ -31,10 +31,13 @@ This menu is only active when the Assistant is connected to a TwinCAT solution.
   Updates the TwinCAT project based on the current [configuration](#configuration-file).
 
 
-- __Update Task__
+- __Create Task__
 
-  Generates Task variables based on the devices of the PLC project.
-  The PLC project needs to be build successfully before updating the task.
+  Generates Task variables based on symbols of the PLC project that have the
+  `{attribute 'simulation_interface'}` attribute.
+  The PLC project must be built successfully first.
+  On TwinCAT 3.1.4026.26 and later the symbol table is read from the compiled
+  `*.tmc` file, because the PLC instance export no longer includes symbols.
 
 
 - __Create device template__
