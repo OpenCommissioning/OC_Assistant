@@ -67,7 +67,10 @@ internal static class TaskGenerator
             $"Create Task '{TaskName}', filter '{Filter}'", verbose: true);
         Logger.LogInfo(typeof(TaskGenerator),
             $"Found {filter.Count} '{SimulationInterfaceAttribute}' symbols ({symbolSource})", verbose: true);
-        
+
+        var nameFilter = new Regex(Filter, RegexOptions.IgnoreCase);
+        LogHarvestedSymbolSamples(filter, nameFilter);
+
         var task = tcSysManager?
             .GetItem($"{TcShortcut.NODE_RT_TASKS}")?
             .GetOrCreateChild(TaskName, (int)TcSmTreeItemSubType.TaskWithImage);
@@ -88,8 +91,7 @@ internal static class TaskGenerator
         var outputVariables = new List<ITcSmTreeItem>();
 
         var instanceVarGroups = instance.GetVarGroups();
-        var nameFilter = new Regex(Filter, RegexOptions.IgnoreCase);
-            
+
         foreach (var varGroup in instanceVarGroups)
         {
             switch (varGroup.ItemSubType)
@@ -111,6 +113,7 @@ internal static class TaskGenerator
             Logger.LogWarning(typeof(TaskGenerator),
                 $"Found {filter.Count} '{SimulationInterfaceAttribute}' symbols, " +
                 $"but none matched the name filter '{Filter}'.");
+            LogInstanceLeafSamples(instance, filter, nameFilter);
             return;
         }
         
@@ -163,7 +166,7 @@ internal static class TaskGenerator
                 .Where(varGroup => varGroup.ItemType == (int)TREEITEMTYPES.TREEITEMTYPE_VARGRP).ToList();
         }
 
-        private void CollectVariablesRecursive(ICollection<ITcSmTreeItem> variables, HashSet<string?> filter, Regex nameFilter)
+        private void CollectVariablesRecursive(ICollection<ITcSmTreeItem> variables, HashSet<string> filter, Regex nameFilter)
         {
             var childItems = item.Cast<ITcSmTreeItem>();
         
@@ -175,7 +178,7 @@ internal static class TaskGenerator
                     continue;
                 }
 
-                if (filter.Contains(childItem.Name) && nameFilter.IsMatch(childItem.Name))
+                if (TryGetHarvestMatchName(childItem, filter, nameFilter, out _))
                 {
                     variables.Add(childItem);
                 }
@@ -185,7 +188,7 @@ internal static class TaskGenerator
 
     extension(ITcSysManager15? sysManager)
     {
-        private (HashSet<string?> Symbols, string Source) GetSymbolsWithAttribute(ITcSmTreeItem instance, string attribute)
+        private (HashSet<string> Symbols, string Source) GetSymbolsWithAttribute(ITcSmTreeItem instance, string attribute)
         {
             if (instance.CastTo<ITcModuleInstance2>() is { } moduleInstance)
             {
@@ -348,7 +351,7 @@ internal static class TaskGenerator
         }
     }
 
-    private static HashSet<string?> ParseSymbolsWithAttribute(string? xml, string attribute)
+    private static HashSet<string> ParseSymbolsWithAttribute(string? xml, string attribute)
     {
         if (string.IsNullOrWhiteSpace(xml)) return [];
 
@@ -361,12 +364,168 @@ internal static class TaskGenerator
                         .Elements("Property")
                         .Any(property => property.Element("Name")?.Value == attribute) == true)
                 .Select(symbol => symbol.Element("Name")?.Value)
-                .Distinct()
-                .ToHashSet();
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
         catch
         {
             return [];
+        }
+    }
+
+    private static bool TryGetHarvestMatchName(
+        ITcSmTreeItem item,
+        HashSet<string> harvested,
+        Regex nameFilter,
+        out string matchName)
+    {
+        foreach (var candidate in GetSymbolMatchCandidates(item))
+        {
+            if (harvested.Contains(candidate) && nameFilter.IsMatch(candidate))
+            {
+                matchName = candidate;
+                return true;
+            }
+        }
+
+        matchName = string.Empty;
+        return false;
+    }
+
+    /// <summary>
+    /// Possible PLC symbol names for a tree leaf (same shape as TMC / ExportXml harvest entries).
+    /// </summary>
+    private static IEnumerable<string> GetSymbolMatchCandidates(ITcSmTreeItem item)
+    {
+        if (!string.IsNullOrWhiteSpace(item.Name) && !item.Name.EndsWith('.'))
+        {
+            yield return item.Name;
+        }
+
+        var fromPathName = GetSymbolNameFromPathName(item.PathName);
+        if (fromPathName is not null &&
+            !fromPathName.Equals(item.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            yield return fromPathName;
+        }
+    }
+
+    /// <summary>
+    /// TwinCAT PathName uses '^'; the linked PLC symbol is usually the last segment.
+    /// </summary>
+    private static string? GetSymbolNameFromPathName(string? pathName)
+    {
+        if (string.IsNullOrWhiteSpace(pathName) || pathName.EndsWith('.'))
+        {
+            return null;
+        }
+
+        var separator = pathName.LastIndexOf('^');
+        if (separator < 0 || separator >= pathName.Length - 1)
+        {
+            return null;
+        }
+
+        return pathName[(separator + 1)..];
+    }
+
+    private static void LogHarvestedSymbolSamples(HashSet<string> symbols, Regex nameFilter, int maxSamples = 25)
+    {
+        var matchCount = symbols.Count(name => nameFilter.IsMatch(name));
+        var matching = symbols
+            .Where(name => nameFilter.IsMatch(name))
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .Take(maxSamples)
+            .ToList();
+
+        var preview = matching.Take(3).ToList();
+        Logger.LogInfo(typeof(TaskGenerator),
+            matchCount == 0
+                ? $"Harvested {symbols.Count} simulation_interface symbols; none match the name filter."
+                : $"Harvested {symbols.Count} simulation_interface symbols; {matchCount} match the filter. " +
+                  $"Examples: {string.Join(", ", preview)}{(matchCount > preview.Count ? ", …" : "")}");
+
+        if (matching.Count == 0) return;
+
+        Logger.LogInfo(typeof(TaskGenerator),
+            $"simulation_interface symbols matching filter (first {Math.Min(maxSamples, matchCount)} of {matchCount}):",
+            verbose: true);
+
+        foreach (var name in matching)
+        {
+            Logger.LogInfo(typeof(TaskGenerator), $"  {name}", verbose: true);
+        }
+
+        if (matching.Count >= maxSamples) return;
+
+        var other = symbols
+            .Where(name => !nameFilter.IsMatch(name))
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .Take(5)
+            .ToList();
+        if (other.Count == 0) return;
+
+        Logger.LogInfo(typeof(TaskGenerator),
+            "Other simulation_interface samples (do not match filter):",
+            verbose: true);
+        foreach (var name in other)
+        {
+            Logger.LogInfo(typeof(TaskGenerator), $"  {name}", verbose: true);
+        }
+    }
+
+    private static void LogInstanceLeafSamples(ITcSmTreeItem instance, HashSet<string> harvested, Regex nameFilter, int maxSamples = 10)
+    {
+        var leaves = new List<(ITcSmTreeItem Item, string Name, string? PathName)>();
+        foreach (var varGroup in instance.GetVarGroups())
+        {
+            CollectLeafDiagnostics(varGroup, leaves, maxSamples * 20);
+        }
+
+        var samples = leaves
+            .Take(maxSamples)
+            .Select(leaf =>
+            {
+                var resolved = GetSymbolMatchCandidates(leaf.Item)
+                    .FirstOrDefault(c => harvested.Contains(c) && nameFilter.IsMatch(c));
+                resolved ??= GetSymbolMatchCandidates(leaf.Item).FirstOrDefault() ?? leaf.Name;
+                return $"Name='{leaf.Name}' resolved='{resolved}' inHarvest={harvested.Contains(resolved)} regex={nameFilter.IsMatch(resolved)}";
+            })
+            .ToList();
+
+        if (samples.Count == 0)
+        {
+            Logger.LogInfo(typeof(TaskGenerator),
+                "Instance tree: no PLC variable leaves found under Inputs/Outputs (tree may be empty or not loaded).",
+                verbose: true);
+            return;
+        }
+
+        Logger.LogInfo(typeof(TaskGenerator),
+            "Instance leaf samples: " + string.Join(" | ", samples),
+            verbose: true);
+    }
+
+    private static void CollectLeafDiagnostics(
+        ITcSmTreeItem item,
+        List<(ITcSmTreeItem Item, string Name, string? PathName)> leaves,
+        int maxLeaves)
+    {
+        if (leaves.Count >= maxLeaves) return;
+
+        foreach (ITcSmTreeItem child in item)
+        {
+            if (leaves.Count >= maxLeaves) return;
+
+            if (child.Name.EndsWith('.'))
+            {
+                CollectLeafDiagnostics(child, leaves, maxLeaves);
+                continue;
+            }
+
+            leaves.Add((child, child.Name, child.PathName));
         }
     }
 }
