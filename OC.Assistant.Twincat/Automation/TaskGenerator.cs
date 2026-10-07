@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using EnvDTE;
@@ -69,7 +71,11 @@ internal static class TaskGenerator
             $"Found {filter.Count} '{SimulationInterfaceAttribute}' symbols ({symbolSource})", verbose: true);
 
         var nameFilter = new Regex(Filter, RegexOptions.IgnoreCase);
-        LogHarvestedSymbolSamples(filter, nameFilter);
+        var harvestFilterMatchCount = filter.Count(name => nameFilter.IsMatch(name));
+        Logger.LogInfo(typeof(TaskGenerator),
+            harvestFilterMatchCount == 0
+                ? $"Harvested {filter.Count} {SimulationInterfaceAttribute} symbols; none match the filter."
+                : $"Harvested {filter.Count} {SimulationInterfaceAttribute} symbols; {harvestFilterMatchCount} match the filter.");
 
         var task = tcSysManager?
             .GetItem($"{TcShortcut.NODE_RT_TASKS}")?
@@ -108,12 +114,21 @@ internal static class TaskGenerator
         Logger.LogInfo(typeof(TaskGenerator),
             $"Name filter matched {inputVariables.Count} inputs, {outputVariables.Count} outputs", verbose: true);
 
+        LogCreateTaskDiagnostics(
+            symbolSource,
+            filter,
+            harvestFilterMatchCount,
+            inputVariables.Count,
+            outputVariables.Count,
+            instance,
+            nameFilter);
+
         if (inputVariables.Count == 0 && outputVariables.Count == 0)
         {
             Logger.LogWarning(typeof(TaskGenerator),
-                $"Found {filter.Count} '{SimulationInterfaceAttribute}' symbols, " +
-                $"but none matched the name filter '{Filter}'.");
-            LogInstanceLeafSamples(instance, filter, nameFilter);
+                $"Create Task linked 0 variables (harvest={filter.Count}, filterMatch={harvestFilterMatchCount}, " +
+                $"instanceIn=0, instanceOut=0). Empty task shell may still exist. Filter='{Filter}'. " +
+                "See CreateTaskDiag above / TaskGenDiag file in AppData.");
             return;
         }
         
@@ -431,81 +446,121 @@ internal static class TaskGenerator
         return pathName[(separator + 1)..];
     }
 
-    private static void LogHarvestedSymbolSamples(HashSet<string> symbols, Regex nameFilter, int maxSamples = 25)
+    private static void LogCreateTaskDiagnostics(
+        string symbolSource,
+        HashSet<string> harvested,
+        int filterMatchCount,
+        int instanceInputs,
+        int instanceOutputs,
+        ITcSmTreeItem instance,
+        Regex nameFilter)
     {
-        var matchCount = symbols.Count(name => nameFilter.IsMatch(name));
-        var matching = symbols
-            .Where(name => nameFilter.IsMatch(name))
-            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
-            .Take(maxSamples)
-            .ToList();
-
-        var preview = matching.Take(3).ToList();
         Logger.LogInfo(typeof(TaskGenerator),
-            matchCount == 0
-                ? $"Harvested {symbols.Count} simulation_interface symbols; none match the name filter."
-                : $"Harvested {symbols.Count} simulation_interface symbols; {matchCount} match the filter. " +
-                  $"Examples: {string.Join(", ", preview)}{(matchCount > preview.Count ? ", …" : "")}");
+            $"CreateTaskDiag: source={symbolSource} harvested={harvested.Count} " +
+            $"filterMatch={filterMatchCount} instanceIn={instanceInputs} instanceOut={instanceOutputs}");
+        Logger.LogInfo(typeof(TaskGenerator), $"CreateTaskDiag: filter='{Filter}'");
 
-        if (matching.Count == 0) return;
+        var zeroMatch = instanceInputs == 0 && instanceOutputs == 0;
+        var sampleLines = new List<string>();
 
-        Logger.LogInfo(typeof(TaskGenerator),
-            $"simulation_interface symbols matching filter (first {Math.Min(maxSamples, matchCount)} of {matchCount}):",
-            verbose: true);
-
-        foreach (var name in matching)
+        if (zeroMatch)
         {
-            Logger.LogInfo(typeof(TaskGenerator), $"  {name}", verbose: true);
+            var leaves = new List<(ITcSmTreeItem Item, string Name, string? PathName)>();
+            foreach (var varGroup in instance.GetVarGroups())
+            {
+                CollectLeafDiagnostics(varGroup, leaves, 200);
+            }
+
+            if (leaves.Count == 0)
+            {
+                var emptyTree = "sampleFail: no PLC variable leaves under instance Inputs/Outputs " +
+                                "(tree may be empty or not loaded).";
+                sampleLines.Add(emptyTree);
+                Logger.LogInfo(typeof(TaskGenerator), emptyTree);
+            }
+            else
+            {
+                foreach (var leaf in leaves.Take(5))
+                {
+                    var resolved = GetSymbolMatchCandidates(leaf.Item)
+                        .FirstOrDefault(c => harvested.Contains(c) && nameFilter.IsMatch(c));
+                    resolved ??= GetSymbolMatchCandidates(leaf.Item).FirstOrDefault() ?? leaf.Name;
+                    var line =
+                        $"sampleFail: Name='{leaf.Name}' resolved='{resolved}' " +
+                        $"inHarvest={harvested.Contains(resolved)} regex={nameFilter.IsMatch(resolved)}";
+                    sampleLines.Add(line);
+                    Logger.LogInfo(typeof(TaskGenerator), line);
+                }
+            }
         }
 
-        if (matching.Count >= maxSamples) return;
-
-        var other = symbols
-            .Where(name => !nameFilter.IsMatch(name))
+        var matchingHarvest = harvested
+            .Where(name => nameFilter.IsMatch(name))
             .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
             .Take(5)
             .ToList();
-        if (other.Count == 0) return;
 
-        Logger.LogInfo(typeof(TaskGenerator),
-            "Other simulation_interface samples (do not match filter):",
-            verbose: true);
-        foreach (var name in other)
+        try
         {
-            Logger.LogInfo(typeof(TaskGenerator), $"  {name}", verbose: true);
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture);
+            var safeTask = SanitizeFileNamePart(TaskName);
+            var filePath = Path.Combine(AppData.Path, $"TaskGenDiag_{safeTask}_{timestamp}.txt");
+
+            var sb = new StringBuilder();
+            sb.AppendLine("OC Assistant — Create Task diagnostics");
+            sb.AppendLine($"TaskName={TaskName}");
+            sb.AppendLine($"Filter={Filter}");
+            sb.AppendLine($"Source={symbolSource}");
+            sb.AppendLine($"Harvested={harvested.Count}");
+            sb.AppendLine($"FilterMatch={filterMatchCount}");
+            sb.AppendLine($"InstanceInputs={instanceInputs}");
+            sb.AppendLine($"InstanceOutputs={instanceOutputs}");
+            sb.AppendLine();
+            sb.AppendLine("Interpretation:");
+            if (filterMatchCount == 0)
+                sb.AppendLine("- filterMatch=0: regex does not match harvested symbol names (check Filter).");
+            else if (zeroMatch)
+                sb.AppendLine("- filterMatch>0 but instanceIn/Out=0: harvest+regex OK; instance tree walk found no matching leaves.");
+            else
+                sb.AppendLine("- instanceIn/Out>0: matching succeeded; linking should follow.");
+            if (zeroMatch)
+                sb.AppendLine("- Empty task shell may still exist; 0 variables were linked.");
+            sb.AppendLine();
+            sb.AppendLine("Harvest names matching filter (first 5):");
+            if (matchingHarvest.Count == 0)
+                sb.AppendLine("  (none)");
+            else
+                foreach (var name in matchingHarvest)
+                    sb.AppendLine($"  {name}");
+
+            if (sampleLines.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("Instance leaf samples (when 0 linked):");
+                foreach (var line in sampleLines)
+                    sb.AppendLine($"  {line}");
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+            Logger.LogInfo(typeof(TaskGenerator), $"CreateTaskDiag file: {filePath}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(typeof(TaskGenerator), $"Could not write CreateTaskDiag file: {ex.Message}");
         }
     }
 
-    private static void LogInstanceLeafSamples(ITcSmTreeItem instance, HashSet<string> harvested, Regex nameFilter, int maxSamples = 10)
+    private static string SanitizeFileNamePart(string value)
     {
-        var leaves = new List<(ITcSmTreeItem Item, string Name, string? PathName)>();
-        foreach (var varGroup in instance.GetVarGroups())
+        if (string.IsNullOrWhiteSpace(value)) return "Task";
+
+        var sanitized = value;
+        foreach (var invalid in Path.GetInvalidFileNameChars())
         {
-            CollectLeafDiagnostics(varGroup, leaves, maxSamples * 20);
+            sanitized = sanitized.Replace(invalid, '_');
         }
 
-        var samples = leaves
-            .Take(maxSamples)
-            .Select(leaf =>
-            {
-                var resolved = GetSymbolMatchCandidates(leaf.Item)
-                    .FirstOrDefault(c => harvested.Contains(c) && nameFilter.IsMatch(c));
-                resolved ??= GetSymbolMatchCandidates(leaf.Item).FirstOrDefault() ?? leaf.Name;
-                return $"Name='{leaf.Name}' resolved='{resolved}' inHarvest={harvested.Contains(resolved)} regex={nameFilter.IsMatch(resolved)}";
-            })
-            .ToList();
-
-        if (samples.Count == 0)
-        {
-            Logger.LogInfo(typeof(TaskGenerator),
-                "Instance tree: no PLC variable leaves found under Inputs/Outputs (tree may be empty or not loaded).",
-                verbose: true);
-            return;
-        }
-
-        Logger.LogInfo(typeof(TaskGenerator),
-            "Instance leaf samples: " + string.Join(" | ", samples),
-            verbose: true);
+        return sanitized;
     }
 
     private static void CollectLeafDiagnostics(
