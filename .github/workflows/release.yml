@@ -79,20 +79,26 @@ jobs:
       run: |
         Compress-Archive `
           -Path ./OC.Assistant/bin/release/net10.0/win-x64/publish/OC.Assistant.exe `
-          -DestinationPath ./publish/OC.Assistant_${{env.VERSION}}.zip
+          -DestinationPath ./publish/OC.Assistant_$VERSION.zip
       shell: pwsh
+
+    - name: NuGet login
+      id: login
+      uses: NuGet/login@v1
+      with:
+        user: ${{ secrets.NUGET_USER }}
       
     - name: Build sdk and push to nuget
       run: |
         dotnet build OC.Assistant.Sdk --configuration release
         $pkg = Get-Item "./OC.Assistant.Sdk/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
-        dotnet nuget push $pkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        dotnet nuget push $pkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       
     - name: Build ui and push to nuget
       run: |
         dotnet build OC.Assistant.Ui --configuration release
         $pkg = Get-Item "./OC.Assistant.Ui/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
-        dotnet nuget push $pkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        dotnet nuget push $pkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       
     - name: Push to github
       uses: ad-m/github-push-action@master
@@ -103,7 +109,7 @@ jobs:
 
     - name: Create github release and upload artifacts
       run: |
-        gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F ./publish/latest_changelog.md
-        gh release upload ${{env.VERSION}} ./publish/OC.Assistant_${{env.VERSION}}.zip
+        gh release create $VERSION -t "Release $VERSION" -F ./publish/latest_changelog.md
+        gh release upload $VERSION ./publish/OC.Assistant_$VERSION.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
