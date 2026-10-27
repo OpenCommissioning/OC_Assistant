@@ -10,15 +10,23 @@ permissions:
 
 jobs:
   build:
-    # The release commit is pushed with the deploy key and triggers this workflow again
+    # The release commit is pushed with the app token and triggers this workflow again
     if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
     runs-on: windows-latest
 
     steps:
+    # Token of the release GitHub App, which is a bypass actor of the ruleset
+    - name: Create app token
+      id: app-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ vars.RELEASE_APP_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        ssh-key: ${{ secrets.DEPLOY_KEY }}
+        token: ${{ steps.app-token.outputs.token }}
         fetch-depth: 0
 
     - name: Setup dotnet
@@ -106,8 +114,7 @@ jobs:
         $pkg = Get-Item "./OC.Assistant.Ui/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
         dotnet nuget push $pkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       
-    # Pushes over SSH with the deploy key from the checkout step, so the deploy key
-    # can be added as bypass actor to the ruleset
+    # Pushes with the app token persisted by the checkout step
     - name: Push to github
       run: |
         git push origin HEAD:${{ github.ref_name }}
