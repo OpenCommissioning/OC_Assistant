@@ -10,6 +10,8 @@ permissions:
 
 jobs:
   build:
+    # The release commit is pushed with the deploy key and triggers this workflow again
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
     runs-on: windows-latest
 
     steps:
@@ -104,12 +106,12 @@ jobs:
         $pkg = Get-Item "./OC.Assistant.Ui/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
         dotnet nuget push $pkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       
+    # Pushes over SSH with the deploy key from the checkout step, so the deploy key
+    # can be added as bypass actor to the ruleset
     - name: Push to github
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
-        tags: true
+      run: |
+        git push origin HEAD:${{ github.ref_name }}
+        git push origin $env:VERSION
 
     - name: Create github release and upload artifacts
       run: |
