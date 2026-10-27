@@ -1,7 +1,21 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using OC.Assistant.Sdk;
 
 namespace OC.Assistant.Models;
+
+/// <summary>
+/// The color theme of the application.
+/// </summary>
+public enum AppTheme
+{
+    /// <summary>Follows the operating system setting.</summary>
+    System,
+    /// <summary>Always light.</summary>
+    Light,
+    /// <summary>Always dark.</summary>
+    Dark
+}
 
 /// <summary>
 /// Represents the settings structure.
@@ -39,7 +53,12 @@ public class AppSettings
     /// Gets or sets a value whether the app implements the PluginServer.
     /// </summary>
     public bool EnablePluginServer { get; set; }
-    
+    /// <summary>
+    /// Gets or sets the color theme of the application.
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<AppTheme>))]
+    public AppTheme Theme { get; set; } = AppTheme.System;
+
     /// <summary>
     /// Reads and deserializes the <see cref="AppSettings"/> from a specific path.
     /// </summary>

@@ -4,15 +4,29 @@ on:
   push:
     branches: [ "master" ]
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build:
+    # The release commit is pushed with the app token and triggers this workflow again
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
     runs-on: windows-latest
 
     steps:
+    # Token of the release GitHub App, which is a bypass actor of the ruleset
+    - name: Create app token
+      id: app-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ vars.RELEASE_APP_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        ssh-key: ${{ secrets.DEPLOY_KEY }}
+        token: ${{ steps.app-token.outputs.token }}
         fetch-depth: 0
 
     - name: Setup dotnet
@@ -79,33 +93,38 @@ jobs:
       run: |
         Compress-Archive `
           -Path ./OC.Assistant/bin/release/net10.0/win-x64/publish/OC.Assistant.exe `
-          -DestinationPath ./publish/OC.Assistant_${{env.VERSION}}.zip
+          -DestinationPath ./publish/OC.Assistant_$env:VERSION.zip
       shell: pwsh
+
+    - name: NuGet login
+      id: login
+      uses: NuGet/login@v1
+      with:
+        user: ${{ secrets.NUGET_USER }}
       
     - name: Build sdk and push to nuget
       continue-on-error: true
       run: |
         dotnet build OC.Assistant.Sdk --configuration release
         $pkg = Get-Item "./OC.Assistant.Sdk/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
-        dotnet nuget push $pkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        dotnet nuget push $pkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       
     - name: Build ui and push to nuget
       continue-on-error: true
       run: |
         dotnet build OC.Assistant.Ui --configuration release
         $pkg = Get-Item "./OC.Assistant.Ui/bin/release/*.nupkg" | Select-Object -ExpandProperty FullName
-        dotnet nuget push $pkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+        dotnet nuget push $pkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       
+    # Pushes with the app token persisted by the checkout step
     - name: Push to github
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
-        tags: true
+      run: |
+        git push origin HEAD:${{ github.ref_name }}
+        git push origin $env:VERSION
 
     - name: Create github release and upload artifacts
       run: |
-        gh release create ${{env.VERSION}} -t "Release ${{env.VERSION}}" -F ./publish/latest_changelog.md
-        gh release upload ${{env.VERSION}} ./publish/OC.Assistant_${{env.VERSION}}.zip
+        gh release create $env:VERSION -t "Release $env:VERSION" -F ./publish/latest_changelog.md
+        gh release upload $env:VERSION ./publish/OC.Assistant_$env:VERSION.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

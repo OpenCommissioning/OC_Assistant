@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Styling;
 using Microsoft.Extensions.DependencyInjection;
 using OC.Assistant.Models;
 using OC.Assistant.Services;
@@ -15,6 +16,21 @@ public class App : Application
     public static void InvokeOnMainThread(Action callback)
         => Avalonia.Threading.Dispatcher.UIThread.Invoke(callback);
 
+    /// <summary>
+    /// Applies the given theme to the application and stores it in the settings.
+    /// </summary>
+    public static void ApplyTheme(AppTheme theme)
+    {
+        Settings.Theme = theme;
+        if (Current is null) return;
+        Current.RequestedThemeVariant = theme switch
+        {
+            AppTheme.Light => ThemeVariant.Light,
+            AppTheme.Dark => ThemeVariant.Dark,
+            _ => ThemeVariant.Default
+        };
+    }
+
     //public override void Initialize()
     //{
     //    AvaloniaXamlLoader.Load(this);
@@ -22,6 +38,8 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        ApplyTheme(Settings.Theme);
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var services = new ServiceCollection();
