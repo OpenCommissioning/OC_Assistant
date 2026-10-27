@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OC.Assistant.Models;
 using OC.Assistant.Sdk;
 using OC.Assistant.Ui;
 using OC.Assistant.Views;
@@ -59,6 +60,34 @@ public partial class HelpMenuViewModel : ObservableObject
     {
         get => Logger.Verbose;
         set => Logger.Verbose = value;
+    }
+
+    public bool IsSystemTheme
+    {
+        get => App.Settings.Theme == AppTheme.System;
+        set { if (value) SetTheme(AppTheme.System); }
+    }
+
+    public bool IsLightTheme
+    {
+        get => App.Settings.Theme == AppTheme.Light;
+        set { if (value) SetTheme(AppTheme.Light); }
+    }
+
+    public bool IsDarkTheme
+    {
+        get => App.Settings.Theme == AppTheme.Dark;
+        set { if (value) SetTheme(AppTheme.Dark); }
+    }
+
+    private void SetTheme(AppTheme theme)
+    {
+        if (App.Settings.Theme == theme) return;
+        App.ApplyTheme(theme);
+        App.Settings.Write();
+        OnPropertyChanged(nameof(IsSystemTheme));
+        OnPropertyChanged(nameof(IsLightTheme));
+        OnPropertyChanged(nameof(IsDarkTheme));
     }
 
     public bool HasPlugins => PluginPackages.Count > 0;

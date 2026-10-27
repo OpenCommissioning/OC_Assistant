@@ -16,6 +16,26 @@
         ToggleType="CheckBox"
         IsChecked="{Binding Verbose, Mode=TwoWay}" 
         StaysOpenOnClick="True"/>
+    <MenuItem Header="Theme">
+        <MenuItem
+            Header="System"
+            ToggleType="Radio"
+            GroupName="Theme"
+            IsChecked="{Binding IsSystemTheme, Mode=TwoWay}"
+            StaysOpenOnClick="True"/>
+        <MenuItem
+            Header="Light"
+            ToggleType="Radio"
+            GroupName="Theme"
+            IsChecked="{Binding IsLightTheme, Mode=TwoWay}"
+            StaysOpenOnClick="True"/>
+        <MenuItem
+            Header="Dark"
+            ToggleType="Radio"
+            GroupName="Theme"
+            IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+            StaysOpenOnClick="True"/>
+    </MenuItem>
     <Separator/>
     <MenuItem 
         Header="About" 
