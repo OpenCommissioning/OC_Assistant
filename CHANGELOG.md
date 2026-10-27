@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.8"></a>
+## [1.18.8](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.8) (2026-10-27)
+
+### Bug Fixes
+
+* create task variables when TwinCAT 4026.26 omits instance symbols ([99e78e6](https://www.github.com/OpenCommissioning/OC_Assistant/commit/99e78e6870087db9e6b70c9d0af7285f839534bb))
+* implement a theme toggle ([9fa129d](https://www.github.com/OpenCommissioning/OC_Assistant/commit/9fa129d15f801a69f08a636a4fe34c547d74b496))
+
 <a name="1.18.7"></a>
 ## [1.18.7](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.7) (2026-08-28)
 
