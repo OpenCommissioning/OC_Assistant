@@ -20,7 +20,9 @@ internal class EtherCatInstance
             .Replace(Tags.NAME, name)
             .Replace(Tags.BOX_NO, id);
         
-        CyclicCall = template.CyclicCall;
+        CyclicCallInstances = template.CyclicCallSuffixes
+            .Select(suffix => $"{name}{suffix}")
+            .ToArray();
     }
 
     /// <summary>
@@ -32,7 +34,7 @@ internal class EtherCatInstance
         InstanceName = variable.Name;
         var attribute = $"{{attribute 'TcLinkTo' := '{variable.LinkTo}'}}";
         DeclarationText = $"{attribute}\n{variable.Name} {variable.Type};";
-        CyclicCall = false;
+        CyclicCallInstances = [];
     }
 
     /// <summary>
@@ -46,7 +48,7 @@ internal class EtherCatInstance
     public string DeclarationText { get; }
     
     /// <summary>
-    /// True when the plc instance is a function block and needs a cyclic call.
+    /// PLC function-block instance names that need cyclic calls.
     /// </summary>
-    public bool CyclicCall { get; }
+    public IReadOnlyList<string> CyclicCallInstances { get; }
 }

@@ -116,8 +116,8 @@ internal class EtherCatGenerator
         if (prg.CastTo<ITcPlcImplementation>() is {} impl)
         {
             impl.ImplementationText = _instance
-                .Where(x => x.CyclicCall)
-                .Aggregate("", (current, device) => current + $"GVL_{name}.{device.InstanceName}();\n");
+                .SelectMany(device => device.CyclicCallInstances)
+                .Aggregate("", (current, instanceName) => current + $"GVL_{name}.{instanceName}();\n");
         }
         
         XmlFile.Instance.Hil.Add(new XElement("Program", $"PRG_{name}".MakePlcCompatible()));
