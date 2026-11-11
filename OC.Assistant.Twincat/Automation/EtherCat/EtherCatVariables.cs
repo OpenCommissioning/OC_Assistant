@@ -42,12 +42,15 @@ internal class EtherCatVariables : List<EtherCatVariable>
               - SyncMan is '0' when the box has only inputs or only outputs
                 -> we need to evaluate if InputSize or OutputSize attribute is available 
              */
+            var hasInput = int.TryParse(inputSize?.Value, out var inputBytes) && inputBytes > 0;
+            var hasOutput = int.TryParse(outputSize?.Value, out var outputBytes) && outputBytes > 0;
+
             var inOut = syncMan switch
             {
-                "0" when outputSize is not null => "AT %I*",
-                "1" when inputSize is not null => "AT %Q*",
                 "2" => "AT %I*",
                 "3" => "AT %Q*",
+                "0" or "1" when hasInput && !hasOutput => "AT %I*",
+                "0" or "1" when hasOutput && !hasInput => "AT %Q*",
                 _ => null
             };
             
