@@ -80,7 +80,7 @@ jobs:
     - name: Sign executable
       run: |
         azuresigntool sign `
-          ${{secrets.SIGNTOOL_OPTIONS}} `
+          ${{secrets.AZURE_SIGNTOOL_OPTIONS}} `
           ./OC.Assistant/bin/release/net10.0/win-x64/publish/OC.Assistant.exe
 
     - name: Zip signed executable
