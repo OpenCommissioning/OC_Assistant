@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.9"></a>
+## [1.18.9](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.9) (2026-11-13)
+
+### Bug Fixes
+
+* EtherCAT fallback mapping for DI only devices ([bebef29](https://www.github.com/OpenCommissioning/OC_Assistant/commit/bebef29002f3fe197f4bd6e541ef3124c5580c88))
+
 <a name="1.18.8"></a>
 ## [1.18.8](https://www.github.com/OpenCommissioning/OC_Assistant/releases/tag/v1.18.8) (2026-10-27)
 
