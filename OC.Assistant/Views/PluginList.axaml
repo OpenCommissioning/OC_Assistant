@@ -107,6 +107,18 @@
                         Width="36"
                         Margin="1"
                         Padding="0"
+                        ToolTip.Tip="Variables Viewer"
+                        FontSize="14"
+                        VerticalAlignment="Stretch"
+                        Command="{Binding OpenVariablesViewerCommand}">
+                        <ContentControl 
+                            Template="{DynamicResource IconTemplate}"
+                            Content="{DynamicResource IconTable}"/>
+                    </Button>
+                    <Button 
+                        Width="36"
+                        Margin="1"
+                        Padding="0"
                         ToolTip.Tip="Remove"
                         FontSize="14"
                         VerticalAlignment="Stretch"

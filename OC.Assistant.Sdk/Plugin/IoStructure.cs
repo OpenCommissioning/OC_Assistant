@@ -8,6 +8,20 @@ namespace OC.Assistant.Sdk.Plugin;
 public class IoStructure(string rootName) : IIoStructure
 {
     private int _bitSize;
+    private readonly Lock _lock = new();
+    private readonly List<IoVariable> _variables = [];
+    private IoVariable[]? _snapshot;
+
+    /// <summary>
+    /// All variables of the current structure.
+    /// </summary>
+    public IReadOnlyList<IoVariable> Variables
+    {
+        get
+        {
+            lock (_lock) return _snapshot ??= _variables.ToArray();
+        }
+    }
 
     /// <summary>
     /// Size in bytes of the current structure.
@@ -24,7 +38,15 @@ public class IoStructure(string rootName) : IIoStructure
     {
         if (type == TcType.Unknown) return;
         if (type == TcType.Bit && arraySize != 0) return;
-        
+
+        lock (_lock)
+        {
+            Add(name, type, arraySize);
+        }
+    }
+
+    private void Add(string name, TcType type, int arraySize)
+    {
         var varType = arraySize > 0 
             ? $"ARRAY [0..{arraySize - 1}] OF {type.Name()}" 
             : type.Name();
@@ -41,6 +63,8 @@ public class IoStructure(string rootName) : IIoStructure
             _bitSize += 8 - mod8;
         }
         
+        _variables.Add(new IoVariable(name, type, arraySize, _bitSize));
+        _snapshot = null;
         _bitSize += arraySize > 0 ? arraySize * type.BitSize() : type.BitSize();
     }
 
@@ -54,7 +78,12 @@ public class IoStructure(string rootName) : IIoStructure
     /// </summary>
     public void Clear()
     {
-        XElement.RemoveNodes();
-        _bitSize = 0;
+        lock (_lock)
+        {
+            XElement.RemoveNodes();
+            _variables.Clear();
+            _snapshot = null;
+            _bitSize = 0;
+        }
     }
 }

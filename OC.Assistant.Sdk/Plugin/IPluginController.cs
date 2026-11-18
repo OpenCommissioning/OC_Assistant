@@ -87,4 +87,26 @@ public interface IPluginController
     /// Variables should be added in the <see cref="PluginBase.OnSave"/> method.
     /// </summary>
     IIoStructure OutputStructure { get; }
+
+    /// <summary>
+    /// The current input buffer. Empty when the plugin has not been started yet.
+    /// </summary>
+    byte[] InputBuffer { get; }
+
+    /// <summary>
+    /// The current output buffer. Empty when the plugin has not been started yet.
+    /// </summary>
+    byte[] OutputBuffer { get; }
+
+    /// <summary>
+    /// Forced input values. Are applied after every read, before <see cref="PluginBase.OnUpdate"/> is called.<br/>
+    /// Are cleared when the <see cref="InputStructure"/> changes.
+    /// </summary>
+    IIoForceTable InputForces { get; }
+
+    /// <summary>
+    /// Forced output values. Are applied after <see cref="PluginBase.OnUpdate"/>, before every write.<br/>
+    /// Are cleared when the <see cref="OutputStructure"/> changes.
+    /// </summary>
+    IIoForceTable OutputForces { get; }
 }

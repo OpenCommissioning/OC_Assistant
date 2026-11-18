@@ -1,12 +1,17 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OC.Assistant.Models;
 using OC.Assistant.Ui;
+using OC.Assistant.Views;
 
 namespace OC.Assistant.ViewModels;
 
 public partial class PluginViewModel : ObservableObject
 {
+    private VariablesViewer? _variablesViewer;
+    
     public Plugin Model { get; set; }
     public string Name => Model.Name;
     public string Type => Model.Type?.Name ?? "<unknown>";
@@ -90,12 +95,37 @@ public partial class PluginViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void OpenVariablesViewer()
+    {
+        if (_variablesViewer is not null)
+        {
+            _variablesViewer.Activate();
+            return;
+        }
+        
+        _variablesViewer = new VariablesViewer { DataContext = new VariablesViewerViewModel(Model) };
+        _variablesViewer.Closed += (_, _) => _variablesViewer = null;
+        
+        var mainWindow = 
+            (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        
+        if (mainWindow is null)
+        {
+            _variablesViewer.Show();
+            return;
+        }
+        
+        _variablesViewer.Show(mainWindow);
+    }
+
+    [RelayCommand]
     private async Task Remove()
     {
         if (Model.PluginController?.IsRunning == true) return;
         if (await MessageBox.Show(
                 $"Delete {Name}?", MessageBoxButton.OkCancel, MessageBoxImage.Warning))
         {
+            _variablesViewer?.Close();
             OnRemove?.Invoke(Model);
         }
     }

@@ -1,0 +1,156 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:OC.Assistant.ViewModels"
+        x:Class="OC.Assistant.Views.VariablesViewer"
+        x:DataType="vm:VariablesViewerViewModel"
+        Title="{Binding Title}"
+        Width="620" Height="500"
+        MinWidth="420" MinHeight="200"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource SystemAltHighColor}">
+    <Window.Styles>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+        </Style>
+        <Style Selector="TextBox.Value">
+            <Setter Property="MinHeight" Value="26"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <!-- Live value: looks like plain text -->
+        <Style Selector="TextBox.Value.Live">
+            <Setter Property="CaretBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="TextBox.Value.Live /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="TextBox.Value.Live:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="TextBox.Value.Live:focus-within /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <!-- Forced value: editable -->
+        <Style Selector="TextBox.Value.Forced">
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="TextBox.Value.Error /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+        </Style>
+        <Style Selector="TextBox.Value.Error:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+        </Style>
+        <Style Selector="TextBox.Value.Error:focus-within /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+        </Style>
+        <Style Selector="TextBlock.Header">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="6,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Styles>
+    <Grid RowDefinitions="Auto,Auto,*" Margin="6">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,6">
+            <TextBox
+                Grid.Column="0"
+                PlaceholderText="Filter"
+                Text="{Binding Filter}"/>
+            <StackPanel
+                Grid.Column="1"
+                Margin="10,0"
+                Spacing="10"
+                Orientation="Horizontal"
+                VerticalAlignment="Center">
+                <TextBlock
+                    Foreground="{DynamicResource SystemBaseMediumColor}"
+                    IsVisible="{Binding !IsRunning}"
+                    Text="Plugin not running"/>
+                <TextBlock
+                    Foreground="{DynamicResource SystemBaseMediumColor}"
+                    Text="{Binding ForcedCount, StringFormat='{}{0} forced'}"/>
+            </StackPanel>
+            <Button
+                Grid.Column="2"
+                Classes="Secondary"
+                Content="Release all"
+                ToolTip.Tip="Release all forced values"
+                Command="{Binding ReleaseAllCommand}"/>
+        </Grid>
+        <Border
+            Grid.Row="1"
+            Height="28"
+            Background="{DynamicResource SystemAltLowColor}"
+            CornerRadius="{DynamicResource ControlCornerRadius}">
+            <Grid ColumnDefinitions="*,80,170,70">
+                <TextBlock Grid.Column="0" Classes="Header" Text="Name"/>
+                <TextBlock Grid.Column="1" Classes="Header" Text="Type"/>
+                <TextBlock Grid.Column="2" Classes="Header" Text="Value"/>
+                <TextBlock Grid.Column="3" Classes="Header" Text="Force"/>
+            </Grid>
+        </Border>
+        <ListBox
+            Grid.Row="2"
+            Margin="0,4,0,0"
+            Background="Transparent"
+            ItemsSource="{Binding Items}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="vm:VariableViewModel">
+                    <Grid ColumnDefinitions="*,80,170,70" Height="30">
+                        <TextBlock
+                            Grid.Column="0"
+                            Margin="6,0"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Text="{Binding Name}"/>
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="6,0"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource SystemBaseMediumColor}"
+                            Text="{Binding Type}"/>
+                        <TextBox
+                            Grid.Column="2"
+                            Margin="0,2"
+                            Classes="Value"
+                            Classes.Forced="{Binding IsForced}"
+                            Classes.Live="{Binding !IsForced}"
+                            Classes.Error="{Binding HasError}"
+                            IsVisible="{Binding !IsBoolean}"
+                            IsReadOnly="{Binding !IsForced}"
+                            Text="{Binding Value, UpdateSourceTrigger=LostFocus}"/>
+                        <!-- Not hit-testable instead of disabled, so the live state stays clearly readable -->
+                        <CheckBox
+                            Grid.Column="2"
+                            Margin="6,0"
+                            MinHeight="0"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding IsBoolean}"
+                            IsHitTestVisible="{Binding IsForced}"
+                            Focusable="{Binding IsForced}"
+                            IsChecked="{Binding BoolValue}"/>
+                        <ToggleSwitch
+                            Grid.Column="3"
+                            Margin="8,0,0,0"
+                            MinWidth="0"
+                            OnContent=""
+                            OffContent=""
+                            ToolTip.Tip="Force value"
+                            IsChecked="{Binding IsForced}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <TextBlock
+            Grid.Row="2"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Foreground="{DynamicResource SystemBaseMediumColor}"
+            IsVisible="{Binding !Items.Count}"
+            Text="No variables. Start or save the plugin to load the structure."/>
+    </Grid>
+</Window>

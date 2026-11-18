@@ -21,6 +21,11 @@ public interface IIoStructure
     public void AddVariable(string name, TcType type, int arraySize = 0);
     
     /// <summary>
+    /// All variables of the current structure.
+    /// </summary>
+    public IReadOnlyList<IoVariable> Variables { get; }
+    
+    /// <summary>
     /// The current structure in xml-format.
     /// </summary>
     internal XElement XElement { get; }

@@ -86,7 +86,7 @@ public abstract class PluginBase : IPluginController
     /// Writes data from the <see cref="OutputBuffer"/> to the server.<br/>
     /// Is already called every cycle if <see cref="PluginCustomReadWrite"/> is not used.
     /// </summary>
-    protected void TcWrite() => _channel?.Write();
+    protected void TcWrite() => Write();
 
     /// <summary>
     /// Writes data from a custom source to the server.<br/>
@@ -102,13 +102,13 @@ public abstract class PluginBase : IPluginController
     /// Reads data from the server and copies to the <see cref="InputBuffer"/>.<br/>
     /// Is already called every cycle if <see cref="PluginCustomReadWrite"/> is not used.
     /// </summary>
-    protected void TcRead() => _channel?.Read();
+    protected void TcRead() => Read();
     
     /// <summary>
     /// Reads in- and output data from the server and copies to the
     /// <see cref="InputBuffer"/> and <see cref="OutputBuffer"/>.
     /// </summary>
-    protected void TcReadAll() => _channel?.ReadAll();
+    protected void TcReadAll() => ReadAll();
     
     /// <summary>
     /// Can be used to request a cancellation to stop the plugin.<br/>
@@ -169,6 +169,8 @@ public abstract class PluginBase : IPluginController
     private CancellationTokenSource _cancellationTokenSource = new();
     private readonly ParameterCollection _parameters = new();
     private bool _customReadWrite;
+    private readonly IoForceTable _inputForces = new();
+    private readonly IoForceTable _outputForces = new();
 
     [PluginParameter("Automatic start and stop with the application")]
     private readonly bool _autoStart = true;
@@ -200,6 +202,47 @@ public abstract class PluginBase : IPluginController
         }
     }
 
+    private void Read()
+    {
+        if (_channel is null) return;
+        _channel.Read();
+        _inputForces.Apply(_channel.ReadBuffer);
+    }
+
+    private void Write()
+    {
+        if (_channel is null) return;
+        _outputForces.Apply(_channel.WriteBuffer);
+        _channel.Write();
+    }
+
+    private void ReadAll()
+    {
+        if (_channel is null) return;
+        _channel.ReadAll();
+        _inputForces.Apply(_channel.ReadBuffer);
+        _outputForces.Apply(_channel.WriteBuffer);
+    }
+
+    /// <summary>
+    /// Calls <see cref="OnSave"/> with empty structures
+    /// and clears forced values of structures that have changed.
+    /// </summary>
+    /// <returns>The result of <see cref="OnSave"/> and whether any structure has changed.</returns>
+    private (bool Result, bool IoChanged) RebuildStructures()
+    {
+        var inputStructure = new XElement(InputStructure.XElement);
+        var outputStructure = new XElement(OutputStructure.XElement);
+        InputStructure.Clear();
+        OutputStructure.Clear();
+        var result = OnSave();
+        var inputChanged = !XNode.DeepEquals(inputStructure, InputStructure.XElement);
+        var outputChanged = !XNode.DeepEquals(outputStructure, OutputStructure.XElement);
+        if (inputChanged) _inputForces.Clear();
+        if (outputChanged) _outputForces.Clear();
+        return (result, inputChanged || outputChanged);
+    }
+
     private void InitializeClient()
     {
         if (Name is null || _channel is null) return;
@@ -215,10 +258,7 @@ public abstract class PluginBase : IPluginController
 
         try
         {
-            InputStructure.Clear();
-            OutputStructure.Clear();
-            
-            if (OnSave())
+            if (RebuildStructures().Result)
             {
                 _channel = ChannelRequested?.Invoke();
                 if (_channel is not null && OnStart())
@@ -231,9 +271,9 @@ public abstract class PluginBase : IPluginController
                     while (!token.IsCancellationRequested)
                     {
                         stopwatch.WaitUntil(1);
-                        if (!_customReadWrite) _channel?.Read();
+                        if (!_customReadWrite) Read();
                         OnUpdate();
-                        if (!_customReadWrite) _channel?.Write();
+                        if (!_customReadWrite) Write();
                     }
 
                     Stopping?.Invoke();
@@ -257,6 +297,10 @@ public abstract class PluginBase : IPluginController
     bool IPluginController.IsRunning => _isRunning;
     bool IPluginController.AutoStart => _autoStart;
     bool IPluginController.IoChanged => _ioChanged;
+    byte[] IPluginController.InputBuffer => InputBuffer;
+    byte[] IPluginController.OutputBuffer => OutputBuffer;
+    IIoForceTable IPluginController.InputForces => _inputForces;
+    IIoForceTable IPluginController.OutputForces => _outputForces;
 
     void IPluginController.Initialize(string? name)
     {
@@ -268,13 +312,9 @@ public abstract class PluginBase : IPluginController
         Name = name;
         _ioChanged = false;
         
-        var inputStructure = new XElement(InputStructure.XElement);
-        var outputStructure = new XElement(OutputStructure.XElement);
-        InputStructure.Clear();
-        OutputStructure.Clear();
-        if (!OnSave()) return false;
-        _ioChanged = !XNode.DeepEquals(inputStructure, InputStructure.XElement);
-        _ioChanged |= !XNode.DeepEquals(outputStructure, OutputStructure.XElement);
+        var (result, ioChanged) = RebuildStructures();
+        if (!result) return false;
+        _ioChanged = ioChanged;
         return true;
     }
     
