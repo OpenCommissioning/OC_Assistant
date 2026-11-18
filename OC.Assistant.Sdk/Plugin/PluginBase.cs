@@ -121,7 +121,9 @@ public abstract class PluginBase : IPluginController
     protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
     /// <summary>
-    /// Is called when the plugin gets saved and before every start.
+    /// Is called when the plugin gets saved, when the project is loaded and before every start.<br/>
+    /// Should only define the <see cref="InputStructure"/> and <see cref="OutputStructure"/>
+    /// and avoid long-running operations.
     /// </summary>
     /// <returns>True if successful, otherwise False.</returns>
     protected abstract bool OnSave();
@@ -162,6 +164,7 @@ public abstract class PluginBase : IPluginController
     protected string? Name { get; private set; }
     
     private bool _readyToStart = true;
+    private readonly Lock _structureLock = new();
     private bool _isRunning;
     private bool _ioChanged;
     private int _delayAfterStart;
@@ -226,10 +229,16 @@ public abstract class PluginBase : IPluginController
 
     /// <summary>
     /// Calls <see cref="OnSave"/> with empty structures
-    /// and clears forced values of structures that have changed.
+    /// and clears forced values of structures that have changed.<br/>
+    /// Is synchronized, because it can be called from the cycle, a save and the project load at the same time.
     /// </summary>
     /// <returns>The result of <see cref="OnSave"/> and whether any structure has changed.</returns>
     private (bool Result, bool IoChanged) RebuildStructures()
+    {
+        lock (_structureLock) return RebuildStructuresUnsafe();
+    }
+
+    private (bool Result, bool IoChanged) RebuildStructuresUnsafe()
     {
         var inputStructure = new XElement(InputStructure.XElement);
         var outputStructure = new XElement(OutputStructure.XElement);
@@ -316,6 +325,22 @@ public abstract class PluginBase : IPluginController
         if (!result) return false;
         _ioChanged = ioChanged;
         return true;
+    }
+    
+    bool IPluginController.LoadStructures()
+    {
+        // A running plugin has already built its structures in the cycle.
+        if (_isRunning || !_readyToStart) return true;
+
+        try
+        {
+            return RebuildStructures().Result;
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(this, e.Message);
+            return false;
+        }
     }
     
     void IPluginController.Start()

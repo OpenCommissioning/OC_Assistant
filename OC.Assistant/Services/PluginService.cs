@@ -17,10 +17,21 @@ public class PluginService
     private void XmlOnReloaded()
     {
         StopAndRemove();
-        foreach (var plugin in XmlFile.Instance.LoadPlugins())
+        var plugins = XmlFile.Instance.LoadPlugins();
+        foreach (var plugin in plugins)
         {
             Plugins.Add(plugin);
         }
+
+        // Builds the structures in the background, because OnSave is plugin code and may be slow.
+        // This gives the variables viewer its content and the first save a baseline for IoChanged.
+        Task.Run(() =>
+        {
+            foreach (var plugin in plugins)
+            {
+                plugin.PluginController?.LoadStructures();
+            }
+        });
     }
 
     public void StopAndRemove()

@@ -19,6 +19,15 @@ public interface IPluginController
     bool Save(string? name);
     
     /// <summary>
+    /// Builds the <see cref="InputStructure"/> and <see cref="OutputStructure"/> by calling
+    /// <see cref="PluginBase.OnSave"/>, without changing <see cref="IoChanged"/>.<br/>
+    /// Is called when the project is loaded, so the structures are available before the first save or start.
+    /// Exceptions are logged and not thrown.
+    /// </summary>
+    /// <returns>True if successful, otherwise false.</returns>
+    bool LoadStructures();
+    
+    /// <summary>
     /// Starts the plugin.
     /// </summary>
     void Start();
